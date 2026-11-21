@@ -858,24 +858,44 @@
   function applyLanguage(language) {
     const cs = language === "cs";
     const dictionary = {
-      "Home":"Domů","How to play":"Jak hrát","Archive":"Archiv","Settings":"Nastavení",
-      "DAY STREAK":"DENNÍ SÉRIE","TOTAL XP":"CELKEM XP","GAMES PLAYED":"ODEHRANÉ HRY","PLAYER LEVEL":"ÚROVEŇ HRÁČE",
-      "Ready when you are.":"Jsi připraven?","A NEW DAY, A NEW CHALLENGE":"NOVÝ DEN, NOVÁ VÝZVA",
-      "SIMPLE TO LEARN":"JEDNODUCHÉ NAUČENÍ","How to play.":"Jak hrát.",
-      "It's easy. Getting close is the tricky part.":"Je to snadné. Těžké je trefit se co nejblíž.",
-      "GOT IT — LET'S PLAY":"ROZUMÍM — POJĎME HRÁT","MAKE IT YOURS":"PŘIZPŮSOB SI HRU","Settings.":"Nastavení.",
-      "Dark mode":"Tmavý režim","Change the appearance of DAZURIO.":"Změň vzhled DAZURIO.",
-      "Sound effects":"Zvukové efekty","Enable or disable game sounds.":"Zapni nebo vypni zvuky hry.",
-      "Animations":"Animace","Enable or reduce visual effects.":"Zapni nebo omez vizuální efekty.",
-      "Language":"Jazyk","Interface language.":"Jazyk rozhraní.",
-      "Keyboard shortcuts":"Klávesové zkratky","Number format":"Formát čísel",
-      "Export data":"Export dat","Reset game data":"Resetovat herní data"
+      "Home":"Domů","How to play":"Jak hrát","About":"O nás","FAQ":"Časté dotazy","Archive":"Archiv","Questions":"Otázky","Leaderboard":"Žebříček","Profile":"Profil","Settings":"Nastavení","Log in":"Přihlásit se","Sign in":"Přihlásit se",
+      "DAY STREAK":"DENNÍ SÉRIE","TOTAL XP":"CELKEM XP","GAMES PLAYED":"ODEHRANÉ HRY","PLAYER LEVEL":"ÚROVEŇ HRÁČE","Ready when you are.":"Jsi připraven?","A NEW DAY, A NEW CHALLENGE":"NOVÝ DEN, NOVÁ VÝZVA",
+      "SIMPLE TO LEARN":"JEDNODUCHÉ NAUČENÍ","How to play.":"Jak hrát.","It's easy. Getting close is the tricky part.":"Je to snadné. Těžké je trefit se co nejblíž.","GOT IT — LET'S PLAY":"ROZUMÍM — POJĎME HRÁT",
+      "A GAME FOR CURIOUS MINDS":"HRA PRO ZVÍDAVÉ HLAVY","Small questions.":"Malé otázky.","Big discoveries":"Velká poznání","GOOD TO KNOW":"DOBRÉ VĚDĚT","Questions?":"Otázky?","We've got answers.":"Máme odpovědi.",
+      "MAKE IT YOURS":"PŘIZPŮSOB SI HRU","Settings.":"Nastavení.","Dark mode":"Tmavý režim","Change the appearance of DAZURIO.":"Změň vzhled DAZURIO.","Sound effects":"Zvukové efekty","Enable or disable game sounds.":"Zapni nebo vypni zvuky hry.",
+      "Animations":"Animace","Enable or reduce visual effects.":"Zapni nebo omez vizuální efekty.","Language":"Jazyk","Interface language.":"Jazyk rozhraní.","Keyboard shortcuts":"Klávesové zkratky","Press Enter to continue after answering.":"Enterem pokračuješ po odeslání odpovědi.",
+      "Number format":"Formát čísel","Choose how large numbers are displayed.":"Zvol, jak zobrazovat velká čísla.","Export data":"Export dat","Reset game data":"Resetovat herní data","EXPORT":"EXPORTOVAT","RESET":"RESETOVAT",
+      "YOUR RESULT":"TVŮJ VÝSLEDEK","YOUR GUESS":"TVŮJ TIP","ACTUAL ANSWER":"SPRÁVNÁ ODPOVĚĎ","DIFFERENCE":"ROZDÍL","NEXT QUESTION":"DALŠÍ OTÁZKA","LOCK IT IN":"POTVRDIT TIP","TIME REMAINING":"ZBÝVAJÍCÍ ČAS","Trust your instincts.":"Věř svému odhadu.",
+      "THAT'S A WRAP":"HOTOVO","Look how far":"Podívej, jak daleko","you've come":"ses dostal","Your challenge is complete.":"Tvoje výzva je dokončena.","YOUR FINAL SCORE":"TVÉ CELKOVÉ SKÓRE","POINTS":"BODY",
+      "Read the question.":"Přečti si otázku.","Make your guess.":"Zadej svůj tip.","Get as close as possible.":"Zkus se trefit co nejblíž.","Build your streak.":"Buduj svou sérii.",
+      "Each question asks you to estimate a real-world number or value.":"Každá otázka chce odhad skutečného čísla nebo hodnoty.","Enter your best estimate. You have 25 seconds for each question.":"Zadej svůj nejlepší odhad. Na každou otázku máš 25 sekund.","The closer your answer, the more points you earn.":"Čím blíž budeš, tím více bodů získáš.","Come back every day, collect XP and improve your personal record.":"Vracej se každý den, sbírej XP a překonávej své rekordy.",
+      "Type your best guess...":"Napiš svůj nejlepší odhad...","CONTINUE AS GUEST":"POKRAČOVAT JAKO HOST","Create your account":"Vytvořit účet","Welcome back":"Vítej zpět","CREATE ACCOUNT":"VYTVOŘIT ÚČET","SIGN IN":"PŘIHLÁSIT SE",
+      "Your journey starts here.":"Tvoje cesta začíná tady.","Create a local profile to keep track of your progress.":"Vytvoř si profil a sleduj svůj postup.","USERNAME":"UŽIVATELSKÉ JMÉNO","PASSWORD":"HESLO","At least 4 characters":"Alespoň 4 znaky","Your username":"Tvé uživatelské jméno",
+      "DAILY CHALLENGE":"DENNÍ VÝZVA","Daily challenge":"Denní výzva","Endless mode":"Nekonečný režim","Practice mode":"Trénink","Daily archive":"Archiv výzev","See how you compare.":"Podívej se, jak si vedeš.",
+      "Category":"Kategorie","All categories":"Všechny kategorie","Start practice":"Spustit trénink","No answer":"Bez odpovědi","Great estimate!":"Skvělý odhad!","Good try!":"Dobrý pokus!","Not quite this time":"Tentokrát to nevyšlo","Time is up!":"Čas vypršel!"
     };
-    document.querySelectorAll("body *").forEach(element => {
-      if (element.children.length) return;
-      const original = element.dataset.originalText || element.textContent.trim();
-      if (!element.dataset.originalText) element.dataset.originalText = original;
-      if (dictionary[original]) element.textContent = cs ? dictionary[original] : original;
+    const translate = value => {
+      const key = String(value || "").trim();
+      return cs && dictionary[key] ? dictionary[key] : key;
+    };
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (!node.nodeValue.trim()) continue;
+      if (node.__dazOriginalText === undefined) node.__dazOriginalText = node.nodeValue;
+      const original = node.__dazOriginalText.trim();
+      const translated = translate(original);
+      if (cs && dictionary[original]) node.nodeValue = node.nodeValue.replace(original, translated);
+      else if (!cs && dictionary[original]) node.nodeValue = node.nodeValue.replace(translated, original);
+    }
+    document.querySelectorAll("[placeholder],[aria-label],[title]").forEach(el => {
+      ["placeholder","aria-label","title"].forEach(attr => {
+        const original = el.dataset["i18n"+attr] || el.getAttribute(attr);
+        if (!el.dataset["i18n"+attr]) el.dataset["i18n"+attr] = original;
+        const value = translate(original);
+        if (value !== original) el.setAttribute(attr, value);
+        else if (!cs) el.setAttribute(attr, original);
+      });
     });
     document.documentElement.lang = cs ? "cs" : "en";
   }
