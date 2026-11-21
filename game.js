@@ -569,7 +569,7 @@
     const summary = getSummary();
     const storage = getStorage();
 
-    if (storage && typeof storage.saveGameResult === "function") {
+    if (isLoggedIn() && storage && typeof storage.saveGameResult === "function") {
       try {
         storage.saveGameResult(summary);
       } catch (error) {
