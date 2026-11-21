@@ -285,7 +285,7 @@
       questionDescription: question.description || "",
       questionCategory: question.category || "",
       questionDifficulty: question.difficulty || "",
-      targetValue: question.answer,
+      targetValue: "?",
       targetUnit: question.unit || ""
     };
 
@@ -299,6 +299,9 @@
     if (input) {
       input.value = "";
       input.disabled = false;
+      input.readOnly = false;
+      input.removeAttribute("readonly");
+      input.removeAttribute("disabled");
     }
 
     const result = $("answerResult");
