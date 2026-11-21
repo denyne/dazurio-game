@@ -300,6 +300,7 @@
       input.value = "";
       input.disabled = false;
       input.readOnly = false;
+      input.readOnly = false;
       input.removeAttribute("readonly");
       input.removeAttribute("disabled");
     }
@@ -454,6 +455,8 @@
   function displayAnswerResult(record, question) {
     const result = $("answerResult");
     if (result) result.hidden = false;
+    const targetDisplay = $("targetDisplay");
+    if (targetDisplay) targetDisplay.hidden = false;
 
     const title = $("answerResultTitle");
     const description = $("answerResultText");
