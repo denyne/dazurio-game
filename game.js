@@ -312,34 +312,18 @@
 
     const submit = $("submitAnswerButton");
     if (submit) submit.disabled = false;
+    const answerForm = $("answerForm");
+    answerForm?.classList.remove("answer-form-locked");
+    const questionPanel = $("questionTitle")?.closest(".question-panel, .game-question-card");
+    questionPanel?.classList.remove("question-enter");
+    if (questionPanel) { void questionPanel.offsetWidth; questionPanel.classList.add("question-enter"); }
+    if (input) window.setTimeout(() => input.focus({ preventScroll: true }), 80);
 
     const next = $("nextQuestionButton");
     if (next) next.hidden = true;
 
     const suggestions = $("answerSuggestions");
-
-    if (suggestions) {
-      suggestions.innerHTML = "";
-
-      if (Array.isArray(question.suggestions)) {
-        question.suggestions.forEach(suggestion => {
-          const button = document.createElement("button");
-
-          button.type = "button";
-          button.className = "suggestion-button";
-          button.textContent = suggestion;
-
-          button.addEventListener("click", () => {
-            if (input && !input.disabled) {
-              input.value = suggestion;
-              input.focus();
-            }
-          });
-
-          suggestions.appendChild(button);
-        });
-      }
-    }
+    if (suggestions) suggestions.replaceChildren();
 
     const modeTag = $("gameModeTag");
     if (modeTag) modeTag.textContent = getModeLabel();
@@ -459,6 +443,7 @@
     state.answers.push(record);
 
     if (input) input.disabled = true;
+    $("answerForm")?.classList.add("answer-form-locked");
 
     const submit = $("submitAnswerButton");
     if (submit) submit.disabled = true;
@@ -467,11 +452,18 @@
 
     const next = $("nextQuestionButton");
     if (next) next.hidden = false;
+    const resultPanel = $("answerResult");
+    resultPanel?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
   function displayAnswerResult(record, question) {
     const result = $("answerResult");
-    if (result) result.hidden = false;
+    if (result) {
+      result.hidden = false;
+      result.classList.remove("answer-result-enter");
+      void result.offsetWidth;
+      result.classList.add("answer-result-enter");
+    }
     const targetDisplay = $("targetDisplay");
     if (targetDisplay) targetDisplay.hidden = true;
 
@@ -621,10 +613,13 @@
       page.classList.remove("active");
     });
 
-    const resultsPage = $("page-results");
-    if (resultsPage) resultsPage.classList.add("active");
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window.navigateTo === "function") {
+      window.navigateTo("results");
+    } else {
+      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+      $("page-results")?.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
 
     document.dispatchEvent(new CustomEvent("dazurio:game-finished", {
       detail: summary
@@ -691,10 +686,13 @@
       page.classList.remove("active");
     });
 
-    const gamePage = $("page-game");
-    if (gamePage) gamePage.classList.add("active");
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window.navigateTo === "function") {
+      window.navigateTo("game");
+    } else {
+      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+      $("page-game")?.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
 
     showQuestion();
 
