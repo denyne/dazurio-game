@@ -343,7 +343,7 @@
               <button type="button" class="clear-answer" id="clearAnswerButton" aria-label="Clear answer">×</button>
             </div>
 
-            <small class="answer-format-hint" id="answerFormatHint">Example: 1 000 000 = 1M</small>
+            <small class="answer-format-hint" id="answerFormatHint">Example: 1 000 000 = 1M</small><small class="answer-unit-hint" id="answerUnitHint"></small>
             <div class="suggestions" id="answerSuggestions" hidden></div>
 
             <div class="answer-form-bottom">
@@ -868,6 +868,11 @@
             <div><strong>Reset game data</strong><small>Delete locally stored DAZURIO data.</small></div>
             <button class="danger-button" id="resetDataButton">RESET</button>
           </div>
+          <div class="settings-admin-divider"><span>ADVANCED</span></div>
+          <div class="setting-row settings-admin-row">
+            <div><strong>Moderator tools</strong><small>Restricted local preview tools for DAZURIO.</small></div>
+            <button class="secondary-button" id="studioOpenButton" type="button">UNLOCK</button>
+          </div>
 
         </div>
       </div>
@@ -965,7 +970,6 @@
     <div class="footer-bottom">
       <span>© <span id="footerYear"></span> DAZURIO</span>
       <span>MADE FOR CURIOUS MINDS.</span>
-      <button type="button" class="studio-open-button" id="studioOpenButton" aria-label="Open local studio tools">✳</button>
       <button data-page="plus">DISCOVER PLUS ↗</button>
     </div>
   </footer>
@@ -982,7 +986,7 @@
         <div class="studio-card"><small>DAILY STATUS</small><strong id="studioDailyStatus">—</strong><span>current challenge</span></div>
       </div>
       <div class="studio-actions"><button type="button" id="studioValidateButton">Run question check</button><button type="button" id="studioResetDailyButton">Reset today's daily lock</button></div>
-      <p class="studio-note">Local preview tools only — not a secure server admin console. The daily reset button is intended for testing.</p>
+      <p class="studio-note">Local preview tools only. Client-side password protection is a convenience lock, not secure server authentication. Daily reset is intended for testing.</p>
     </div>
   </section>
 
