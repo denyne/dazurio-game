@@ -48,6 +48,20 @@
     if (element) element.textContent = String(value ?? "");
   }
 
+  function styleEquippedTitle(element, title, user) {
+    if (!element) return;
+    const value = String(title || "").trim();
+    const normalized = value.toLowerCase();
+    element.classList.remove("title-rank-owner","title-rank-admin","title-rank-plus");
+    if (normalized === "owner" || normalized.includes("owner")) {
+      element.classList.add("title-rank-owner");
+    } else if (normalized === "admin" || normalized.includes("admin")) {
+      element.classList.add("title-rank-admin");
+    } else if (normalized.includes("plus") || (user?.plus && ["dazurio legend","starlight","early access"].includes(normalized))) {
+      element.classList.add("title-rank-plus");
+    }
+  }
+
   function notify(message, type = "info") {
     if (effects()?.showToast) {
       effects().showToast(message, type);
@@ -358,7 +372,7 @@
         const equipped = user?.cosmetics?.equippedFrame || "classic";
         frame.className = "profile-avatar-frame frame-" + equipped;
       }
-      if (title) title.textContent = user?.cosmetics?.equippedTitle || (user ? "Curious Mind" : "PLAY AS A GUEST");
+      if (title) { const equippedTitle=user?.cosmetics?.equippedTitle || (user ? "Curious Mind" : "PLAY AS A GUEST"); title.textContent=equippedTitle; styleEquippedTitle(title,equippedTitle,user); }
       const owner = Boolean(user?.cosmetics?.titles?.includes("OWNER") && user?.cosmetics?.frames?.includes("owner"));
       if (byId("headerOwnerBadge")) byId("headerOwnerBadge").hidden = !owner;
     }
@@ -600,7 +614,9 @@
     }
     const profileFrame = byId("profileAvatarFrame");
     if (profileFrame) profileFrame.className = "profile-card-avatar-frame frame-" + (user.cosmetics?.equippedFrame || "classic");
-    setText("profileEquippedTitle", (user.cosmetics?.equippedTitle || "Curious Mind").toUpperCase());
+    const profileTitle=user.cosmetics?.equippedTitle || "Curious Mind";
+    setText("profileEquippedTitle", profileTitle.toUpperCase());
+    styleEquippedTitle(byId("profileEquippedTitle"),profileTitle,user);
     const owner = Boolean(user.cosmetics?.titles?.includes("OWNER") && user.cosmetics?.frames?.includes("owner"));
     if (byId("profileOwnerBadge")) byId("profileOwnerBadge").hidden = !owner;
     const profileProgress = byId("profileProgressFill");
@@ -707,10 +723,12 @@
     if(fs){fs.replaceChildren();data.cosmetics.frames.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=names[v]||v;o.selected=v===data.cosmetics.equippedFrame;fs.appendChild(o);});}
     if(ts){ts.replaceChildren();data.cosmetics.titles.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;o.selected=v===data.cosmetics.equippedTitle;ts.appendChild(o);});}
     const frame=byId("cosmeticPreviewFrame");if(frame)frame.className="cosmetic-preview-avatar-frame frame-"+(data.cosmetics.equippedFrame||"classic");
-    setText("cosmeticPreviewTitle",data.cosmetics.equippedTitle||"Curious Mind");
+    const previewTitle=data.cosmetics.equippedTitle||"Curious Mind";
+    setText("cosmeticPreviewTitle",previewTitle);
+    styleEquippedTitle(byId("cosmeticPreviewTitle"),previewTitle,storage().getCurrentUser());
     const preview=byId("cosmeticPreviewAvatar"),user=storage().getCurrentUser();if(preview&&user){preview.textContent=(user.displayName||user.username||"P").charAt(0).toUpperCase();preview.style.backgroundImage=user.avatarUrl?"url('"+user.avatarUrl+"')":"";preview.classList.toggle("has-photo",Boolean(user.avatarUrl));}
     if(fs)fs.onchange=()=>{if(frame)frame.className="cosmetic-preview-avatar-frame frame-"+fs.value;};
-    if(ts)ts.onchange=()=>setText("cosmeticPreviewTitle",ts.value);
+    if(ts)ts.onchange=()=>{setText("cosmeticPreviewTitle",ts.value);styleEquippedTitle(byId("cosmeticPreviewTitle"),ts.value,storage().getCurrentUser());};
     renderWeeklyQuests();
     renderDailyCalendar();
     renderWeeklyCompetition();
