@@ -355,3 +355,9 @@ body.dark-mode .extra-modes{background:var(--surface);border-color:var(--line)}
 .plus-feature-hint{display:block;margin:8px 0 14px;color:var(--muted);font-size:10px}.plus-feature-hint.is-plus{color:var(--accent-dark)}
 .practice-settings select:disabled{opacity:.65}
 @media(max-width:520px){.friend-add-row{flex-direction:column}.friend-add-row button{min-height:42px}}
+
+.archive-calendar .calendar-day.filter-hidden{visibility:hidden;pointer-events:none}
+.archive-plus-filter{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0;color:var(--muted);font-size:10px}
+.archive-plus-filter label{font-weight:900;letter-spacing:.8px}
+.archive-plus-filter select{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text)}
+.archive-plus-filter small{font-size:10px}
