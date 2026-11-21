@@ -276,8 +276,6 @@
       updateAccountControls();
       refreshHome();
       updateDailyCountdown();
-      window.setInterval(updateDailyCountdown, 1000);
-      document.addEventListener("visibilitychange", () => { if (!document.hidden) updateDailyCountdown(); });
       renderProfile();
     } catch (error) {
       const message = error?.message || "Something went wrong.";
