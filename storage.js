@@ -43,7 +43,9 @@
       totalAnswers: 0,
       correctAnswers: 0,
       averageAccuracy: 0,
-      lastPlayedDate: null
+      lastPlayedDate: null,
+      achievements: [],
+      cosmetics: { frames: ["classic"], equippedFrame: "classic", titles: ["Curious Mind"], equippedTitle: "Curious Mind" }
     };
   }
 
@@ -78,6 +80,12 @@
       : [];
 
     user.plus = Boolean(user.plus);
+    user.achievements = Array.isArray(user.achievements) ? user.achievements : [];
+    user.cosmetics = Object.assign({ frames: ["classic"], equippedFrame: "classic", titles: ["Curious Mind"], equippedTitle: "Curious Mind" }, user.cosmetics || {});
+    if (!Array.isArray(user.cosmetics.frames)) user.cosmetics.frames = ["classic"];
+    if (!Array.isArray(user.cosmetics.titles)) user.cosmetics.titles = ["Curious Mind"];
+    user.cosmetics.frames = Array.from(new Set(["classic", ...user.cosmetics.frames]));
+    user.cosmetics.titles = Array.from(new Set(["Curious Mind", ...user.cosmetics.titles]));
 
     const stats = user.stats;
 
@@ -320,6 +328,20 @@
   function levelFromXP(xp) {
     return levelProgressFromXP(xp).level;
   }
+
+  const ACHIEVEMENTS = [
+    { id:"first-game",title:"First Steps",description:"Complete your first game.",icon:"🌱",test:s=>s.gamesPlayed>=1 },
+    { id:"daily-three",title:"Finding a Rhythm",description:"Reach a 3-day daily streak.",icon:"🔥",test:s=>s.bestStreak>=3 },
+    { id:"daily-seven",title:"A Week of Wonder",description:"Reach a 7-day daily streak.",icon:"🌟",test:s=>s.bestStreak>=7 },
+    { id:"ten-games",title:"Curiosity Habit",description:"Complete 10 games.",icon:"🧭",test:s=>s.gamesPlayed>=10 },
+    { id:"hundred-answers",title:"Number Explorer",description:"Answer 100 questions.",icon:"🔢",test:s=>s.totalAnswers>=100 },
+    { id:"high-score",title:"Big Brain Energy",description:"Earn 5,000 points in one game.",icon:"🏆",test:s=>s.bestScore>=5000 },
+    { id:"accuracy",title:"Close Enough?",description:"Reach 80% average accuracy.",icon:"🎯",test:s=>s.gamesPlayed>=3&&s.averageAccuracy>=80 }
+  ];
+  const LEVEL_REWARDS=[{level:3,frame:"sage",title:"Rising Explorer"},{level:5,frame:"ocean",title:"Curiosity Seeker"},{level:10,frame:"aurora",title:"Knowledge Keeper"},{level:20,frame:"gold",title:"DAZURIO Legend"}];
+  function evaluatePlayerRewards(user){normalizeUser(user);const unlocked=[];ACHIEVEMENTS.forEach(a=>{if(a.test(user.stats)&&!user.achievements.includes(a.id)){user.achievements.push(a.id);unlocked.push(a);}});LEVEL_REWARDS.forEach(r=>{if(user.stats.level>=r.level){if(!user.cosmetics.frames.includes(r.frame))user.cosmetics.frames.push(r.frame);if(!user.cosmetics.titles.includes(r.title))user.cosmetics.titles.push(r.title);}});return unlocked;}
+  function getPlayerDashboard(){const user=getCurrentUser();if(!user)return null;normalizeUser(user);const history=user.history||[];const categories={};let diffTotal=0,diffCount=0;history.forEach(r=>(r.answers||[]).forEach(a=>{const c=a.category||"Other";categories[c]=(categories[c]||0)+1;const d=Number(a.difference);if(Number.isFinite(d)){diffTotal+=Math.abs(d);diffCount++;}}));return{stats:clone(user.stats),achievements:ACHIEVEMENTS.map(a=>Object.assign({},a,{unlocked:user.achievements.includes(a.id)})),cosmetics:clone(user.cosmetics),totalPoints:history.reduce((sum,r)=>sum+nonNegative(r.score),0),strongestCategory:Object.entries(categories).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—",averageDifference:diffCount?Math.round(diffTotal/diffCount):0};}
+  function equipCosmetic(kind,value){const db=readDatabase();const user=getCurrentUserFrom(db);if(!user)throw new Error("Sign in to customize your profile.");normalizeUser(user);if(kind==="frame"&&user.cosmetics.frames.includes(value))user.cosmetics.equippedFrame=value;else if(kind==="title"&&user.cosmetics.titles.includes(value))user.cosmetics.equippedTitle=value;else throw new Error("That cosmetic has not been unlocked yet.");writeDatabase(db);return clone(user.cosmetics);}
 
   function getCurrentUserFrom(database) {
     return database.users.find(
@@ -668,6 +690,7 @@
     }
 
     if (record.mode === "daily") updateStreak(user, playedDate);
+    record.unlockedAchievements = evaluatePlayerRewards(user).map(a=>a.id);
 
     user.updatedAt = new Date().toISOString();
 
@@ -879,7 +902,10 @@
     activatePlus,
     exportData,
     resetAll,
-    levelFromXP
+    levelFromXP,
+    levelProgressFromXP,
+    getPlayerDashboard,
+    equipCosmetic
   };
 
   init();
