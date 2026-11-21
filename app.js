@@ -1428,7 +1428,7 @@
     byId("shareResultsButton")?.addEventListener("click", async () => {
       const summary = game()?.getSummary?.();
       if (!summary) return;
-      const shareText = "DAZURIO — " + summary.score + " points in " + summary.totalQuestions + " questions!";
+      const shareText = "I scored " + summary.score.toLocaleString() + " points in DAZURIO (" + summary.totalQuestions + " questions). Can you beat me? " + window.location.href;
       try {
         if (navigator.share) await navigator.share({ title: "My DAZURIO result", text: shareText });
         else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(shareText); notify("Result copied to clipboard.", "success"); }
