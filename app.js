@@ -695,40 +695,54 @@
     if(fs)fs.onchange=()=>{if(frame)frame.className="cosmetic-preview-avatar-frame frame-"+fs.value;};
     if(ts)ts.onchange=()=>setText("cosmeticPreviewTitle",ts.value);
     renderWeeklyQuests();
-    renderCollections();
+    renderDailyCalendar();
+    renderWeeklyCompetition();
   }
-  function renderCollections() {
-    const grid = byId("collectionGrid");
+  function renderDailyCalendar() {
+    const grid = byId("dailyCalendarGrid");
     if (!grid) return;
     const history = storage().getHistory?.() || [];
-    const counts = {};
-    history.filter(r => ["daily","endless"].includes(r.mode)).forEach(record => (record.answers || []).forEach(answer => {
-      const category = answer.category || "Other";
-      counts[category] = (counts[category] || 0) + 1;
-    }));
-    const sets = [
-      {name:"Space Explorer",category:"Space",icon:"🚀"},
-      {name:"History Master",category:"History",icon:"🏛️"},
-      {name:"Nature Lover",category:"Animals",icon:"🦊"},
-      {name:"Number Wizard",category:"Numbers",icon:"🔢"},
-      {name:"Food Scientist",category:"Food",icon:"🍎"}
-    ];
+    const played = new Set(history.filter(r => r.mode === "daily").map(r => r.date));
+    const today = localDateKey();
+    const days = [];
+    const date = new Date(today + "T12:00:00");
+    date.setDate(date.getDate() - 27);
+    for (let i = 0; i < 28; i++) {
+      const key = localDateKey(date);
+      days.push({ key, played: played.has(key), today: key === today });
+      date.setDate(date.getDate() + 1);
+    }
     grid.replaceChildren();
-    let unlocked=0;
-    sets.forEach(set => {
-      const count=counts[set.category]||0;
-      const tier=count>=30?3:count>=15?2:count>=5?1:0;
-      unlocked+=tier;
-      const card=document.createElement("article");
-      card.className="collection-card"+(tier?" is-collected":"");
-      const icon=document.createElement("span");icon.textContent=set.icon;
-      const title=document.createElement("strong");title.textContent=set.name;
-      const detail=document.createElement("small");detail.textContent=count+" / 30 category answers";
-      const badges=document.createElement("div");badges.className="collection-tiers";
-      ["BRONZE","SILVER","GOLD"].forEach((label,index)=>{const chip=document.createElement("i");chip.textContent=label;chip.className=index<tier?"is-earned":"";badges.appendChild(chip);});
-      card.append(icon,title,detail,badges);grid.appendChild(card);
+    days.forEach(day => {
+      const cell = document.createElement("span");
+      cell.className = "daily-calendar-day" + (day.played ? " is-played" : "") + (day.today ? " is-today" : "");
+      cell.textContent = String(Number(day.key.slice(-2)));
+      cell.title = day.key + (day.played ? " · Daily completed" : "");
+      grid.appendChild(cell);
     });
-    setText("collectionCount",unlocked+" / 15");
+    setText("dailyCalendarCount", played.size + " played");
+  }
+
+  function renderWeeklyCompetition() {
+    const container = byId("weeklyCompetitionRows");
+    if (!container) return;
+    container.replaceChildren();
+    const rows = storage().getLeaderboard("weekly") || [];
+    if (!rows.length) {
+      const empty = document.createElement("p");
+      empty.className = "empty-state";
+      empty.textContent = "Play a Daily or Endless game to appear here. This preview only includes profiles in this browser.";
+      container.appendChild(empty);
+      return;
+    }
+    rows.slice(0, 8).forEach((player, index) => {
+      const row = document.createElement("div");
+      row.className = "weekly-competition-row" + (player.isCurrentUser ? " is-current-user" : "");
+      const rank = document.createElement("span"); rank.className = "competition-rank"; rank.textContent = "#" + (index + 1);
+      const name = document.createElement("strong"); name.textContent = player.displayName || player.username || "Player";
+      const score = document.createElement("span"); score.className = "competition-score"; score.textContent = Number(player.score || 0).toLocaleString() + " pts";
+      row.append(rank, name, score); container.appendChild(row);
+    });
   }
 
   function getCurrentWeekStart() {
