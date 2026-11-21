@@ -1402,6 +1402,33 @@
     byId("studioCloseButton")?.addEventListener("click", closeStudio);
     studio?.addEventListener("click", event => { if (event.target === studio) closeStudio(); });
     byId("studioDiagnosticsButton")?.addEventListener("click", refreshStudioDiagnostics);
+    byId("studioAddQuestionButton")?.addEventListener("click", () => {
+      const question = byId("studioQuestionText")?.value.trim() || "";
+      const description = byId("studioQuestionDescription")?.value.trim() || "";
+      const category = byId("studioQuestionCategory")?.value || "Numbers";
+      const difficulty = byId("studioQuestionDifficulty")?.value || "medium";
+      const answer = Number(byId("studioQuestionAnswer")?.value);
+      const min = Number(byId("studioQuestionMin")?.value);
+      const max = Number(byId("studioQuestionMax")?.value);
+      const unit = byId("studioQuestionUnit")?.value.trim() || "";
+      if (!question || !Number.isFinite(answer) || !Number.isFinite(min) || !Number.isFinite(max) || min > answer || answer > max || min >= max) {
+        setText("studioQuestionStatus", "Enter a question and valid minimum, exact answer and maximum.");
+        return;
+      }
+      const suggestions = [...new Set([min, answer * 0.8, answer, answer * 1.2, max].map(v => Math.max(min, Math.min(max, v))))].sort((x,y)=>x-y);
+      const custom = { id:"custom-" + Date.now().toString(36), category, difficulty, question, description, answer, unit, min, max, suggestions };
+      try {
+        const saved = JSON.parse(localStorage.getItem("dazurio_custom_questions_v1") || "[]");
+        saved.push(custom);
+        localStorage.setItem("dazurio_custom_questions_v1", JSON.stringify(saved));
+        setText("studioQuestionStatus", "Question added to this browser's question bank.");
+        setText("studioQuestionCount", window.QuestionDatabase?.getCount?.() ?? "—");
+        renderQuestionLibrary();
+        notify("Custom question added.", "success");
+      } catch(error) {
+        setText("studioQuestionStatus", "Could not save the question in this browser.");
+      }
+    });
     byId("studioSaveEventButton")?.addEventListener("click",()=>{const title=byId("studioEventTitle")?.value.trim(),description=byId("studioEventDescription")?.value.trim(),image=byId("studioEventImage")?.value.trim(),start=byId("studioEventStart")?.value||"",end=byId("studioEventEnd")?.value||"";if(!title){setText("studioEventStatus","Add an event title first.");return;}if(image&&!/^https:\/\//i.test(image)){setText("studioEventStatus","Artwork must use https://.");return;}if(start&&end&&end<start){setText("studioEventStatus","End date must be after start date.");return;}localStorage.setItem("dazurio_seasonal_event",JSON.stringify({title,description,image,start,end}));setText("studioEventStatus","Event published in this browser preview.");renderSeasonalEvent();});
     byId("studioValidateButton")?.addEventListener("click", () => {
       const validation = window.QuestionDatabase?.validate?.();
