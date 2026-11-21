@@ -358,9 +358,9 @@
         const equipped = user?.cosmetics?.equippedFrame || "classic";
         frame.className = "profile-avatar-frame frame-" + equipped;
       }
-      if (title) {
-        title.textContent = user?.cosmetics?.equippedTitle || (user ? "Curious Mind" : "PLAY AS A GUEST");
-      }
+      if (title) title.textContent = user?.cosmetics?.equippedTitle || (user ? "Curious Mind" : "PLAY AS A GUEST");
+      const owner = Boolean(user?.cosmetics?.titles?.includes("OWNER") && user?.cosmetics?.frames?.includes("owner"));
+      if (byId("headerOwnerBadge")) byId("headerOwnerBadge").hidden = !owner;
     }
 
     $$("[data-requires-login]").forEach(element => {
@@ -533,16 +533,14 @@
       ? categorySelect.value
       : selectedPracticeCategory;
 
-    const count = countSelect
-      ? Number(countSelect.value)
-      : 7;
-
-    game()?.startGame("practice", {
-      category: selectedPracticeCategory === "all"
-        ? null
-        : selectedPracticeCategory,
-      count: Number.isFinite(count) ? count : 7
-    });
+    const count = countSelect ? Number(countSelect.value) : 7;
+    const isPlus = Boolean(storage()?.isPlus?.());
+    const difficulty = byId("practiceDifficulty")?.value || "all";
+    if (!isPlus && (count > 20 || difficulty !== "all")) {
+      notify("Advanced practice filters and 50/100-question sessions are DAZURIO Plus features.", "warning");
+      navigateTo("plus"); return;
+    }
+    game()?.startGame("practice", { category:selectedPracticeCategory === "all" ? null : selectedPracticeCategory, difficulty:isPlus ? difficulty : "all", count:Number.isFinite(count) ? count : 7 });
   }
 
   function startArchiveGame(date) {
@@ -595,12 +593,15 @@
     const profileFrame = byId("profileAvatarFrame");
     if (profileFrame) profileFrame.className = "profile-card-avatar-frame frame-" + (user.cosmetics?.equippedFrame || "classic");
     setText("profileEquippedTitle", (user.cosmetics?.equippedTitle || "Curious Mind").toUpperCase());
+    const owner = Boolean(user.cosmetics?.titles?.includes("OWNER") && user.cosmetics?.frames?.includes("owner"));
+    if (byId("profileOwnerBadge")) byId("profileOwnerBadge").hidden = !owner;
     const profileProgress = byId("profileProgressFill");
     const profileLevelXP = profileProgression.current;
     if (profileProgress) profileProgress.style.width = (profileLevelXP / profileProgression.required * 100) + "%";
     setText("profileProgressText", profileLevelXP + " / " + profileProgression.required + " XP");
 
-    renderHistory(storage().getHistory(8) || []);
+    renderHistory(storage().getHistory(user.plus ? 100 : 8) || []);
+    renderPlusStatus();
     renderPlayerDashboard();
   }
 
@@ -685,8 +686,11 @@
   function renderPlayerDashboard(){
     const data=storage().getPlayerDashboard?.();if(!data)return;
     setText("insightTotalPoints",data.totalPoints.toLocaleString());setText("insightAnswers",(data.stats.totalAnswers||0).toLocaleString());setText("insightStrongest",data.strongestCategory);setText("insightDifference",data.averageDifference.toLocaleString());
-    const grid=byId("achievementGrid");if(grid){grid.replaceChildren();data.achievements.forEach(a=>{const c=document.createElement("article");c.className="achievement-card "+(a.unlocked?"is-unlocked":"is-locked");const i=document.createElement("span");i.textContent=a.icon;const t=document.createElement("strong");t.textContent=a.title;const d=document.createElement("small");d.textContent=a.description;const s=document.createElement("em");s.textContent=a.unlocked?"UNLOCKED":"LOCKED";c.append(i,t,d,s);grid.appendChild(c);});}
+    const grid=byId("achievementGrid");if(grid){grid.replaceChildren();data.achievements.forEach(a=>{const c=document.createElement("article");c.className="achievement-card "+(a.unlocked?"is-unlocked":"is-locked");const i=document.createElement("span");i.textContent=a.unlocked?a.icon:(a.title==="Hidden achievement"?"❔":a.icon);const t=document.createElement("strong");t.textContent=a.title;const d=document.createElement("small");d.textContent=a.description;const s=document.createElement("em");s.textContent=a.unlocked?"UNLOCKED":"LOCKED";c.append(i,t,d,s);grid.appendChild(c);});}
     setText("achievementCount",data.achievements.filter(a=>a.unlocked).length+" / "+data.achievements.length);
+    const collectionGrid=byId("collectionGrid");
+    if(collectionGrid){collectionGrid.replaceChildren();(data.collections||[]).forEach(item=>{const card=document.createElement("article");card.className="collection-card "+(item.earned?"is-collected":"");const icon=document.createElement("span");icon.textContent=item.icon;const title=document.createElement("strong");title.textContent=item.title;const desc=document.createElement("small");desc.textContent=item.description;const state=document.createElement("em");state.textContent=item.earned?"COLLECTED":"NOT YET";card.append(icon,title,desc,state);collectionGrid.appendChild(card);});setText("collectionProgress",(data.collections||[]).filter(x=>x.earned).length+" / "+(data.collections||[]).length);}
+    renderFriends();
     const names={classic:"Classic",sage:"Sage",ocean:"Ocean",aurora:"Aurora",gold:"Gold"};const fs=byId("cosmeticFrameSelect"),ts=byId("cosmeticTitleSelect");
     if(fs){fs.replaceChildren();data.cosmetics.frames.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=names[v]||v;o.selected=v===data.cosmetics.equippedFrame;fs.appendChild(o);});}
     if(ts){ts.replaceChildren();data.cosmetics.titles.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;o.selected=v===data.cosmetics.equippedTitle;ts.appendChild(o);});}
@@ -699,6 +703,13 @@
     renderDailyCalendar();
     renderWeeklyCompetition();
   }
+  function renderFriends() {
+    const container=byId("friendsList");if(!container)return;
+    const friends=storage().getFriends?.()||[];container.replaceChildren();
+    if(!friends.length){const empty=document.createElement("p");empty.className="empty-state";empty.textContent="No friends added yet. Add another local demo profile by username.";container.appendChild(empty);return;}
+    friends.forEach(friend=>{const row=document.createElement("div");row.className="friend-row";const copy=document.createElement("div");const name=document.createElement("strong");name.textContent=friend.displayName||friend.username;const meta=document.createElement("small");meta.textContent="LEVEL "+friend.level+" · "+friend.score.toLocaleString()+" PTS"+(friend.plus?" · PLUS":"");copy.append(name,meta);const remove=document.createElement("button");remove.type="button";remove.textContent="REMOVE";remove.addEventListener("click",()=>{try{storage().removeFriend(friend.id);renderFriends();}catch(error){setText("friendsStatus",error.message||"Could not remove friend.");}});row.append(copy,remove);container.appendChild(row);});
+  }
+
   function renderDailyCalendar() {
     const grid = byId("dailyCalendarGrid");
     if (!grid) return;
@@ -1288,6 +1299,12 @@
     if (profileBadge) profileBadge.hidden = !active;
     const headerBadge = byId("headerPlusBadge");
     if (headerBadge) headerBadge.hidden = !active;
+    const count=byId("practiceCount");
+    if(count){[...count.options].forEach(option=>{if(option.dataset.plusOnly!==undefined)option.disabled=!active;});if(!active&&Number(count.value)>20)count.value="20";}
+    const difficulty=byId("practiceDifficulty");
+    if(difficulty){difficulty.disabled=!active;if(!active)difficulty.value="all";}
+    const hint=byId("practicePlusHint");
+    if(hint){hint.classList.toggle("is-plus",active);hint.textContent=active?"✦ Plus advanced practice is active: choose any category, difficulty and up to 100 questions.":"Plus unlocks 50/100-question sessions and difficulty filters.";}
   }
 
 
@@ -1399,6 +1416,7 @@
 
   function bindMainActions() {
     byId("playTodayButton")?.addEventListener("click", startDaily);
+    byId("addFriendButton")?.addEventListener("click",()=>{try{storage().addFriend(byId("friendUsernameInput")?.value||"");if(byId("friendUsernameInput"))byId("friendUsernameInput").value="";setText("friendsStatus","Friend added to your local list.");renderFriends();}catch(error){setText("friendsStatus",error.message||"Could not add friend.");}});
 
     const studio = byId("studioOverlay");
     const openStudio = () => {
@@ -1499,6 +1517,7 @@
     byId("survivalModeButton")?.addEventListener("click", () => { if (requireAccount("Survival")) game()?.startGame("survival"); });
     byId("mysteryModeButton")?.addEventListener("click", () => { if (requireAccount("Mystery Mode")) game()?.startGame("mystery"); });
     byId("worldTourModeButton")?.addEventListener("click", () => { if (requireAccount("World Tour")) game()?.startGame("worldtour"); });
+    byId("bossModeButton")?.addEventListener("click", () => { if (requireAccount("Boss Challenge")) game()?.startGame("boss"); });
 
     byId("practiceModeButton")?.addEventListener(
       "click",
@@ -1531,7 +1550,8 @@
     byId("saveCosmeticsButton")?.addEventListener("click",()=>{try{storage().equipCosmetic("frame",byId("cosmeticFrameSelect")?.value);storage().equipCosmetic("title",byId("cosmeticTitleSelect")?.value);updateAccountControls();renderProfile();notify("Profile look saved.","success");}catch(e){notify(e.message||"Could not save cosmetics.","error");}});
     byId("profileImageInput")?.addEventListener("change",event=>{const file=event.target.files?.[0];if(!file)return;if(!/^image\/(png|jpeg|webp)$/.test(file.type)){notify("Choose a JPG, PNG or WebP image.","error");return;}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const canvas=document.createElement("canvas"),scale=Math.min(1,512/Math.max(img.width,img.height));canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);const dataUrl=canvas.toDataURL("image/jpeg",.78);try{storage().updateProfile({avatarUrl:dataUrl});updateAccountControls();renderProfile();notify("Profile picture updated.","success");}catch(error){notify(error.message||"Could not save this picture.","error");}};img.onerror=()=>notify("Could not read this image.","error");img.src=String(reader.result);};reader.readAsDataURL(file);});
     byId("studioGrantTitleButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("title",byId("studioCustomTitle")?.value||"");renderPlayerDashboard();notify("Title unlocked for the current player.","success");setText("studioRewardStatus","Title added to the current profile.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant title.");}});
-    byId("studioGrantFrameButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("frame",byId("studioGrantFrame")?.value||"");renderPlayerDashboard();notify("Frame unlocked for the current player.","success");setText("studioRewardStatus","Frame added to the current profile.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant frame.");}});
+    byId("studioGrantFrameButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("frame",byId("studioGrantFrame")?.value||"");renderProfile();updateAccountControls();notify("Frame unlocked for the current player.","success");setText("studioRewardStatus","Frame added to the current profile.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant frame.");}});
+    byId("studioGrantOwnerButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("title","OWNER");storage().grantCosmetic("frame","owner");renderProfile();updateAccountControls();setText("studioRewardStatus","Owner visual cosmetics added. This is not an admin permission.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant Owner cosmetics.");}});
     byId("editProfileButton")?.addEventListener(
       "click",
       openEditProfile
