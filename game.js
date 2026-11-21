@@ -3,7 +3,7 @@
   "use strict";
 
   const QUESTIONS_PER_DAILY = 7;
-  const DAILY_SET_PREFIX = "dazurio_daily_set_v2_";
+  const DAILY_SET_PREFIX = "dazurio_daily_set_v3_";
   const ARCHIVE_DONE_PREFIX = "dazurio_archive_completed_";
   const SECONDS_PER_QUESTION = 25;
   const MAX_POINTS_PER_QUESTION = 1000;
@@ -107,16 +107,34 @@
       }
     } catch (_) {}
 
-    // Date-seeded shuffle: the same date always gets the same seven questions,
-    // while the next date receives a newly shuffled set.
-    let hash = 216 * 31;
-    for (const char of seed) hash = (hash * 31 + char.charCodeAt(0)) | 0;
-    const random = () => {
-      hash = (hash * 1664525 + 1013904223) | 0;
-      return (hash >>> 0) / 4294967296;
-    };
-    const pool = shuffleWithRandom(all, random);
-    const selected = pool.slice(0, Math.min(QUESTIONS_PER_DAILY, pool.length));
+    // Deterministic daily schedule. Each date is generated from its own seed,
+    // excluding all seven questions from the previous day before selecting.
+    // This guarantees zero question repeats between consecutive daily sets.
+    const epoch = new Date("2026-01-01T12:00:00");
+    const requested = new Date(seed + "T12:00:00");
+    const daysFromEpoch = Math.floor((requested - epoch) / 86400000);
+    let previousIds = new Set();
+    let selected = [];
+    if (daysFromEpoch >= 0 && daysFromEpoch < 20000) {
+      for (let offset = 0; offset <= daysFromEpoch; offset++) {
+        const currentDate = new Date(epoch.getTime() + offset * 86400000);
+        const dayKey = getDateKey(currentDate);
+        let hash = 216 * 31;
+        for (const char of dayKey) hash = (hash * 31 + char.charCodeAt(0)) | 0;
+        const random = () => {
+          hash = (hash * 1664525 + 1013904223) | 0;
+          return (hash >>> 0) / 4294967296;
+        };
+        const available = shuffleWithRandom(all, random).filter(question => !previousIds.has(question.id));
+        selected = available.slice(0, Math.min(QUESTIONS_PER_DAILY, available.length));
+        previousIds = new Set(selected.map(question => question.id));
+      }
+    } else {
+      let hash = 216 * 31;
+      for (const char of seed) hash = (hash * 31 + char.charCodeAt(0)) | 0;
+      const random = () => { hash = (hash * 1664525 + 1013904223) | 0; return (hash >>> 0) / 4294967296; };
+      selected = shuffleWithRandom(all, random).slice(0, Math.min(QUESTIONS_PER_DAILY, all.length));
+    }
     try { localStorage.setItem(cacheKey, JSON.stringify(selected.map(question => question.id))); } catch (_) {}
     return selected;
   }
