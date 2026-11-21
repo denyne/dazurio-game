@@ -455,3 +455,16 @@ body.dark-mode .extra-modes{background:var(--surface);border-color:var(--line)}
 .player-passport-card .passport-progress-card .section-heading h2{font:800 15px Manrope,sans-serif;margin:0}
 .player-passport-card .passport-facts{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px}
 @media(max-width:520px){.player-passport-card .passport-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.player-passport-card .passport-facts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+
+/* PLAYER PASSPORT — keep core stats and level progress in one unified card */
+.player-passport-card{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:0}
+.player-passport-card .passport-topline{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.player-passport-card .passport-main{margin:18px 0 20px}
+.player-passport-card .passport-stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0}
+.player-passport-card .passport-stats-grid .profile-stat-card{min-width:0;margin:0}
+.player-passport-card .passport-progress-card{display:block;margin:16px 0 0;padding:15px 0 0;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;box-shadow:none}
+.player-passport-card .passport-progress-card .section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.player-passport-card .passport-progress-card .section-heading h2{font:800 15px Manrope,sans-serif;margin:0}
+.player-passport-card .passport-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:16px}
+@media(max-width:650px){.player-passport-card .passport-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
