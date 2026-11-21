@@ -707,6 +707,22 @@
           </div>
         </div>
 
+        <section class="plus-insights-panel" id="plusInsightsPanel" hidden aria-labelledby="plusInsightsTitle">
+          <div class="plus-insights-heading"><div><span class="eyebrow">YOUR PERSONAL ANALYTICS</span><h2 id="plusInsightsTitle">DAZURIO Insights<span>.</span></h2><p>Real patterns from your Daily and Endless games.</p></div><span class="plus-insights-lock">✦ PLUS</span></div>
+          <div class="insights-metric-grid">
+            <article><small>AVERAGE ACCURACY</small><strong id="insightAverageAccuracy">—</strong><span>across saved games</span></article>
+            <article><small>WITHIN 10%</small><strong id="insightWithin10">—</strong><span>of the correct value</span></article>
+            <article><small>AVERAGE ERROR</small><strong id="insightAverageError">—</strong><span>relative to the answer</span></article>
+            <article><small>QUESTIONS ANSWERED</small><strong id="insightAnswerCount">—</strong><span>in scored modes</span></article>
+          </div>
+          <div class="insights-chart-card"><div class="insights-section-head"><div><h3>Last 14 days</h3><p>Daily accuracy from completed games</p></div><small>ACCURACY</small></div><div class="insights-trend" id="insightTrend"></div></div>
+          <div class="insights-lower-grid">
+            <div class="insights-chart-card"><div class="insights-section-head"><div><h3>Category precision</h3><p>Based on how close your guesses were</p></div></div><div id="insightCategories" class="insights-category-list"></div></div>
+            <div class="insights-chart-card"><div class="insights-section-head"><div><h3>Your personal patterns</h3><p>Small clues from your recent play</p></div></div><div id="insightHighlights" class="insights-highlights"></div></div>
+          </div>
+          <p class="insights-footnote" id="insightFootnote">Percentages are calculated from your saved answers. Questions with a correct answer of zero are excluded from relative-error calculations.</p>
+        </section>
+
         <div class="plus-features">
           <article>
             <span>01</span>
