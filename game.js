@@ -382,7 +382,7 @@
 
   function parseGuess(value) {
     if (typeof value === "number") return value;
-    let raw = String(value ?? "").trim().replace(/[\\s\\u00a0]/g, "");
+    let raw = String(value ?? "").trim().replace(/[\s\u00a0]/g, "");
     if (raw.includes(",") && !raw.includes(".")) {
       const parts = raw.split(",");
       raw = parts.length === 2 && parts[1].length <= 2
@@ -413,7 +413,7 @@
       !timedOut &&
       (guess === "" || !Number.isFinite(parseGuess(guess)))
     ) {
-      showToast("Zadej platný číselný odhad.", "warning");
+      showToast(document.documentElement.lang === "cs" ? "Zadej platný číselný odhad." : "Enter a valid numeric estimate.", "warning");
       if (input) input.focus();
       return;
     }
@@ -425,12 +425,12 @@
       const max = Number(question.max);
 
       if (Number.isFinite(min) && guess < min) {
-        showToast(`Minimum je ${min}.`, "warning");
+        showToast(document.documentElement.lang === "cs" ? `Minimum je ${min}.` : `Minimum is ${min}.`, "warning");
         return;
       }
 
       if (Number.isFinite(max) && guess > max) {
-        showToast(`Maximum je ${max}.`, "warning");
+        showToast(document.documentElement.lang === "cs" ? `Maximum je ${max}.` : `Maximum is ${max}.`, "warning");
         return;
       }
     }
@@ -473,7 +473,7 @@
     const result = $("answerResult");
     if (result) result.hidden = false;
     const targetDisplay = $("targetDisplay");
-    if (targetDisplay) targetDisplay.hidden = false;
+    if (targetDisplay) targetDisplay.hidden = true;
 
     const title = $("answerResultTitle");
     const description = $("answerResultText");
@@ -483,34 +483,39 @@
     const difference = $("answerDifference");
 
     if (title) {
+      const cs = document.documentElement.lang === "cs";
       title.textContent = record.timedOut
-        ? "Čas vypršel!"
+        ? (cs ? "Čas vypršel!" : "Time is up!")
         : record.points >= 800
-          ? "Skvělý odhad!"
+          ? (cs ? "Skvělý odhad!" : "Great estimate!")
           : record.points >= 500
-            ? "Dobrý pokus!"
-            : "Tentokrát to nevyšlo";
+            ? (cs ? "Dobrý pokus!" : "Good try!")
+            : (cs ? "Tentokrát to nevyšlo" : "Not quite this time");
     }
 
     if (description) {
       description.textContent = question.explanation ||
-        "Podívej se na správnou hodnotu a zkus další otázku.";
+        (document.documentElement.lang === "cs" ? "Podívej se na správnou hodnotu a zkus další otázku." : "Check the correct value and try the next question.");
     }
 
-    if (points) points.textContent = `${record.points} bodů`;
+    if (points) points.textContent = `+${record.points} XP`;
 
     if (guess) {
       guess.textContent = record.guess === null
-        ? "Bez odpovědi"
-        : record.guess;
+        ? (document.documentElement.lang === "cs" ? "Bez odpovědi" : "No answer")
+        : Number(record.guess).toLocaleString();
     }
 
-    if (actual) actual.textContent = record.answer;
+    if (actual) actual.textContent = Number(record.answer).toLocaleString();
+    const targetLabel = document.querySelector("#targetDisplay .target-label");
+    if (targetLabel) targetLabel.textContent = document.documentElement.lang === "cs" ? "SPRÁVNÁ ODPOVĚĎ" : "CORRECT ANSWER";
+    const targetValue = $("targetValue");
+    if (targetValue) targetValue.textContent = Number(record.answer).toLocaleString();
 
     if (difference) {
       difference.textContent = record.difference === null
         ? "—"
-        : record.difference;
+        : Number(record.difference).toLocaleString();
     }
 
     const effects = getEffects();
@@ -737,7 +742,19 @@
           ? compact + "  ≈  " + grouped
           : grouped + "  ≈  " + compact;
       };
-      answerInput.addEventListener("input", refreshHint);
+      answerInput.addEventListener("input", () => {
+        const raw = answerInput.value;
+        if (/^[0-9]+$/.test(raw.replace(/[\\s\\u00a0]/g, ""))) {
+          const digits = raw.replace(/[\\s\\u00a0]/g, "");
+          const groupedInput = digits.replace(/\\B(?=(\\d{3})+(?!\\d))/g, " ");
+          if (groupedInput !== raw) {
+            const oldEnd = answerInput.selectionStart === raw.length;
+            answerInput.value = groupedInput;
+            if (oldEnd) answerInput.setSelectionRange(groupedInput.length, groupedInput.length);
+          }
+        }
+        refreshHint();
+      });
       $("numberFormatSelect")?.addEventListener("change", refreshHint);
       refreshHint();
     }
