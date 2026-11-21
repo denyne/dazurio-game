@@ -2991,3 +2991,45 @@ button,input,select,textarea { font:inherit; } button { cursor:pointer; } input,
   .archive-toolbar strong { order:-1; width:100%; text-align:center; }
   .modal-card { padding:26px 20px; }
 }
+ 
+/* DAZURIO layout normalization */
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; min-width:320px; overflow-x:hidden; }
+.site-header { width:100%; max-width:1440px; margin:0 auto; }
+#app { width:min(1120px,calc(100% - 48px)); margin:0 auto; }
+.page { width:100%; margin:0 auto; }
+.home-hero,.stats-strip,.daily-status,.modes-section,.home-progress,
+.content-shell,.game-shell,.results-shell,.plus-shell { width:100%; max-width:100%; margin-left:auto; margin-right:auto; }
+.home-hero { text-align:left; }
+.mode-list { width:100%; }
+.mode-row { width:100%; min-width:0; }
+.modal-backdrop { display:none !important; }
+.modal-backdrop.open,.modal-backdrop.active { display:flex !important; }
+.form-error[hidden], [hidden] { display:none !important; }
+#page-home .stats-strip { align-items:stretch; }
+#page-home .stat-item { justify-content:center; text-align:center; }
+#page-home .stat-divider { align-self:stretch; }
+#page-home .daily-status { width:100%; }
+#page-home .home-progress { width:100%; }
+.page-intro,.section-topline,.progress-heading { width:100%; }
+.game-shell,.results-shell { max-width:860px; }
+.question-area { max-width:700px; }
+.site-footer { width:min(1120px,calc(100% - 48px)); margin:64px auto 0; }
+@media(max-width:760px) {
+ #app { width:calc(100% - 32px); }
+ .site-header { padding:0 16px; }
+ .stats-strip { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .stat-divider { display:none; }
+ .mode-list { grid-template-columns:1fr; }
+ .modal-backdrop { padding:14px; }
+}
+
+.guest-continue-button { display:flex; align-items:center; justify-content:center; gap:12px; width:100%; min-height:48px; margin-top:12px; border:1px solid var(--line); border-radius:12px; background:var(--surface-soft); color:var(--text); font-size:11px; font-weight:800; letter-spacing:.5px; }
+.guest-continue-button:hover { border-color:var(--accent-dark); background:#edf5e6; }
+.mode-row.is-locked { position:relative; }
+.mode-row.is-locked::after { content:"ACCOUNT"; margin-left:auto; padding:5px 8px; border-radius:99px; background:var(--surface-soft); color:var(--muted); font-size:9px; font-weight:800; letter-spacing:.8px; }
+.guest-banner { display:flex; justify-content:space-between; align-items:center; gap:16px; margin:18px 0; padding:16px 20px; border:1px solid var(--line); border-radius:16px; background:#f1f6eb; color:var(--text); }
+.guest-banner p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+.guest-banner button { border:0; border-radius:10px; background:var(--text); color:#fff; padding:10px 14px; font-size:10px; font-weight:800; }
+@media(max-width:600px){.guest-banner{align-items:stretch;flex-direction:column}.guest-banner button{width:100%}}
