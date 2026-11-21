@@ -1002,6 +1002,14 @@
       });
     });
 
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        closeAuthModal();
+        closeModal(byId("editProfileModal"));
+        closeMobileMenu();
+      }
+    });
+
     [byId("authModal"), byId("editProfileModal")].forEach(modal => {
       if (!modal) return;
 
@@ -1018,6 +1026,7 @@
 
   function bindMainActions() {
     byId("playTodayButton")?.addEventListener("click", startDaily);
+    byId("clearAnswerButton")?.addEventListener("click", () => { const input = byId("answerInput"); if (input) { input.value = ""; input.focus(); } });
     byId("guestContinueButton")?.addEventListener("click", () => closeAuthModal());
     document.addEventListener("dazurio:login-required", () => openAuthModal("register"));
     byId("gameBackButton")?.addEventListener("click", () => { game()?.abandonGame?.(); navigateTo("home"); });
