@@ -72,13 +72,13 @@
 
   function getDateKey(dateValue) {
     if (!dateValue) {
-      const now = new Date();
-
-      return [
-        now.getFullYear(),
-        String(now.getMonth() + 1).padStart(2, "0"),
-        String(now.getDate()).padStart(2, "0")
-      ].join("-");
+      // DAZURIO's official daily reset timezone: Europe/Prague.
+      // Players in different timezones therefore share one calendar day.
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Europe/Prague", year: "numeric", month: "2-digit", day: "2-digit"
+      }).formatToParts(new Date());
+      const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+      return values.year + "-" + values.month + "-" + values.day;
     }
 
     if (dateValue instanceof Date && !Number.isNaN(dateValue.getTime())) {
@@ -659,8 +659,7 @@
     const summary = getSummary();
     const storage = getStorage();
     if (state.mode === "daily" || state.mode === "archive") {
-      const now = new Date();
-      const key = [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
+      const key = getDateKey();
       try {
         if (state.mode === "daily") localStorage.setItem("dazurio_daily_completed_" + key, "1");
         else localStorage.setItem(archiveCompletionKey(state.options.date || key), "1");
@@ -708,8 +707,7 @@
 
   function startGame(mode = "daily", options = {}) {
     if (mode === "daily" || mode === "archive") {
-      const now = new Date();
-      const key = [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
+      const key = getDateKey();
       try {
         if (mode === "daily" && localStorage.getItem("dazurio_daily_completed_" + key) === "1") {
           showToast("Dnešní výzvu už máš dokončenou. Vrať se zítra!", "info");
