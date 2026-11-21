@@ -735,6 +735,11 @@
         }
       } catch (_) {}
     }
+    if (mode === "practice" && !getStorage()?.isPlus?.() && (Number(options?.count || 10) > 20 || (options?.difficulty && options.difficulty !== "all"))) {
+      showToast("Advanced practice is a DAZURIO Plus feature.", "warning");
+      return false;
+    }
+
     // Guests may play the daily challenge; all extended modes require an account.
     if (!isLoggedIn() && mode !== "daily" && mode !== "archive") {
       showToast("Tento režim je dostupný po vytvoření účtu.", "warning");
