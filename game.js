@@ -566,6 +566,7 @@
       date: state.options.date || null,
       category: state.options.category || null,
       score,
+      xp: Math.floor(score / 10),
       totalQuestions: total,
       correctAnswers: state.answers.filter(
         answer => answer.points >= 700
@@ -611,7 +612,7 @@
     }
 
     setResultField("finalScore", summary.score);
-    setResultField("finalXP", summary.score);
+    setResultField("finalXP", summary.xp);
     setResultField("finalAccuracy", `${summary.accuracy}%`);
     setResultField("finalAverage", summary.averagePoints);
 
