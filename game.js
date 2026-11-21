@@ -295,7 +295,7 @@
       case "archive":
         return "ARCHIVNÍ VÝZVA";
       case "speedrun": return "SPEED RUN";
-      case "survival": return "SURVIVAL";
+      case "survival": return "SURVIVAL · " + state.lives + " LIVES";
       case "mystery": return "MYSTERY MODE";
       case "worldtour": return "WORLD TOUR";
       default:
@@ -504,6 +504,7 @@
 
     state.answers.push(record);
     if (state.mode === "survival" && points < 300) state.lives = Math.max(0, state.lives - 1);
+    if (state.mode === "survival") { const tag = $("gameModeTag"); if (tag) tag.textContent = getModeLabel(); }
 
     if (input) input.disabled = true;
     $("answerForm")?.classList.add("answer-form-locked");
