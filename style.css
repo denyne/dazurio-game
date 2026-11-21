@@ -171,3 +171,21 @@ body.dark-mode .toggle-button.active,body.dark-mode .toggle-button.is-active{bac
 body.dark-mode .toggle-button:after{background:#f6f8f3}
 body.dark-mode .toast{background:#20271f;color:#edf2e9;border-color:#465342}
 body.dark-mode .target-display{background:var(--surface);color:var(--text);border-color:var(--line)}
+
+
+/* Dedicated game and result screens */
+#page-game.active,#page-results.active{min-height:calc(100vh - 72px);padding-top:clamp(24px,5vh,58px);padding-bottom:48px}
+#page-game .game-shell,#page-results .results-shell{width:min(100% - 40px,820px);margin:0 auto}
+#page-game .game-scene{margin-top:18px}
+#page-game .answer-form{margin-top:24px}
+#page-game .suggestions[hidden]{display:none!important}
+#page-game .answer-input-wrap input{font-size:clamp(24px,4vw,34px);letter-spacing:.02em;text-align:center;min-height:72px}
+#page-game .answer-form-bottom{margin-top:18px}
+#page-game .answer-result{margin-top:22px}
+.answer-result-enter{animation:answerReveal .48s cubic-bezier(.2,.8,.2,1) both}
+.question-enter{animation:questionReveal .45s cubic-bezier(.2,.8,.2,1) both}
+#page-game .answer-form-locked{opacity:.72;transition:opacity .25s ease}
+#page-game .answer-result[hidden]{display:none!important}
+@keyframes answerReveal{from{opacity:0;transform:translateY(18px) scale(.985);filter:blur(3px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@keyframes questionReveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.answer-result-enter,.question-enter{animation:none!important}}
