@@ -735,7 +735,7 @@
         }
       } catch (_) {}
     }
-    if (mode === "practice" && !getStorage()?.isPlus?.() && (Number(options?.count || 10) > 20 || (options?.difficulty && options.difficulty !== "all"))) {
+    if (mode === "practice" && !options?.sharedChallenge && !getStorage()?.isPlus?.() && (Number(options?.count || 10) > 20 || (options?.difficulty && options.difficulty !== "all"))) {
       showToast("Advanced practice is a DAZURIO Plus feature.", "warning");
       return false;
     }
