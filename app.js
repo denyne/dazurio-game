@@ -16,7 +16,7 @@
   const effects = () => window.DazurioEffects;
   const game = () => window.DazurioGame;
 
-  function updateDailyCountdown() {
+  function tickDailyClock() {
     const output = document.getElementById("dailyCountdown");
     if (!output) return;
     const now = new Date();
@@ -27,12 +27,12 @@
     const minutes = String(Math.floor((remaining % 3600000) / 60000)).padStart(2, "0");
     const seconds = String(Math.floor((remaining % 60000) / 1000)).padStart(2, "0");
     output.textContent = hours + ":" + minutes + ":" + seconds;
-    output.dateTime = new Date(now.getTime() + remaining).toISOString();
+    output.setAttribute("datetime", new Date(now.getTime() + remaining).toISOString());
   }
   function startDailyClock() {
-    updateDailyCountdown();
+    tickDailyClock();
     if (window.__dazurioDailyClock) clearInterval(window.__dazurioDailyClock);
-    window.__dazurioDailyClock = window.setInterval(updateDailyCountdown, 1000);
+    window.__dazurioDailyClock = window.setInterval(tickDailyClock, 1000);
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", startDailyClock, { once: true });
@@ -559,7 +559,7 @@
     setText("profileName", user.displayName || user.username);
     setText("profileJoined", user.createdAt || "");
     setText("profileXP", (stats.xp || 0).toLocaleString());
-    setText("profileLevel", stats.level || 1);
+    setText("profileLevel", Math.floor(Math.max(0, Number(stats.xp) || 0) / 250) + 1);
     setText("profileStreak", stats.streak || 0);
     setText("profileGames", stats.gamesPlayed || 0);
     setText("profileBestScore", (stats.bestScore || 0).toLocaleString());
@@ -1391,11 +1391,16 @@
       storage().init();
       initialized = true;
 
-      bindNavigation();
-      bindAuth();
-      bindMainActions();
-      bindSettings();
-      bindLeaderboardTabs();
+      const bootTasks = [
+        ["navigation", bindNavigation],
+        ["authentication", bindAuth],
+        ["main actions", bindMainActions],
+        ["settings", bindSettings],
+        ["leaderboard", bindLeaderboardTabs]
+      ];
+      for (const [label, task] of bootTasks) {
+        try { task(); } catch (error) { console.error("DAZURIO " + label + " setup failed:", error); }
+      }
       document.addEventListener("dazurio:game-finished", event => {
         if (event.detail?.mode === "daily" && !hasAccount()) saveGuestDaily(event.detail);
         renderResults(event.detail);
@@ -1414,17 +1419,27 @@
 
       const initialHash = window.location.hash;
 
-      if (initialHash.startsWith("#page-")) {
-        const requestedPage = initialHash.replace("#page-", "");
-        navigateTo(requestedPage);
-      } else {
-        navigateTo("home");
+      try {
+        if (initialHash.startsWith("#page-")) {
+          const requestedPage = initialHash.replace("#page-", "");
+          navigateTo(requestedPage);
+        } else {
+          navigateTo("home");
+        }
+      } catch (error) {
+        console.error("DAZURIO initial navigation failed:", error);
+        document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+        document.getElementById("page-home")?.classList.add("active");
       }
 
       console.info("DAZURIO initialized successfully.");
     } catch (error) {
       console.error("DAZURIO initialization error:", error);
-      notify("Aplikaci se nepodařilo správně spustit.", "error");
+      console.error("DAZURIO boot details:", error?.stack || error);
+      notify("Aplikaci se nepodařilo správně spustit. Obnovuji základní obrazovku…", "error");
+      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+      document.getElementById("page-home")?.classList.add("active");
+      startDailyClock();
     }
   }
 
