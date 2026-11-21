@@ -1522,7 +1522,7 @@
     byId("shareResultsButton")?.addEventListener("click", async () => {
       const summary = game()?.getSummary?.();
       if (!summary) return;
-      const shareText = "I scored " + summary.score.toLocaleString() + " points in DAZURIO (" + summary.totalQuestions + " questions). Can you beat me? " + window.location.href;
+      const shareText = summary.mode === "daily" ? "I scored " + summary.score.toLocaleString() + " points in today’s DAZURIO Daily (" + summary.totalQuestions + " questions). Take the same daily challenge and see if you can beat me! " + window.location.href : "I scored " + summary.score.toLocaleString() + " points in DAZURIO " + String(summary.mode).toUpperCase() + " (" + summary.totalQuestions + " questions). Can you beat me? " + window.location.href;
       try {
         if (navigator.share) await navigator.share({ title: "My DAZURIO result", text: shareText });
         else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(shareText); notify("Result copied to clipboard.", "success"); }
@@ -1571,7 +1571,7 @@
     byId("studioGrantFrameButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("frame",byId("studioGrantFrame")?.value||"");renderProfile();updateAccountControls();notify("Frame unlocked for the current player.","success");setText("studioRewardStatus","Frame added to the current profile.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant frame.");}});
     byId("studioGrantOwnerButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("title","OWNER");storage().grantCosmetic("frame","owner");renderProfile();updateAccountControls();setText("studioRewardStatus","Owner visual cosmetics added. This is not an admin permission.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant Owner cosmetics.");}});
     byId("studioRefreshPlayersButton")?.addEventListener("click",renderStudioPlayers);
-    byId("studioGrantPlayerRewardButton")?.addEventListener("click",()=>{try{const id=byId("studioPlayerTarget")?.value||"";if(!id)throw new Error("Choose a player first.");const title=byId("studioPlayerRewardTitle")?.value.trim()||"";const frame=byId("studioPlayerRewardFrame")?.value||"";if(!title&&!frame)throw new Error("Enter a title or choose a frame.");if(title)storage().grantCosmeticToPlayer(id,"title",title);if(frame)storage().grantCosmeticToPlayer(id,"frame",frame);setText("studioPlayerManagerStatus","Reward granted to that local profile.");renderStudioPlayers();}catch(error){setText("studioPlayerManagerStatus",error.message||"Could not grant reward.");}});
+    byId("studioGrantPlayerRewardButton")?.addEventListener("click",()=>{try{const id=byId("studioPlayerTarget")?.value||"";if(!id)throw new Error("Choose a player first.");const title=byId("studioPlayerRewardTitle")?.value.trim()||"";const frame=byId("studioPlayerRewardFrame")?.value||"";if(!title&&!frame)throw new Error("Enter a title or choose a frame.");if(title)storage().grantCosmeticToPlayer(id,"title",title);if(frame)storage().grantCosmeticToPlayer(id,"frame",frame);setText("studioPlayerManagerStatus","Reward granted to that local profile.");renderStudioPlayers();updateAccountControls();renderProfile();}catch(error){setText("studioPlayerManagerStatus",error.message||"Could not grant reward.");}});
     byId("editProfileButton")?.addEventListener(
       "click",
       openEditProfile
