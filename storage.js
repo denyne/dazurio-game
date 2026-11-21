@@ -889,20 +889,22 @@
     return Boolean(user && user.plus);
   }
 
-  function activatePlus() {
+  function redeemPlusCode(code) {
     const database = readDatabase();
     const user = getCurrentUserFrom(database);
-
-    if (!user) {
-      throw new Error("You must be logged in.");
-    }
-
-    // Pouze lokální demo, nikoliv skutečné předplatné.
+    if (!user) throw new Error("You must be logged in.");
+    const submitted = String(code || "").trim().toUpperCase();
+    // Client-side prototype redemption. A production entitlement must be validated server-side.
+    if (submitted !== "DAZURIO-STARLIGHT-FOREVER") throw new Error("That Plus code is not valid.");
+    if (user.plus) throw new Error("DAZURIO Plus is already unlocked on this profile.");
     user.plus = true;
+    user.plusLifetime = true;
+    user.plusUnlockedAt = new Date().toISOString();
+    user.cosmetics = Object.assign({frames:["classic"],equippedFrame:"classic",titles:["Curious Mind"],equippedTitle:"Curious Mind"},user.cosmetics||{});
+    ["aurora","gold"].forEach(frame => { if (!user.cosmetics.frames.includes(frame)) user.cosmetics.frames.push(frame); });
+    ["DAZURIO LEGEND","STARLIGHT"].forEach(title => { if (!user.cosmetics.titles.includes(title)) user.cosmetics.titles.push(title); });
     user.updatedAt = new Date().toISOString();
-
     writeDatabase(database);
-
     return true;
   }
 
@@ -956,7 +958,7 @@
     getSettings,
     updateSettings,
     isPlus,
-    activatePlus,
+    redeemPlusCode,
     exportData,
     resetAll,
     levelFromXP,
