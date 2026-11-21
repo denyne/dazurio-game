@@ -18,7 +18,8 @@
     timer: null,
     active: false,
     answered: false,
-    startedAt: null
+    startedAt: null,
+    lives: 3
   };
 
   const $ = (id) => document.getElementById(id);
@@ -189,6 +190,14 @@
   function getEndlessQuestions() {
     return shuffle(getAllQuestions());
   }
+  function getSpeedRunQuestions() { return shuffle(getAllQuestions()).slice(0, Math.min(20, getAllQuestions().length)); }
+  function getSurvivalQuestions() { return shuffle(getAllQuestions()); }
+  function getMysteryQuestions() { return shuffle(getAllQuestions()).slice(0, QUESTIONS_PER_DAILY); }
+  function getWorldTourQuestions() {
+    const all = getAllQuestions();
+    const categories = [...new Set(all.map(q => q.category).filter(Boolean))];
+    return shuffle(categories.map(category => shuffle(all.filter(q => q.category === category))[0]).filter(Boolean)).slice(0, QUESTIONS_PER_DAILY);
+  }
 
   function showToast(message, type = "info") {
     const effects = getEffects();
@@ -225,7 +234,8 @@
   function startTimer() {
     stopTimer();
 
-    state.timeLeft = SECONDS_PER_QUESTION;
+    const seconds = state.mode === "speedrun" ? 15 : SECONDS_PER_QUESTION;
+    state.timeLeft = seconds;
     updateTimerDisplay();
 
     state.timer = setInterval(() => {
@@ -248,8 +258,8 @@
     if (value) value.textContent = state.timeLeft;
 
     if (fill) {
-      const percentage =
-        (state.timeLeft / SECONDS_PER_QUESTION) * 100;
+      const duration = state.mode === "speedrun" ? 15 : SECONDS_PER_QUESTION;
+      const percentage = (state.timeLeft / duration) * 100;
 
       fill.style.width = `${percentage}%`;
       fill.classList.toggle("timer-warning", state.timeLeft <= 10);
@@ -284,6 +294,10 @@
         return "TRÉNINK";
       case "archive":
         return "ARCHIVNÍ VÝZVA";
+      case "speedrun": return "SPEED RUN";
+      case "survival": return "SURVIVAL";
+      case "mystery": return "MYSTERY MODE";
+      case "worldtour": return "WORLD TOUR";
       default:
         return "DENNÍ VÝZVA";
     }
@@ -323,7 +337,7 @@
     const fields = {
       questionTitle: question.question,
       questionDescription: question.description || "",
-      questionCategory: question.category || "",
+      questionCategory: state.mode === "mystery" ? "MYSTERY" : (question.category || ""),
       questionDifficulty: question.difficulty || "",
       targetValue: "?",
       targetUnit: question.unit || ""
@@ -489,6 +503,7 @@
     };
 
     state.answers.push(record);
+    if (state.mode === "survival" && points < 300) state.lives = Math.max(0, state.lives - 1);
 
     if (input) input.disabled = true;
     $("answerForm")?.classList.add("answer-form-locked");
@@ -499,7 +514,7 @@
     displayAnswerResult(record, question);
 
     const next = $("nextQuestionButton");
-    if (next) next.hidden = false;
+    if (next) { next.hidden = false; if (state.mode === "survival" && state.lives <= 0) next.textContent = "SEE RESULTS"; }
     const resultPanel = $("answerResult");
     resultPanel?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
@@ -715,7 +730,7 @@
       return false;
     }
 
-    if (!["daily", "practice", "endless", "archive"].includes(mode)) {
+    if (!["daily", "practice", "endless", "archive", "speedrun", "survival", "mystery", "worldtour"].includes(mode)) {
       mode = "daily";
     }
 
@@ -729,6 +744,14 @@
       questions = getDailyQuestions(safeOptions.date);
     } else if (mode === "practice") {
       questions = getPracticeQuestions(safeOptions);
+    } else if (mode === "speedrun") {
+      questions = getSpeedRunQuestions();
+    } else if (mode === "survival") {
+      questions = getSurvivalQuestions();
+    } else if (mode === "mystery") {
+      questions = getMysteryQuestions();
+    } else if (mode === "worldtour") {
+      questions = getWorldTourQuestions();
     } else {
       questions = getEndlessQuestions();
     }
@@ -754,6 +777,7 @@
     state.startedAt = Date.now();
     state.active = true;
     state.answered = false;
+    state.lives = 3;
 
     document.querySelectorAll(".page").forEach(page => {
       page.classList.remove("active");
@@ -775,6 +799,7 @@
   function nextQuestion() {
     if (!state.active || !state.answered) return;
 
+    if (state.mode === "survival" && state.lives <= 0) { finishGame(); return; }
     state.currentIndex++;
     showQuestion();
   }
