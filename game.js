@@ -633,7 +633,8 @@
       date: state.options.date || null,
       category: state.options.category || null,
       score,
-      xp: (state.mode === "daily" || state.mode === "endless" || state.mode === "boss") ? Math.floor(score / 10) : 0,\n      bossMonth: state.mode === "boss" ? String(state.options.monthKey || new Date().toISOString().slice(0,7)) : null,
+      xp: (state.mode === "daily" || state.mode === "endless" || state.mode === "boss") ? Math.floor(score / 10) : 0,
+      bossMonth: state.mode === "boss" ? String(state.options.monthKey || new Date().toISOString().slice(0,7)) : null,
       totalQuestions: total,
       correctAnswers: state.answers.filter(
         answer => answer.points >= 700
@@ -727,7 +728,8 @@
         }
       } catch (_) {}
     }
-    if (mode === "boss" && getStorage()?.getMonthlyBossStatus?.().played) { showToast("This month’s Boss Challenge is already complete. A new boss arrives next month.", "info"); return false; }\n    if (mode === "practice" && !options?.sharedChallenge && !getStorage()?.isPlus?.() && (Number(options?.count || 10) > 20 || (options?.difficulty && options.difficulty !== "all"))) {
+    if (mode === "boss" && getStorage()?.getMonthlyBossStatus?.().played) { showToast("This month’s Boss Challenge is already complete. A new boss arrives next month.", "info"); return false; }
+    if (mode === "practice" && !options?.sharedChallenge && !getStorage()?.isPlus?.() && (Number(options?.count || 10) > 20 || (options?.difficulty && options.difficulty !== "all"))) {
       showToast("Advanced practice is a DAZURIO Plus feature.", "warning");
       return false;
     }
