@@ -981,21 +981,19 @@
       while (walker.nextNode()) textNodes.push(walker.currentNode);
       textNodes.forEach(textNode => {
         if (!textNode.__dazOriginalText) textNode.__dazOriginalText = textNode.nodeValue || "";
-        const originalValue = textNode.__dazOriginalText;
-        if (!cs) {
-          textNode.nodeValue = originalValue;
-          return;
+        try {
+          const originalValue = textNode.__dazOriginalText;
+          if (!cs) { textNode.nodeValue = originalValue; return; }
+          const key = originalValue.trim();
+          const translated = dictionary[key];
+          if (!translated) { textNode.nodeValue = originalValue; return; }
+          const leadingLength = originalValue.length - originalValue.trimStart().length;
+          const trailingLength = originalValue.length - originalValue.trimEnd().length;
+          textNode.nodeValue = originalValue.slice(0, leadingLength) + translated +
+            (trailingLength ? originalValue.slice(originalValue.length - trailingLength) : "");
+        } catch (nodeError) {
+          console.debug("DAZURIO skipped one untranslatable text node:", nodeError);
         }
-        const key = originalValue.trim();
-        const translated = dictionary[key];
-        if (!translated) {
-          textNode.nodeValue = originalValue;
-          return;
-        }
-        const leadingLength = originalValue.length - originalValue.trimStart().length;
-        const trailingLength = originalValue.length - originalValue.trimEnd().length;
-        textNode.nodeValue = originalValue.slice(0, leadingLength) + translated +
-          (trailingLength ? originalValue.slice(originalValue.length - trailingLength) : "");
       });
     } catch (translationError) {
       console.warn("DAZURIO language update skipped a text node:", translationError);
@@ -1384,7 +1382,6 @@
     byId("languageSelect")?.addEventListener("change", event => {
       const language = event.target.value === "cs" ? "cs" : "en";
       saveSetting("language", language);
-      applyLanguage(language);
 
       notify(
         event.target.value === "en"
@@ -1464,7 +1461,7 @@
     } catch (error) {
       console.error("DAZURIO initialization error:", error);
       console.error("DAZURIO boot details:", error?.stack || error);
-      notify("Některá část aplikace se nenačetla. Základní stránka zůstává dostupná.", "warning");
+      // Keep the home screen usable; detailed diagnostics remain in the console and Studio.
       document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
       document.getElementById("page-home")?.classList.add("active");
       startDailyClock();
