@@ -26,6 +26,30 @@ folder (Python installed):
 Then open http://localhost:8000
 
 
+Current prototype features
+--------------------------
+- Daily and archive challenges, Endless, Practice, Speed Run, Survival, Mystery,
+  World Tour and Boss Challenge.
+- Player levels, streak milestones, weekly quests, achievements, collectible
+  collections, profile frames, titles and avatar pictures.
+- Lifetime Plus demo unlock with advanced practice, extended local history,
+  additional insights, exclusive frames/titles and a Plus achievement.
+- Local friends, local leaderboards, event/question/reward tools and a local
+  player manager in DAZURIO Studio.
+
+Important prototype limitations
+-------------------------------
+All accounts, friends, cosmetics, event settings and leaderboards are stored in
+this browser only. They do not synchronize across browsers or devices. Online
+friends, global leaderboards, server-run events and secure account roles need a
+real backend.
+
+The Plus redemption code is currently checked in client-side JavaScript. It is
+visible to anyone inspecting the source and is only a prototype convenience,
+not secure payment or entitlement validation. The Studio passphrase is also a
+client-side convenience lock. The Owner frame/title are visual cosmetics only;
+they do not grant trusted administrator permissions.
+
 Notes
 -----
 Accounts, progress and settings are saved locally in this browser. This is a
