@@ -119,8 +119,14 @@
     }
 
     currentPage = target;
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (target === "game" || target === "results") {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (window.location.hash !== "#page-" + target) {
+      history.replaceState(null, "", "#page-" + target);
+    }
 
     $$(".main-nav [data-page], .main-nav [data-nav], .main-nav a").forEach(item => {
       const destination = getNavigationTarget(item);
