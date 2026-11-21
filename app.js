@@ -16,6 +16,33 @@
   const effects = () => window.DazurioEffects;
   const game = () => window.DazurioGame;
 
+  function updateDailyCountdown() {
+    const output = document.getElementById("dailyCountdown");
+    if (!output) return;
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setHours(24, 0, 0, 0);
+    const remaining = Math.max(0, tomorrow.getTime() - now.getTime());
+    const hours = String(Math.floor(remaining / 3600000)).padStart(2, "0");
+    const minutes = String(Math.floor((remaining % 3600000) / 60000)).padStart(2, "0");
+    const seconds = String(Math.floor((remaining % 60000) / 1000)).padStart(2, "0");
+    output.textContent = hours + ":" + minutes + ":" + seconds;
+    output.dateTime = new Date(now.getTime() + remaining).toISOString();
+  }
+  function startDailyClock() {
+    updateDailyCountdown();
+    if (window.__dazurioDailyClock) clearInterval(window.__dazurioDailyClock);
+    window.__dazurioDailyClock = window.setInterval(updateDailyCountdown, 1000);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startDailyClock, { once: true });
+  } else {
+    startDailyClock();
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) updateDailyCountdown();
+  });
+
   function setText(id, value) {
     const element = byId(id);
     if (element) element.textContent = String(value ?? "");
@@ -413,14 +440,25 @@
 
     const stats = user?.stats || getGuestStats();
 
-    setText("homeStreak", stats.streak || 0);
-    setText("homeXP", (stats.xp || 0).toLocaleString());
-    setText("homeGames", stats.gamesPlayed || 0);
-    setText("homeLevel", stats.level || 1);
+    const xp = Math.max(0, Number(stats.xp) || 0);
+    const level = Math.floor(xp / 250) + 1;
+    const currentLevelXP = xp % 250;
 
-    const xp = stats.xp || 0;
-    const level = stats.level || 1;
-    const currentLevelXP = xp - (level - 1) * 250;
+    // XP is the single source of truth. Never trust a stale saved level field.
+    if (user?.stats && user.stats.level !== level) user.stats.level = level;
+    if (!user) {
+      const guest = getGuestStats();
+      if (guest.level !== level) {
+        guest.level = level;
+        try { localStorage.setItem("dazurio_guest_stats_v1", JSON.stringify(guest)); } catch (_) {}
+      }
+    }
+
+    setText("homeStreak", stats.streak || 0);
+    setText("homeXP", xp.toLocaleString());
+    setText("homeGames", stats.gamesPlayed || 0);
+    setText("homeLevel", level);
+    setText("progressLevel", level);
     const percentage = Math.min(
       100,
       Math.max(0, currentLevelXP / 250 * 100)
@@ -431,8 +469,8 @@
       progress.style.width = percentage + "%";
     }
 
-    setText("progressXP", currentLevelXP);
-    setText("nextLevelXP", 250);
+    setText("progressXP", `${currentLevelXP} / 250 XP`);
+    setText("nextLevelXP", `${250 - currentLevelXP} XP TO NEXT LEVEL`);
 
     updateDailyCountdown();
   }
@@ -1369,11 +1407,10 @@
       updateAccountControls();
       loadSettings();
       updateDailyCountdown();
-      window.setInterval(updateDailyCountdown, 1000);
-      refreshHome();
-      renderProfile();
-      renderArchive();
-      renderQuestionLibrary();
+      try { refreshHome(); } catch (error) { console.warn("Home stats could not render:", error); }
+      try { renderProfile(); } catch (error) { console.warn("Profile could not render:", error); }
+      try { renderArchive(); } catch (error) { console.warn("Archive could not render:", error); }
+      try { renderQuestionLibrary(); } catch (error) { console.warn("Question library could not render:", error); }
 
       const initialHash = window.location.hash;
 
@@ -1402,6 +1439,7 @@
   window.startDaily = startDaily;
   window.startEndless = startEndless;
   window.startPractice = startPractice;
+  window.retryDazurioInit = init;
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
