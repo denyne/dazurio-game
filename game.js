@@ -191,7 +191,13 @@
     return shuffle(pool).slice(0, safeCount);
   }
 
-  function getBossQuestions(options = {}) { const all=getAllQuestions();const hard=all.filter(q=>String(q.difficulty||"").toLowerCase()==="hard");const pool=hard.length>=5?hard:all;const month=String(options.monthKey||new Date().toISOString().slice(0,7));const hash=value=>{let h=2166136261;for(const ch of String(value))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};const chosen=[...pool].sort((a,b)=>hash(month+":"+a.id)-hash(month+":"+b.id)).slice(0,Math.min(5,pool.length));const rank={easy:0,medium:1,hard:2};return chosen.sort((a,b)=>(rank[String(a.difficulty||"medium").toLowerCase()]??1)-(rank[String(b.difficulty||"medium").toLowerCase()]??1));}
+  function getBossQuestions(options = {}) {
+    const bank=Array.isArray(window.DAZURIO_BOSS_QUESTIONS)?window.DAZURIO_BOSS_QUESTIONS:[];
+    const month=String(options.monthKey||new Date().toISOString().slice(0,7));
+    if(bank.length<5){console.error("[DAZURIO] Exclusive Boss question bank is missing.");return [];}
+    const hash=value=>{let h=2166136261;for(const ch of String(value))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
+    return [...bank].sort((a,b)=>hash(month+":"+a.id)-hash(month+":"+b.id)).slice(0,5).map(q=>Object.assign({},q,{suggestions:[...(q.suggestions||[])]}));
+  }
 
     function getEndlessQuestions() {
     return shuffle(getAllQuestions());
