@@ -976,6 +976,19 @@
 
 
 
+  <section class="studio-password-overlay" id="studioPasswordModal" hidden aria-modal="true" role="dialog" aria-labelledby="studioPasswordTitle">
+    <form class="studio-password-panel" id="studioPasswordForm">
+      <button class="studio-password-close" type="button" id="studioPasswordClose" aria-label="Close">×</button>
+      <span class="eyebrow">RESTRICTED AREA</span>
+      <h2 id="studioPasswordTitle">Welcome back, moderator.</h2>
+      <p>Enter your studio passphrase to unlock the DAZURIO tools.</p>
+      <label for="studioPasswordInput">ACCESS PASSPHRASE</label>
+      <input id="studioPasswordInput" type="password" autocomplete="current-password" placeholder="Enter passphrase" required>
+      <small class="studio-password-error" id="studioPasswordError" aria-live="polite"></small>
+      <button class="studio-password-submit" type="submit">UNLOCK STUDIO ↗</button>
+    </form>
+  </section>
+
   <section class="studio-overlay" id="studioOverlay" hidden aria-modal="true" role="dialog" aria-labelledby="studioTitle">
     <div class="studio-panel">
       <div class="studio-heading"><div><span class="eyebrow">LOCAL DEVELOPER SPACE</span><h2 id="studioTitle">DAZURIO Studio</h2><p>Tools for this browser preview.</p></div><button type="button" id="studioCloseButton" aria-label="Close studio">×</button></div>
@@ -984,9 +997,13 @@
         <div class="studio-card"><small>DATABASE HEALTH</small><strong id="studioHealth">Checking…</strong><span>question validation</span></div>
         <div class="studio-card"><small>TODAY</small><strong id="studioDate">—</strong><span>local browser date</span></div>
         <div class="studio-card"><small>DAILY STATUS</small><strong id="studioDailyStatus">—</strong><span>current challenge</span></div>
+        <div class="studio-card"><small>JS MEMORY</small><strong id="studioMemory">—</strong><span>browser heap if available</span></div>
+        <div class="studio-card"><small>RUNTIME ERRORS</small><strong id="studioErrors">0</strong><span>since this page opened</span></div>
+        <div class="studio-card"><small>SESSION RUNTIME</small><strong id="studioRuntime">—</strong><span>time since load</span></div>
+        <div class="studio-card"><small>MOTION PREFERENCE</small><strong id="studioMotion">—</strong><span>system accessibility setting</span></div>
       </div>
-      <div class="studio-actions"><button type="button" id="studioValidateButton">Run question check</button><button type="button" id="studioResetDailyButton">Reset today's daily lock</button></div>
-      <p class="studio-note">Local preview tools only. Client-side password protection is a convenience lock, not secure server authentication. Daily reset is intended for testing.</p>
+      <div class="studio-actions"><button type="button" id="studioValidateButton">Run question check</button><button type="button" id="studioDiagnosticsButton">Refresh diagnostics</button><button type="button" id="studioResetDailyButton">Reset today's daily lock</button></div>
+      <p class="studio-note">Local preview tools only. The passphrase is a convenience lock only; client-side tools are not secure server authentication. Daily reset is intended for testing.</p>
     </div>
   </section>
 
