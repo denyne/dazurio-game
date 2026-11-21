@@ -374,3 +374,11 @@ body.dark-mode .extra-modes{background:var(--surface);border-color:var(--line)}
 #studioOverlay::-webkit-scrollbar-thumb{background:var(--muted);border:3px solid transparent;border-radius:99px;background-clip:padding-box}
 .studio-achievement-grant{display:grid;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 .studio-achievement-grant select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--text)}
+
+
+/* Special rank title treatments: bright Owner, cool Admin, royal-purple Plus. */
+.title-rank-owner{color:#f4b92f!important;background:linear-gradient(110deg,#fff3b0,#f2bf45 42%,#fff0a1)!important;border:1px solid #d49a25!important;text-shadow:0 0 7px #ffd65d,0 0 16px #ffbd3b,0 0 26px #f4a92b99;box-shadow:0 0 0 1px #f6d77c55,0 0 12px #f3bf4f88,0 0 24px #f3b33d55!important;animation:ownerTitleGlow 2.8s ease-in-out infinite alternate}
+.title-rank-admin{color:#8ce8ff!important;background:linear-gradient(110deg,#103b57,#176a88 52%,#17445e)!important;border:1px solid #42c6e9!important;text-shadow:0 0 7px #3bd7ff,0 0 15px #1aa9d888;box-shadow:0 0 0 1px #4ad7ff33,0 0 13px #22bce966!important}
+.title-rank-plus{color:#e4c4ff!important;background:linear-gradient(110deg,#32105f,#7132a8 52%,#42146e)!important;border:1px solid #a66be3!important;text-shadow:0 0 7px #c98bff,0 0 15px #a34be9aa;box-shadow:0 0 0 1px #c58cff44,0 0 13px #a85be988!important}
+@keyframes ownerTitleGlow{from{filter:brightness(.96);box-shadow:0 0 0 1px #f6d77c44,0 0 9px #f3bf4f66,0 0 16px #f3b33d33}to{filter:brightness(1.18);box-shadow:0 0 0 1px #f6d77c88,0 0 15px #f3bf4fbb,0 0 30px #f3b33d88}}
+@media(prefers-reduced-motion:reduce){.title-rank-owner{animation:none}}
