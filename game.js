@@ -731,9 +731,14 @@
             : magnitude >= 1e3
               ? (parsed / 1e3).toFixed(2).replace(/\\.?0+$/, "") + "K"
               : String(parsed);
-        formatHint.textContent = parsed.toLocaleString() + "  ≈  " + compact;
+        const grouped = parsed.toLocaleString();
+        const format = $("numberFormatSelect")?.value || "grouped";
+        formatHint.textContent = format === "compact"
+          ? compact + "  ≈  " + grouped
+          : grouped + "  ≈  " + compact;
       };
       answerInput.addEventListener("input", refreshHint);
+      $("numberFormatSelect")?.addEventListener("change", refreshHint);
       refreshHint();
     }
 
