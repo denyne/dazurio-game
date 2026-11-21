@@ -81,6 +81,7 @@
 
     user.plus = Boolean(user.plus);
     user.achievements = Array.isArray(user.achievements) ? user.achievements : [];
+    user.claimedWeeklyRewards = Array.isArray(user.claimedWeeklyRewards) ? user.claimedWeeklyRewards : [];
     user.cosmetics = Object.assign({ frames: ["classic"], equippedFrame: "classic", titles: ["Curious Mind"], equippedTitle: "Curious Mind" }, user.cosmetics || {});
     if (!Array.isArray(user.cosmetics.frames)) user.cosmetics.frames = ["classic"];
     if (!Array.isArray(user.cosmetics.titles)) user.cosmetics.titles = ["Curious Mind"];
@@ -727,6 +728,33 @@
     return clone(record);
   }
 
+  function claimWeeklyReward(weekStart) {
+    const database = readDatabase();
+    const user = getCurrentUserFrom(database);
+    if (!user) throw new Error("Sign in to claim weekly quest rewards.");
+    normalizeUser(user);
+    const start = String(weekStart || "");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(start)) throw new Error("Invalid weekly period.");
+    if (user.claimedWeeklyRewards.includes(start)) return false;
+    const endDate = new Date(start + "T12:00:00");
+    endDate.setDate(endDate.getDate() + 7);
+    const end = dateKey(endDate.toISOString());
+    const records = (user.history || []).filter(record => record.date >= start && record.date < end && ["daily", "endless"].includes(record.mode));
+    const dailyCount = records.filter(record => record.mode === "daily").length;
+    const answers = records.flatMap(record => record.answers || []);
+    const categories = new Set(answers.map(answer => answer.category).filter(Boolean));
+    if (dailyCount < 3 || answers.length < 35 || categories.size < 3) {
+      throw new Error("Complete all three weekly quests before claiming the reward.");
+    }
+    user.claimedWeeklyRewards.push(start);
+    user.stats.xp += 150;
+    user.stats.level = levelFromXP(user.stats.xp);
+    evaluatePlayerRewards(user);
+    user.updatedAt = new Date().toISOString();
+    writeDatabase(database);
+    return true;
+  }
+
   function getHistory(limit) {
     const user = getCurrentUserFrom(readDatabase());
 
@@ -923,6 +951,7 @@
     deleteAccount,
     saveGameResult,
     getHistory,
+    claimWeeklyReward,
     getLeaderboard,
     getSettings,
     updateSettings,
