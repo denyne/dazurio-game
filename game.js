@@ -380,6 +380,21 @@
     );
   }
 
+  function parseGuess(value) {
+    if (typeof value === "number") return value;
+    let raw = String(value ?? "").trim().replace(/[\\s\\u00a0]/g, "");
+    if (raw.includes(",") && !raw.includes(".")) {
+      const parts = raw.split(",");
+      raw = parts.length === 2 && parts[1].length <= 2
+        ? parts[0].replace(/,/g, "") + "." + parts[1]
+        : raw.replace(/,/g, "");
+    } else {
+      raw = raw.replace(/,/g, "");
+    }
+    raw = raw.replace(/_/g, "");
+    return raw === "" ? NaN : Number(raw);
+  }
+
   function submitAnswer(value, timedOut = false) {
     if (!state.active || state.answered) return;
 
@@ -396,14 +411,14 @@
 
     if (
       !timedOut &&
-      (guess === "" || !Number.isFinite(Number(guess)))
+      (guess === "" || !Number.isFinite(parseGuess(guess)))
     ) {
       showToast("Zadej platný číselný odhad.", "warning");
       if (input) input.focus();
       return;
     }
 
-    guess = timedOut ? null : Number(guess);
+    guess = timedOut ? null : parseGuess(guess);
 
     if (guess !== null) {
       const min = Number(question.min);
@@ -697,6 +712,41 @@
 
   function init() {
     const form = $("answerForm");
+
+    const answerInput = $("answerInput");
+    const formatHint = $("answerFormatHint");
+    if (answerInput && formatHint && !answerInput.dataset.formatBound) {
+      answerInput.dataset.formatBound = "true";
+      const refreshHint = () => {
+        const parsed = parseGuess(answerInput.value);
+        if (!Number.isFinite(parsed) || !answerInput.value.trim()) {
+          formatHint.textContent = "Example: 1 000 000 = 1M";
+          return;
+        }
+        const magnitude = Math.abs(parsed);
+        const compact = magnitude >= 1e9
+          ? (parsed / 1e9).toFixed(2).replace(/\\.?0+$/, "") + "B"
+          : magnitude >= 1e6
+            ? (parsed / 1e6).toFixed(2).replace(/\\.?0+$/, "") + "M"
+            : magnitude >= 1e3
+              ? (parsed / 1e3).toFixed(2).replace(/\\.?0+$/, "") + "K"
+              : String(parsed);
+        formatHint.textContent = parsed.toLocaleString() + "  ≈  " + compact;
+      };
+      answerInput.addEventListener("input", refreshHint);
+      refreshHint();
+    }
+
+    if (!document.body.dataset.gameKeyboardBound) {
+      document.body.dataset.gameKeyboardBound = "true";
+      document.addEventListener("keydown", event => {
+        if (event.key !== "Enter" || !state.active || !state.answered) return;
+        const keyboardToggle = $("keyboardHintsToggle");
+        if (keyboardToggle && !keyboardToggle.classList.contains("active") && !keyboardToggle.classList.contains("is-active")) return;
+        event.preventDefault();
+        nextQuestion();
+      });
+    }
 
     if (form && !form.dataset.gameBound) {
       form.dataset.gameBound = "true";
