@@ -303,11 +303,22 @@
     return fallbackHash(value);
   }
 
+  function levelProgressFromXP(xp) {
+    let remaining = nonNegative(xp);
+    let level = 1;
+    let required = 200;
+    while (remaining >= required) {
+      remaining -= required;
+      level += 1;
+      required += 50;
+      // Safety cap for extremely large/corrupt values.
+      if (level > 100000) break;
+    }
+    return { level, current: remaining, required, remaining: Math.max(0, required - remaining) };
+  }
+
   function levelFromXP(xp) {
-    return Math.max(
-      1,
-      Math.floor(nonNegative(xp) / 250) + 1
-    );
+    return levelProgressFromXP(xp).level;
   }
 
   function getCurrentUserFrom(database) {
