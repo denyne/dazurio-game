@@ -371,7 +371,7 @@
     if (dailyStatus) {
       dailyStatus.textContent = user
         ? "Ready for today's challenge?"
-        : "Sign in to save your progress.";
+        : "Play today as a guest — no account needed.";
     }
   }
 
