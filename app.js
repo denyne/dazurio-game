@@ -720,7 +720,7 @@
       cell.title = day.key + (day.played ? " · Daily completed" : "");
       grid.appendChild(cell);
     });
-    setText("dailyCalendarCount", played.size + " played");
+    setText("dailyCalendarCount", days.filter(day => day.played).length + " / 28 played");
   }
 
   function renderWeeklyCompetition() {
