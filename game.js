@@ -3,7 +3,7 @@
   "use strict";
 
   const QUESTIONS_PER_DAILY = 7;
-  const DAILY_SET_PREFIX = "dazurio_daily_set_v4_";
+  const DAILY_SET_PREFIX = "dazurio_daily_set_v6_";
   const ARCHIVE_DONE_PREFIX = "dazurio_archive_completed_";
   const SECONDS_PER_QUESTION = 25;
   const MAX_POINTS_PER_QUESTION = 1000;
@@ -48,10 +48,14 @@
       questions = db.questions;
     }
 
+    // The regular game pool intentionally excludes HARD questions.
+    // Specialist-level questions live only in the separate Monthly Boss bank.
     return questions.filter(question =>
       question &&
       typeof question.question === "string" &&
-      Number.isFinite(Number(question.answer))
+      Number.isFinite(Number(question.answer)) &&
+      String(question.difficulty || "medium").toLowerCase() !== "hard" &&
+      !String(question.id || "").startsWith("boss-hard-")
     );
   }
 
@@ -96,49 +100,34 @@
 
   function getDailyQuestions(dateValue) {
     const db = getDatabase();
-    const all = db && typeof db.getBuiltIn === "function" ? db.getBuiltIn() : getAllQuestions();
-    if (!all.length) return [];
-    const seed = getDateKey(dateValue);
-    const cacheKey = DAILY_SET_PREFIX + seed;
-    try {
-      const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
-      if (Array.isArray(cached)) {
-        const byId = new Map(all.map(question => [question.id, question]));
-        const restored = cached.map(id => byId.get(id)).filter(Boolean);
-        if (restored.length === QUESTIONS_PER_DAILY) return restored;
-      }
-    } catch (_) {}
+    // Daily/Archive use only the immutable built-in bank, never local custom
+    // questions or the Plus/Boss pool. This makes the set identical on every device.
+    const all = (db && typeof db.getBuiltIn === "function" ? db.getBuiltIn() : getAllQuestions())
+      .filter(question =>
+        question &&
+        typeof question.question === "string" &&
+        Number.isFinite(Number(question.answer)) &&
+        String(question.difficulty || "medium").toLowerCase() !== "hard" &&
+        !String(question.id || "").startsWith("boss-hard-")
+      );
+    if (all.length < QUESTIONS_PER_DAILY) return [];
 
-    // Deterministic daily schedule. Each date is generated from its own seed,
-    // excluding all seven questions from the previous day before selecting.
-    // This guarantees zero question repeats between consecutive daily sets.
-    const epoch = new Date("2026-01-01T12:00:00");
-    const requested = new Date(seed + "T12:00:00");
-    const daysFromEpoch = Math.floor((requested - epoch) / 86400000);
-    let previousIds = new Set();
-    let selected = [];
-    if (daysFromEpoch >= 0 && daysFromEpoch < 20000) {
-      for (let offset = 0; offset <= daysFromEpoch; offset++) {
-        const currentDate = new Date(epoch.getTime() + offset * 86400000);
-        const dayKey = getDateKey(currentDate);
-        let hash = 216 * 31;
-        for (const char of dayKey) hash = (hash * 31 + char.charCodeAt(0)) | 0;
-        const random = () => {
-          hash = (hash * 1664525 + 1013904223) | 0;
-          return (hash >>> 0) / 4294967296;
-        };
-        const available = shuffleWithRandom(all, random).filter(question => !previousIds.has(question.id));
-        selected = available.slice(0, Math.min(QUESTIONS_PER_DAILY, available.length));
-        previousIds = new Set(selected.map(question => question.id));
-      }
-    } else {
-      let hash = 216 * 31;
-      for (const char of seed) hash = (hash * 31 + char.charCodeAt(0)) | 0;
-      const random = () => { hash = (hash * 1664525 + 1013904223) | 0; return (hash >>> 0) / 4294967296; };
-      selected = shuffleWithRandom(all, random).slice(0, Math.min(QUESTIONS_PER_DAILY, all.length));
+    const seed = "DAZURIO-DAILY-v6:" + getDateKey(dateValue);
+    // Small deterministic PRNG: same date + same shipped bank = same seven IDs,
+    // order and answers on every browser/device, regardless of localStorage.
+    let hash = 2166136261;
+    for (let i = 0; i < seed.length; i++) {
+      hash ^= seed.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
     }
-    try { localStorage.setItem(cacheKey, JSON.stringify(selected.map(question => question.id))); } catch (_) {}
-    return selected;
+    const random = () => {
+      hash += 0x6D2B79F5;
+      let value = hash;
+      value = Math.imul(value ^ (value >>> 15), value | 1);
+      value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+      return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+    };
+    return shuffleWithRandom(all, random).slice(0, QUESTIONS_PER_DAILY);
   }
 
   function shuffleWithRandom(items, random) {
