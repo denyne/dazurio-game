@@ -83,7 +83,8 @@
     user.prestige = Math.max(0, nonNegative(user.prestige));
     user.mysteryBoxes = Math.max(0, nonNegative(user.mysteryBoxes));
     user.lifetimeXP = Math.max(nonNegative(user.lifetimeXP), nonNegative(user.stats.xp));
-    user.showcaseAchievements = Array.isArray(user.showcaseAchievements) ? user.showcaseAchievements.slice(0,3) : [];\n    user.claimedCollections = Array.isArray(user.claimedCollections) ? user.claimedCollections : [];
+    user.showcaseAchievements = Array.isArray(user.showcaseAchievements) ? user.showcaseAchievements.slice(0,3) : [];
+    user.claimedCollections = Array.isArray(user.claimedCollections) ? user.claimedCollections : [];
     user.lastComebackClaimedAt = user.lastComebackClaimedAt || null;
     user.achievements = Array.isArray(user.achievements) ? user.achievements : [];
     user.claimedWeeklyRewards = Array.isArray(user.claimedWeeklyRewards) ? user.claimedWeeklyRewards : [];
@@ -805,7 +806,8 @@
       );
     }
 
-    if (record.mode === "daily") updateStreak(user, playedDate);\n    if (record.mode === "boss" && score >= 2500) { if (!user.cosmetics.titles.includes("Monthly Champion")) user.cosmetics.titles.push("Monthly Champion"); if (!user.cosmetics.frames.includes("boss")) user.cosmetics.frames.push("boss"); record.bossReward = true; }
+    if (record.mode === "daily") updateStreak(user, playedDate);
+    if (record.mode === "boss" && score >= 2500) { if (!user.cosmetics.titles.includes("Monthly Champion")) user.cosmetics.titles.push("Monthly Champion"); if (!user.cosmetics.frames.includes("boss")) user.cosmetics.frames.push("boss"); record.bossReward = true; }
     if (stats.gamesPlayed > 0 && stats.gamesPlayed % 10 === 0) user.mysteryBoxes += 1;
     if (record.mode === "daily" && stats.bestStreak > 0 && stats.bestStreak % 7 === 0 && stats.streak === stats.bestStreak) user.mysteryBoxes += 1;
     record.unlockedAchievements = evaluatePlayerRewards(user).map(a=>a.id);
@@ -1153,7 +1155,8 @@
   function getPersonalRecords(){const user=getCurrentUser();if(!user)return null;normalizeUser(user);const history=user.history.filter(r=>["daily","endless","boss"].includes(r.mode));const answers=history.flatMap(r=>(r.answers||[]).map(a=>({...a,playedDate:r.date||r.completedAt})));const relative=answers.filter(a=>Number.isFinite(Number(a.answer))&&Math.abs(Number(a.answer))>0&&Number.isFinite(Number(a.difference))).map(a=>({...a,error:Math.abs(Number(a.difference))/Math.abs(Number(a.answer))*100}));const closest=relative.sort((a,b)=>a.error-b.error)[0]||null;const biggestMiss=[...relative].sort((a,b)=>b.error-a.error)[0]||null;const bestScore=history.reduce((b,r)=>!b||nonNegative(r.score)>nonNegative(b.score)?r:b,null);const bestAccuracy=history.reduce((b,r)=>!b||nonNegative(r.accuracy)>nonNegative(b.accuracy)?r:b,null);const fastest=history.filter(r=>nonNegative(r.duration)>0).sort((a,b)=>nonNegative(a.duration)-nonNegative(b.duration))[0]||null;return{games:history.length,answers:answers.length,bestScore:bestScore?clone(bestScore):null,bestAccuracy:bestAccuracy?clone(bestAccuracy):null,closest,biggestMiss,fastest,bestStreak:nonNegative(user.stats.bestStreak),totalPoints:history.reduce((n,r)=>n+nonNegative(r.score),0)};}
   function getWrappedStats(yearValue){const user=getCurrentUser();if(!user)return null;normalizeUser(user);const year=Math.max(2000,Math.min(9999,Math.floor(Number(yearValue)||new Date().getFullYear())));const records=user.history.filter(r=>["daily","endless","boss"].includes(r.mode)&&String(r.date||r.completedAt||"").slice(0,4)===String(year));const categories={},months={};let answers=0,score=0,xp=0,accuracy=0,best=null;records.forEach(r=>{score+=nonNegative(r.score);xp+=nonNegative(r.xp);accuracy+=nonNegative(r.accuracy);if(!best||nonNegative(r.score)>nonNegative(best.score))best=r;const m=String(r.date||r.completedAt||"").slice(0,7);months[m]=(months[m]||0)+1;(r.answers||[]).forEach(a=>{answers++;const c=a.category||"Other";categories[c]=(categories[c]||0)+1;});});const top=Object.entries(categories).sort((a,b)=>b[1]-a[1])[0]||null;return{year,games:records.length,answers,score,xp,averageAccuracy:records.length?Math.round(accuracy/records.length):0,topCategory:top?top[0]:"—",bestGame:best?{score:best.score,date:best.date,accuracy:best.accuracy,mode:best.mode}:null,busiestMonth:Object.entries(months).sort((a,b)=>b[1]-a[1])[0]?.[0]||null};}
   function claimCollectionReward(collectionId){const db=readDatabase(),user=getCurrentUserFrom(db);if(!user)throw new Error("Sign in to claim collection rewards.");normalizeUser(user);const item=getPlayerDashboard()?.collections?.find(c=>c.id===String(collectionId));if(!item||!item.earned)throw new Error("This collection is not complete yet.");if(user.claimedCollections.includes(item.id))throw new Error("This collection reward has already been claimed.");user.claimedCollections.push(item.id);if(!user.cosmetics.titles.includes(item.rewardTitle))user.cosmetics.titles.push(item.rewardTitle);writeDatabase(db);return{title:item.rewardTitle,id:item.id};}
-\n  // VEŘEJNÉ API
+
+  // VEŘEJNÉ API
 
   window.DazurioStorage = {
     init,
@@ -1176,7 +1179,7 @@
     levelFromXP,
     levelProgressFromXP,
     getPlayerDashboard,
-    getDeepInsights,
+    getDeepInsights,\n    getMonthlyBossStatus,\n    getPersonalRecords,\n    getWrappedStats,\n    claimCollectionReward,
     equipCosmetic,
     grantCosmetic,
     getLocalPlayers,
