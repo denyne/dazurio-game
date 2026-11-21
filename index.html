@@ -161,7 +161,7 @@
         </div>
         <div class="daily-status-action">
           <span class="daily-status-icon">✳</span>
-          <span id="dailyStatusLabel">NOT PLAYED</span>
+          <span id="dailyStatusLabel">NEW CHALLENGE IN</span><strong class="daily-countdown" id="dailyCountdown">00:00:00</strong><small class="daily-countdown-caption">UNTIL RESET</small>
         </div>
       </section>
 
@@ -965,10 +965,26 @@
     <div class="footer-bottom">
       <span>© <span id="footerYear"></span> DAZURIO</span>
       <span>MADE FOR CURIOUS MINDS.</span>
+      <button type="button" class="studio-open-button" id="studioOpenButton" aria-label="Open local studio tools">✳</button>
       <button data-page="plus">DISCOVER PLUS ↗</button>
     </div>
   </footer>
 
+
+
+  <section class="studio-overlay" id="studioOverlay" hidden aria-modal="true" role="dialog" aria-labelledby="studioTitle">
+    <div class="studio-panel">
+      <div class="studio-heading"><div><span class="eyebrow">LOCAL DEVELOPER SPACE</span><h2 id="studioTitle">DAZURIO Studio</h2><p>Tools for this browser preview.</p></div><button type="button" id="studioCloseButton" aria-label="Close studio">×</button></div>
+      <div class="studio-grid">
+        <div class="studio-card"><small>QUESTION DATABASE</small><strong id="studioQuestionCount">—</strong><span>loaded questions</span></div>
+        <div class="studio-card"><small>DATABASE HEALTH</small><strong id="studioHealth">Checking…</strong><span>question validation</span></div>
+        <div class="studio-card"><small>TODAY</small><strong id="studioDate">—</strong><span>local browser date</span></div>
+        <div class="studio-card"><small>DAILY STATUS</small><strong id="studioDailyStatus">—</strong><span>current challenge</span></div>
+      </div>
+      <div class="studio-actions"><button type="button" id="studioValidateButton">Run question check</button><button type="button" id="studioResetDailyButton">Reset today's daily lock</button></div>
+      <p class="studio-note">Local preview tools only — not a secure server admin console. The daily reset button is intended for testing.</p>
+    </div>
+  </section>
 
   <!-- ======================================
        JAVASCRIPT FILES
