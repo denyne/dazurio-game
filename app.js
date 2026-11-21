@@ -423,7 +423,6 @@
   }
 
   function startArchiveGame(date) {
-    if (!requireAccount("the daily archive")) return;
     game()?.startGame("archive", { date });
   }
 
