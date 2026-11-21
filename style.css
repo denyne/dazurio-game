@@ -343,3 +343,15 @@ body.dark-mode .extra-modes{background:var(--surface);border-color:var(--line)}
 .plus-unlocked-panel p{margin:8px 0 0;color:var(--muted);font-size:11px}
 .plus-status-badge{display:inline-flex;align-items:center;width:max-content;margin-top:4px;padding:3px 7px;border-radius:99px;background:var(--accent-soft);color:var(--accent-dark);font-size:8px;font-weight:950;letter-spacing:.8px}
 @media(max-width:520px){.plus-code-row{flex-direction:column}.plus-code-row .play-button{min-height:48px}}
+
+/* New progression and identity cosmetics */
+.frame-fire{background:linear-gradient(135deg,#ef7548,#ffcf77);box-shadow:0 0 0 2px #d45b35,0 0 0 5px #ffcf77}
+.frame-prism{background:conic-gradient(#ff6b8a,#ffd166,#6de0b5,#69a7ff,#c58bff,#ff6b8a);box-shadow:0 0 0 2px #9a78d0,0 0 0 5px #eee0ff}
+.frame-starlight{background:linear-gradient(135deg,#28366d,#9c8fe8,#fff0ae);box-shadow:0 0 0 2px #7267bc,0 0 0 5px #ddd7ff}
+.frame-owner{background:conic-gradient(#fff1a8,#c58c32,#fff8d6,#b87b23,#fff1a8);box-shadow:0 0 0 2px #9a6b1d,0 0 0 5px #f8dfa0,0 0 18px #d5a84988}
+.owner-status-badge{display:inline-flex;width:max-content;margin-top:4px;padding:3px 7px;border-radius:99px;background:linear-gradient(110deg,#fff0b5,#d8a84b);color:#563b12;font-size:8px;font-weight:950;letter-spacing:.8px}
+.friend-add-row{display:flex;gap:9px;margin:12px 0}.friend-add-row input{flex:1;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text)}
+.friends-list{display:grid;gap:8px}.friend-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--soft)}.friend-row strong{font-size:11px}.friend-row small{display:block;color:var(--muted);font-size:9px}.friend-row button{border:0;background:transparent;color:var(--muted);font-size:10px;font-weight:800}
+.plus-feature-hint{display:block;margin:8px 0 14px;color:var(--muted);font-size:10px}.plus-feature-hint.is-plus{color:var(--accent-dark)}
+.practice-settings select:disabled{opacity:.65}
+@media(max-width:520px){.friend-add-row{flex-direction:column}.friend-add-row button{min-height:42px}}
