@@ -737,7 +737,10 @@
     renderWeeklyQuests();
     renderDailyCalendar();
     renderWeeklyCompetition();
-    renderLegendsHub(data);\n    renderMonthlyBoss();\n    renderPersonalRecords();\n    renderAnnualWrapped();
+    renderLegendsHub(data);
+    renderMonthlyBoss();
+    renderPersonalRecords();
+    renderAnnualWrapped();
   }
   function renderLegendsHub(data){
     const p=storage().getLegendsProgress?.();if(!p)return;
@@ -1547,7 +1550,8 @@
   function bindMainActions() {
     byId("playTodayButton")?.addEventListener("click", startDaily);
     byId("addFriendButton")?.addEventListener("click",()=>{try{storage().addFriend(byId("friendUsernameInput")?.value||"");if(byId("friendUsernameInput"))byId("friendUsernameInput").value="";setText("friendsStatus","Friend added to your local list.");renderFriends();}catch(error){setText("friendsStatus",error.message||"Could not add friend.");}});
-    byId("monthlyBossStartButton")?.addEventListener("click",startMonthlyBoss);\n    byId("openMysteryBoxButton")?.addEventListener("click",()=>{try{const r=storage().openMysteryBox();setText("mysteryBoxResult",r.rarity+" · "+(r.reward.value||("+"+r.reward.value+" XP")));renderProfile();notify("Mystery box opened: "+r.rarity,"success");}catch(e){notify(e.message||"No box available.","warning");}});
+    byId("monthlyBossStartButton")?.addEventListener("click",startMonthlyBoss);
+    byId("openMysteryBoxButton")?.addEventListener("click",()=>{try{const r=storage().openMysteryBox();setText("mysteryBoxResult",r.rarity+" · "+(r.reward.value||("+"+r.reward.value+" XP")));renderProfile();notify("Mystery box opened: "+r.rarity,"success");}catch(e){notify(e.message||"No box available.","warning");}});
     byId("comebackRewardButton")?.addEventListener("click",()=>{try{storage().claimComebackReward();renderProfile();notify("Welcome back! +100 XP and a Mystery Box.","success");}catch(e){notify(e.message||"Not available yet.","warning");}});
     byId("prestigeButton")?.addEventListener("click",()=>{try{const r=storage().performPrestige();renderProfile();notify("Welcome to "+r.title+"!","success");}catch(e){notify(e.message||"Prestige unavailable.","warning");}});
     byId("saveTrophyShowcaseButton")?.addEventListener("click",()=>{try{const ids=Array.from(byId("trophyShowcaseChoices")?.querySelectorAll("input:checked")||[]).map(x=>x.value);storage().saveTrophyShowcase(ids);renderProfile();notify("Trophy showcase saved.","success");}catch(e){notify(e.message||"Could not save showcase.","warning");}});
