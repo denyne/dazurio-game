@@ -3,7 +3,7 @@
 "use strict";
 const api=window.QuestionDatabase;if(!api||typeof api.getBuiltIn!=="function")return;
 const original=api.getBuiltIn();
-const source=original.slice(0,100).filter(q=>Number.isFinite(Number(q.answer))&&Number(q.answer)>0);
+const source=original.filter(q=>Number.isFinite(Number(q.answer))&&Number(q.answer)>0).slice(0,100);
 const variants=[{key:"half",factor:.5,label:"half"},{key:"one-half-more",factor:1.5,label:"one and a half times"},{key:"double",factor:2,label:"twice"},{key:"triple",factor:3,label:"three times"},{key:"tenfold",factor:10,label:"ten times"}];
 const extra=[];
 source.forEach((base,index)=>variants.forEach(v=>{const answer=Number(base.answer)*v.factor;if(!Number.isFinite(answer))return;const min=Number.isFinite(Number(base.min))?Math.max(0,Number(base.min)*v.factor):answer*.5;const max=Number.isFinite(Number(base.max))?Math.max(Number(base.max)*v.factor,answer*1.5):answer*1.5;extra.push({id:"exp-"+String(index+1).padStart(3,"0")+"-"+v.key,category:base.category||"General Knowledge",difficulty:v.factor>=3?"hard":"medium",question:"If the quantity in the following reference fact were "+v.label+" as large, what would the new quantity be? Reference: "+base.question,description:"This is a two-step estimation challenge: estimate the reference quantity first, then apply the multiplier. "+base.description,answer,unit:base.unit||"units",min,max,suggestions:[answer*.75,answer,answer*1.25]});}));
