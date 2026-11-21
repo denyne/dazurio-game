@@ -613,7 +613,7 @@
 
   function startGame(mode = "daily", options = {}) {
     // Guests may play the daily challenge; all extended modes require an account.
-    if (!isLoggedIn() && mode !== "daily") {
+    if (!isLoggedIn() && mode !== "daily" && mode !== "archive") {
       showToast("Tento režim je dostupný po vytvoření účtu.", "warning");
       document.dispatchEvent(new CustomEvent("dazurio:login-required"));
       window.openAuthModal?.("register");
