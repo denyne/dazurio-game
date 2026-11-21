@@ -1,0 +1,758 @@
+
+(() => {
+  "use strict";
+
+  const QUESTIONS_PER_DAILY = 7;
+  const SECONDS_PER_QUESTION = 25;
+  const MAX_POINTS_PER_QUESTION = 1000;
+
+  let state = {
+    mode: "daily",
+    options: {},
+    questions: [],
+    currentIndex: 0,
+    answers: [],
+    timeLeft: SECONDS_PER_QUESTION,
+    timer: null,
+    active: false,
+    answered: false,
+    startedAt: null
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  function getDatabase() {
+    return window.QuestionDatabase || window.DazurioQuestions;
+  }
+
+  function getStorage() {
+    return window.DazurioStorage;
+  }
+
+  function getEffects() {
+    return window.DazurioEffects;
+  }
+
+  function getAllQuestions() {
+    const db = getDatabase();
+    if (!db) return [];
+
+    let questions = [];
+
+    if (typeof db.getAll === "function") {
+      questions = db.getAll();
+    } else if (Array.isArray(db.questions)) {
+      questions = db.questions;
+    }
+
+    return questions.filter(question =>
+      question &&
+      typeof question.question === "string" &&
+      Number.isFinite(Number(question.answer))
+    );
+  }
+
+  function shuffle(items) {
+    const result = [...items];
+
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+
+    return result;
+  }
+
+  function getDateKey(dateValue) {
+    if (!dateValue) {
+      const now = new Date();
+
+      return [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0")
+      ].join("-");
+    }
+
+    if (dateValue instanceof Date && !Number.isNaN(dateValue.getTime())) {
+      return [
+        dateValue.getFullYear(),
+        String(dateValue.getMonth() + 1).padStart(2, "0"),
+        String(dateValue.getDate()).padStart(2, "0")
+      ].join("-");
+    }
+
+    const match = String(dateValue).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+    if (match) {
+      return `${match[1]}-${match[2]}-${match[3]}`;
+    }
+
+    return getDateKey();
+  }
+
+  function getDailyQuestions(dateValue) {
+    const all = getAllQuestions();
+    if (!all.length) return [];
+
+    const seed = getDateKey(dateValue);
+
+    let hash = 0;
+
+    for (const char of seed) {
+      hash = (hash * 31 + char.charCodeAt(0)) | 0;
+    }
+
+    const random = () => {
+      hash = (hash * 1664525 + 1013904223) | 0;
+      return (hash >>> 0) / 4294967296;
+    };
+
+    const pool = [...all];
+
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    return pool.slice(0, QUESTIONS_PER_DAILY);
+  }
+
+  function getPracticeQuestions(options = {}) {
+    const all = getAllQuestions();
+
+    const category = String(options.category || "").trim();
+    const count = Math.floor(Number(options.count) || QUESTIONS_PER_DAILY);
+
+    let pool = all;
+
+    if (
+      category &&
+      !["all", "vše", "všechny", "všechny kategorie"].includes(
+        category.toLowerCase()
+      )
+    ) {
+      const normalizedCategory = category.toLowerCase();
+
+      pool = all.filter(question =>
+        String(question.category || "").toLowerCase() === normalizedCategory
+      );
+    }
+
+    if (!pool.length) return [];
+
+    const safeCount = Math.max(1, Math.min(count, pool.length));
+
+    return shuffle(pool).slice(0, safeCount);
+  }
+
+  function getEndlessQuestions() {
+    return shuffle(getAllQuestions());
+  }
+
+  function showToast(message, type = "info") {
+    const effects = getEffects();
+
+    if (effects && typeof effects.showToast === "function") {
+      effects.showToast(message, type);
+    } else {
+      console.log("[DAZURIO]", message);
+    }
+  }
+
+  function isLoggedIn() {
+    const storage = getStorage();
+
+    if (!storage || typeof storage.getCurrentUser !== "function") {
+      return false;
+    }
+
+    try {
+      return Boolean(storage.getCurrentUser());
+    } catch (error) {
+      console.error("Nepodařilo se ověřit přihlášení:", error);
+      return false;
+    }
+  }
+
+  function stopTimer() {
+    if (state.timer) {
+      clearInterval(state.timer);
+      state.timer = null;
+    }
+  }
+
+  function startTimer() {
+    stopTimer();
+
+    state.timeLeft = SECONDS_PER_QUESTION;
+    updateTimerDisplay();
+
+    state.timer = setInterval(() => {
+      if (!state.active || state.answered) return;
+
+      state.timeLeft--;
+      updateTimerDisplay();
+
+      if (state.timeLeft <= 0) {
+        stopTimer();
+        submitAnswer(null, true);
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const value = $("timerValue");
+    const fill = $("timerFill");
+
+    if (value) value.textContent = state.timeLeft;
+
+    if (fill) {
+      const percentage =
+        (state.timeLeft / SECONDS_PER_QUESTION) * 100;
+
+      fill.style.width = `${percentage}%`;
+      fill.classList.toggle("timer-warning", state.timeLeft <= 10);
+      fill.classList.toggle("timer-critical", state.timeLeft <= 5);
+    }
+  }
+
+  function updateProgress() {
+    const current = state.currentIndex + 1;
+
+    const total = state.mode === "endless"
+      ? state.questions.length
+      : state.questions.length;
+
+    const number = $("questionNumber");
+    const totalElement = $("questionTotal");
+    const progress = $("questionProgressFill");
+
+    if (number) number.textContent = String(current).padStart(2, "0");
+    if (totalElement) totalElement.textContent = total;
+
+    if (progress) {
+      progress.style.width = `${Math.min(100, (current / total) * 100)}%`;
+    }
+  }
+
+  function getModeLabel() {
+    switch (state.mode) {
+      case "endless":
+        return "NEKONEČNÝ REŽIM";
+      case "practice":
+        return "TRÉNINK";
+      case "archive":
+        return "ARCHIVNÍ VÝZVA";
+      default:
+        return "DENNÍ VÝZVA";
+    }
+  }
+
+  function showQuestion() {
+    if (!state.active) return;
+
+    if (state.currentIndex >= state.questions.length) {
+      if (state.mode === "endless") {
+        const all = getAllQuestions();
+
+        if (!all.length) {
+          finishGame();
+          return;
+        }
+
+        state.questions = [
+          ...state.questions,
+          ...shuffle(all)
+        ];
+      } else {
+        finishGame();
+        return;
+      }
+    }
+
+    const question = state.questions[state.currentIndex];
+
+    if (!question) {
+      finishGame();
+      return;
+    }
+
+    state.answered = false;
+
+    const fields = {
+      questionTitle: question.question,
+      questionDescription: question.description || "",
+      questionCategory: question.category || "",
+      questionDifficulty: question.difficulty || "",
+      targetValue: question.answer,
+      targetUnit: question.unit || ""
+    };
+
+    Object.entries(fields).forEach(([id, value]) => {
+      const element = $(id);
+      if (element) element.textContent = value;
+    });
+
+    const input = $("answerInput");
+
+    if (input) {
+      input.value = "";
+      input.disabled = false;
+    }
+
+    const result = $("answerResult");
+    if (result) result.hidden = true;
+
+    const submit = $("submitAnswerButton");
+    if (submit) submit.disabled = false;
+
+    const next = $("nextQuestionButton");
+    if (next) next.hidden = true;
+
+    const suggestions = $("answerSuggestions");
+
+    if (suggestions) {
+      suggestions.innerHTML = "";
+
+      if (Array.isArray(question.suggestions)) {
+        question.suggestions.forEach(suggestion => {
+          const button = document.createElement("button");
+
+          button.type = "button";
+          button.className = "suggestion-button";
+          button.textContent = suggestion;
+
+          button.addEventListener("click", () => {
+            if (input && !input.disabled) {
+              input.value = suggestion;
+              input.focus();
+            }
+          });
+
+          suggestions.appendChild(button);
+        });
+      }
+    }
+
+    const modeTag = $("gameModeTag");
+    if (modeTag) modeTag.textContent = getModeLabel();
+
+    updateProgress();
+    startTimer();
+
+    if (input) input.focus();
+  }
+
+  function calculatePoints(guess, answer, question) {
+    if (guess === null || !Number.isFinite(guess)) return 0;
+
+    const difference = Math.abs(guess - answer);
+
+    const min = Number.isFinite(Number(question.min))
+      ? Number(question.min)
+      : answer - 1;
+
+    const max = Number.isFinite(Number(question.max))
+      ? Number(question.max)
+      : answer + 1;
+
+    const scale = Math.max(
+      Math.abs(answer) * 0.5,
+      Math.abs(max - min) * 0.1,
+      1
+    );
+
+    const relativeError = difference / scale;
+
+    const points = MAX_POINTS_PER_QUESTION *
+      Math.exp(-2.5 * relativeError);
+
+    return Math.max(
+      0,
+      Math.min(MAX_POINTS_PER_QUESTION, Math.round(points))
+    );
+  }
+
+  function submitAnswer(value, timedOut = false) {
+    if (!state.active || state.answered) return;
+
+    const question = state.questions[state.currentIndex];
+    if (!question) return;
+
+    const input = $("answerInput");
+
+    let guess = value;
+
+    if (guess === null && !timedOut) {
+      guess = input ? input.value.trim() : "";
+    }
+
+    if (
+      !timedOut &&
+      (guess === "" || !Number.isFinite(Number(guess)))
+    ) {
+      showToast("Zadej platný číselný odhad.", "warning");
+      if (input) input.focus();
+      return;
+    }
+
+    guess = timedOut ? null : Number(guess);
+
+    if (guess !== null) {
+      const min = Number(question.min);
+      const max = Number(question.max);
+
+      if (Number.isFinite(min) && guess < min) {
+        showToast(`Minimum je ${min}.`, "warning");
+        return;
+      }
+
+      if (Number.isFinite(max) && guess > max) {
+        showToast(`Maximum je ${max}.`, "warning");
+        return;
+      }
+    }
+
+    state.answered = true;
+    stopTimer();
+
+    const answer = Number(question.answer);
+
+    const difference = guess === null
+      ? null
+      : Math.abs(guess - answer);
+
+    const points = calculatePoints(guess, answer, question);
+
+    const record = {
+      questionId: question.id,
+      guess,
+      answer,
+      difference,
+      points,
+      timedOut,
+      category: question.category || ""
+    };
+
+    state.answers.push(record);
+
+    if (input) input.disabled = true;
+
+    const submit = $("submitAnswerButton");
+    if (submit) submit.disabled = true;
+
+    displayAnswerResult(record, question);
+
+    const next = $("nextQuestionButton");
+    if (next) next.hidden = false;
+  }
+
+  function displayAnswerResult(record, question) {
+    const result = $("answerResult");
+    if (result) result.hidden = false;
+
+    const title = $("answerResultTitle");
+    const description = $("answerResultText");
+    const points = $("answerResultPoints");
+    const guess = $("yourGuess");
+    const actual = $("actualAnswer");
+    const difference = $("answerDifference");
+
+    if (title) {
+      title.textContent = record.timedOut
+        ? "Čas vypršel!"
+        : record.points >= 800
+          ? "Skvělý odhad!"
+          : record.points >= 500
+            ? "Dobrý pokus!"
+            : "Tentokrát to nevyšlo";
+    }
+
+    if (description) {
+      description.textContent = question.explanation ||
+        "Podívej se na správnou hodnotu a zkus další otázku.";
+    }
+
+    if (points) points.textContent = `${record.points} bodů`;
+
+    if (guess) {
+      guess.textContent = record.guess === null
+        ? "Bez odpovědi"
+        : record.guess;
+    }
+
+    if (actual) actual.textContent = record.answer;
+
+    if (difference) {
+      difference.textContent = record.difference === null
+        ? "—"
+        : record.difference;
+    }
+
+    const effects = getEffects();
+
+    if (
+      effects &&
+      record.points >= 800 &&
+      typeof effects.celebrate === "function"
+    ) {
+      effects.celebrate();
+    }
+  }
+
+  function getSummary() {
+    const total = state.answers.length;
+
+    const score = state.answers.reduce(
+      (sum, answer) => sum + answer.points,
+      0
+    );
+
+    const average = total
+      ? Math.round(score / total)
+      : 0;
+
+    const answered = state.answers.filter(
+      answer => answer.guess !== null
+    );
+
+    const accuracy = answered.length
+      ? Math.round(
+          answered.reduce((sum, answer) => {
+            return sum + Math.max(
+              0,
+              100 - (
+                answer.difference /
+                Math.max(Math.abs(answer.answer), 1)
+              ) * 100
+            );
+          }, 0) / answered.length
+        )
+      : 0;
+
+    const differences = answered.map(answer => answer.difference);
+
+    return {
+      mode: state.mode,
+      date: state.options.date || null,
+      category: state.options.category || null,
+      score,
+      totalQuestions: total,
+      correctAnswers: state.answers.filter(
+        answer => answer.points >= 700
+      ).length,
+      accuracy,
+      averagePoints: average,
+      averageDifference: differences.length
+        ? differences.reduce((a, b) => a + b, 0) / differences.length
+        : 0,
+      answers: state.answers,
+      duration: state.startedAt
+        ? Math.round((Date.now() - state.startedAt) / 1000)
+        : 0,
+      completedAt: new Date().toISOString()
+    };
+  }
+
+  function setResultField(id, value) {
+    const element = $(id);
+    if (element) element.textContent = value;
+  }
+
+  function finishGame() {
+    if (!state.active) return;
+
+    state.active = false;
+    stopTimer();
+
+    const summary = getSummary();
+    const storage = getStorage();
+
+    if (storage && typeof storage.saveGameResult === "function") {
+      try {
+        storage.saveGameResult(summary);
+      } catch (error) {
+        console.error("Nepodařilo se uložit výsledek:", error);
+      }
+    }
+
+    setResultField("finalScore", summary.score);
+    setResultField("finalXP", summary.score);
+    setResultField("finalAccuracy", `${summary.accuracy}%`);
+    setResultField("finalAverage", summary.averagePoints);
+
+    setResultField(
+      "finalBest",
+      Math.max(0, ...state.answers.map(answer => answer.points))
+    );
+
+    setResultField("finalAnswers", summary.totalQuestions);
+
+    document.querySelectorAll(".page").forEach(page => {
+      page.classList.remove("active");
+    });
+
+    const resultsPage = $("page-results");
+    if (resultsPage) resultsPage.classList.add("active");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    document.dispatchEvent(new CustomEvent("dazurio:game-finished", {
+      detail: summary
+    }));
+  }
+
+  function startGame(mode = "daily", options = {}) {
+    if (!isLoggedIn()) {
+      showToast("Pro spuštění hry se nejprve přihlas.", "warning");
+
+      document.dispatchEvent(new CustomEvent("dazurio:login-required"));
+      return false;
+    }
+
+    const all = getAllQuestions();
+
+    if (!all.length) {
+      showToast("Nepodařilo se načíst otázky.", "error");
+      return false;
+    }
+
+    if (!["daily", "practice", "endless", "archive"].includes(mode)) {
+      mode = "daily";
+    }
+
+    const safeOptions = options && typeof options === "object"
+      ? { ...options }
+      : {};
+
+    let questions = [];
+
+    if (mode === "daily" || mode === "archive") {
+      questions = getDailyQuestions(safeOptions.date);
+    } else if (mode === "practice") {
+      questions = getPracticeQuestions(safeOptions);
+    } else {
+      questions = getEndlessQuestions();
+    }
+
+    if (!questions.length) {
+      showToast(
+        mode === "practice"
+          ? "V této kategorii nejsou dostupné žádné otázky."
+          : "Pro tento režim nejsou dostupné otázky.",
+        "warning"
+      );
+
+      return false;
+    }
+
+    stopTimer();
+
+    state.mode = mode;
+    state.options = safeOptions;
+    state.questions = questions;
+    state.currentIndex = 0;
+    state.answers = [];
+    state.startedAt = Date.now();
+    state.active = true;
+    state.answered = false;
+
+    document.querySelectorAll(".page").forEach(page => {
+      page.classList.remove("active");
+    });
+
+    const gamePage = $("page-game");
+    if (gamePage) gamePage.classList.add("active");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    showQuestion();
+
+    return true;
+  }
+
+  function nextQuestion() {
+    if (!state.active || !state.answered) return;
+
+    state.currentIndex++;
+    showQuestion();
+  }
+
+  function abandonGame() {
+    stopTimer();
+
+    state.active = false;
+    state.answered = false;
+  }
+
+  function init() {
+    const form = $("answerForm");
+
+    if (form && !form.dataset.gameBound) {
+      form.dataset.gameBound = "true";
+
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        submitAnswer();
+      });
+    }
+
+    const next = $("nextQuestionButton");
+
+    if (next && !next.dataset.gameBound) {
+      next.dataset.gameBound = "true";
+      next.addEventListener("click", nextQuestion);
+    }
+
+    const home = $("resultsHomeButton");
+
+    if (home && !home.dataset.gameBound) {
+      home.dataset.gameBound = "true";
+
+      home.addEventListener("click", () => {
+        abandonGame();
+
+        document.querySelectorAll(".page").forEach(page => {
+          page.classList.remove("active");
+        });
+
+        const homePage = $("page-home");
+        if (homePage) homePage.classList.add("active");
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+
+    const playAgain = $("playAgainButton");
+
+    if (playAgain && !playAgain.dataset.gameBound) {
+      playAgain.dataset.gameBound = "true";
+
+      playAgain.addEventListener("click", () => {
+        startGame(state.mode, state.options);
+      });
+    }
+  }
+
+  window.DazurioGame = {
+    startGame,
+    submitAnswer,
+    nextQuestion,
+    finishGame,
+    abandonGame,
+    getState: () => ({
+      ...state,
+      questions: [...state.questions],
+      answers: [...state.answers],
+      options: { ...state.options }
+    }),
+    getSummary
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();

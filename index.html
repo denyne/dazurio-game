@@ -1,0 +1,974 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f7f3">
+  <meta name="description" content="DAZURIO — a daily guessing game. Seven questions. Twenty-five seconds. How close can you get?">
+  <title>DAZURIO — Get as close as you can.</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <!-- ======================================
+       HEADER
+  ======================================= -->
+
+  <header class="site-header">
+    <a class="brand" href="#" data-page="home" aria-label="DAZURIO home">
+      DAZURIO<span class="brand-dot">.</span>
+    </a>
+
+    <nav class="main-nav" aria-label="Main navigation">
+      <button class="nav-link" data-page="how">How to play</button>
+      <button class="nav-link" data-page="about">About</button>
+      <button class="nav-link" data-page="faq">FAQ</button>
+      <button class="nav-link" data-page="archive">Archive</button>
+      <button class="nav-link" data-page="questions">Questions</button>
+    </nav>
+
+    <div class="header-right">
+      <button class="plus-link" data-page="plus">
+        <span class="plus-spark">✳</span> DAZURIO PLUS
+      </button>
+      <button class="profile-button" id="profileButton">
+        <span class="profile-avatar" id="headerAvatar">?</span>
+        <span id="headerUsername">Profile</span>
+      </button>
+      <button class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- ======================================
+       MOBILE NAVIGATION
+  ======================================= -->
+
+  <div class="mobile-menu" id="mobileMenu">
+    <button data-page="how">How to play</button>
+    <button data-page="about">About</button>
+    <button data-page="faq">FAQ</button>
+    <button data-page="archive">Archive</button>
+    <button data-page="questions">Questions</button>
+    <button data-page="leaderboard">Leaderboard</button>
+    <button data-page="plus">DAZURIO Plus</button>
+    <button data-page="profile">My profile</button>
+  </div>
+
+
+  <!-- ======================================
+       MAIN APP
+  ======================================= -->
+
+  <main id="app">
+
+    <!-- HOME PAGE -->
+
+    <section class="page active" id="page-home">
+
+      <div class="home-hero">
+        <div class="hero-kicker">
+          <span class="status-dot"></span>
+          <span>YOUR DAILY MOMENT OF CURIOSITY</span>
+        </div>
+
+        <h1 class="hero-title">
+          Get as close<br>
+          as you can<span class="hero-period">.</span>
+        </h1>
+
+        <p class="hero-description">
+          Seven questions. Twenty-five seconds each.<br>
+          A little knowledge goes a long way.
+        </p>
+
+        <div class="hero-actions">
+          <button class="play-button" id="playTodayButton">
+            <span>PLAY TODAY</span>
+            <span class="button-arrow">↗</span>
+          </button>
+        </div>
+
+        <div class="hero-meta">
+          <span>7 QUESTIONS</span>
+          <span class="meta-separator">·</span>
+          <span>25 SECONDS EACH</span>
+          <span class="meta-separator">·</span>
+          <span>ONE DAILY CHALLENGE</span>
+        </div>
+
+        <div class="hero-decoration" aria-hidden="true">
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <div class="orbit-center"></div>
+          <span class="orbit-star star-one">✳</span>
+          <span class="orbit-star star-two">✦</span>
+          <span class="orbit-star star-three">·</span>
+        </div>
+      </div>
+
+
+      <!-- PLAYER SNAPSHOT -->
+
+      <section class="stats-strip">
+        <div class="stat-item">
+          <span class="stat-value" id="homeStreak">0</span>
+          <span class="stat-name">DAY STREAK</span>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <div class="stat-item">
+          <span class="stat-value" id="homeXP">0</span>
+          <span class="stat-name">TOTAL XP</span>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <div class="stat-item">
+          <span class="stat-value" id="homeGames">0</span>
+          <span class="stat-name">GAMES PLAYED</span>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <div class="stat-item">
+          <span class="stat-value" id="homeLevel">1</span>
+          <span class="stat-name">PLAYER LEVEL</span>
+        </div>
+      </section>
+
+
+      <!-- DAILY STATUS -->
+
+      <section class="daily-status" id="dailyStatus">
+        <div class="daily-status-copy">
+          <span class="eyebrow">A NEW DAY, A NEW CHALLENGE</span>
+          <h2>Ready when you are.</h2>
+          <p id="dailyStatusText">Your seven questions are waiting.</p>
+        </div>
+        <div class="daily-status-action">
+          <span class="daily-status-icon">✳</span>
+          <span id="dailyStatusLabel">NOT PLAYED</span>
+        </div>
+      </section>
+
+
+      <!-- GAME MODES -->
+
+      <section class="modes-section">
+        <div class="section-topline">
+          <div>
+            <span class="eyebrow">EXPLORE DAZURIO</span>
+            <h2>Play your way.</h2>
+          </div>
+        </div>
+
+        <div class="mode-list">
+
+          <button class="mode-row" data-mode="endless">
+            <span class="mode-symbol">∞</span>
+            <span class="mode-copy">
+              <strong>Endless</strong>
+              <small>How far can you go?</small>
+            </span>
+            <span class="mode-arrow">↗</span>
+          </button>
+
+          <button class="mode-row" data-mode="practice">
+            <span class="mode-symbol">◌</span>
+            <span class="mode-copy">
+              <strong>Practice</strong>
+              <small>Learn something new every day.</small>
+            </span>
+            <span class="mode-arrow">↗</span>
+          </button>
+
+          <button class="mode-row" data-page="archive">
+            <span class="mode-symbol">▦</span>
+            <span class="mode-copy">
+              <strong>Daily archive</strong>
+              <small>Revisit previous challenges.</small>
+            </span>
+            <span class="mode-arrow">↗</span>
+          </button>
+
+          <button class="mode-row" data-page="leaderboard">
+            <span class="mode-symbol">↗</span>
+            <span class="mode-copy">
+              <strong>Leaderboard</strong>
+              <small>See how you compare.</small>
+            </span>
+            <span class="mode-arrow">↗</span>
+          </button>
+
+        </div>
+      </section>
+
+
+      <!-- PROGRESS -->
+
+      <section class="home-progress">
+        <div class="progress-heading">
+          <div>
+            <span class="eyebrow">YOUR JOURNEY</span>
+            <h2>Little by little.</h2>
+          </div>
+          <span class="level-pill">LEVEL <strong id="progressLevel">1</strong></span>
+        </div>
+
+        <div class="xp-progress">
+          <div class="xp-progress-labels">
+            <span id="progressXP">0 XP</span>
+            <span id="nextLevelXP">500 XP TO NEXT LEVEL</span>
+          </div>
+          <div class="xp-track">
+            <div class="xp-track-fill" id="xpProgressFill"></div>
+          </div>
+        </div>
+      </section>
+
+    </section>
+
+
+    <!-- ======================================
+         GAME PAGE
+    ======================================= -->
+
+    <section class="page" id="page-game">
+
+      <div class="game-shell">
+
+        <div class="game-navigation">
+          <button class="back-link" id="gameBackButton">← Leave game</button>
+          <span class="game-mode-tag" id="gameModeTag">DAILY CHALLENGE</span>
+        </div>
+
+        <div class="game-progress-header">
+          <div class="game-progress-label">
+            <span id="questionNumber">QUESTION 01</span>
+            <span id="questionTotal">OF 07</span>
+          </div>
+          <div class="question-progress-track">
+            <div id="questionProgressFill"></div>
+          </div>
+        </div>
+
+
+        <!-- VISUAL SCENE -->
+
+        <div class="game-scene" id="gameScene">
+
+          <div class="scene-sky"></div>
+          <div class="scene-sun"></div>
+
+          <div class="scene-cloud cloud-a"></div>
+          <div class="scene-cloud cloud-b"></div>
+          <div class="scene-cloud cloud-c"></div>
+
+          <div class="scene-horizon"></div>
+          <div class="scene-land land-back"></div>
+          <div class="scene-land land-front"></div>
+
+          <div class="scene-route">
+            <div class="route-line"></div>
+            <div class="route-marker route-marker-start"></div>
+            <div class="route-marker route-marker-end"></div>
+          </div>
+
+          <div class="game-character" id="gameCharacter" aria-label="Your progress">
+            <div class="character-glow"></div>
+            <div class="character-icon" id="characterIcon">✦</div>
+            <div class="character-shadow"></div>
+          </div>
+
+          <div class="scene-height-label" id="sceneHeightLabel">
+            YOUR JOURNEY
+          </div>
+
+          <div class="scene-feedback" id="sceneFeedback"></div>
+
+        </div>
+
+
+        <!-- QUESTION -->
+
+        <div class="question-area">
+
+          <div class="question-category-row">
+            <span class="category-tag" id="questionCategory">GEOGRAPHY</span>
+            <span class="question-difficulty" id="questionDifficulty">MEDIUM</span>
+          </div>
+
+          <h1 class="question-title" id="questionTitle">
+            Loading your question...
+          </h1>
+
+          <p class="question-description" id="questionDescription"></p>
+
+          <div class="target-display" id="targetDisplay">
+            <span class="target-label">THE TARGET</span>
+            <strong id="targetValue">—</strong>
+            <span class="target-unit" id="targetUnit"></span>
+          </div>
+
+
+          <!-- ANSWER FORM -->
+
+          <form class="answer-form" id="answerForm">
+
+            <div class="answer-input-wrap">
+              <input
+                type="text"
+                id="answerInput"
+                name="answer"
+                placeholder="Type your best guess..."
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-label="Your answer"
+              >
+              <button type="button" class="clear-answer" id="clearAnswerButton" aria-label="Clear answer">×</button>
+            </div>
+
+            <div class="suggestions" id="answerSuggestions"></div>
+
+            <div class="answer-form-bottom">
+              <span class="answer-hint" id="answerHint">Trust your instincts.</span>
+              <button class="submit-answer-button" id="submitAnswerButton" type="submit">
+                LOCK IT IN <span>↗</span>
+              </button>
+            </div>
+
+          </form>
+
+
+          <!-- TIMER -->
+
+          <div class="timer-area">
+            <div class="timer-label">
+              <span>TIME REMAINING</span>
+              <strong id="timerValue">25</strong>
+            </div>
+            <div class="timer-track">
+              <div class="timer-fill" id="timerFill"></div>
+            </div>
+          </div>
+
+
+          <!-- ANSWER RESULT -->
+
+          <div class="answer-result" id="answerResult" aria-live="polite">
+            <div class="answer-result-top">
+              <span class="result-eyebrow" id="answerResultEyebrow">YOUR RESULT</span>
+              <span class="result-points" id="answerResultPoints">+0 XP</span>
+            </div>
+            <h2 id="answerResultTitle">Nice try.</h2>
+            <p id="answerResultText"></p>
+            <div class="answer-comparison">
+              <div>
+                <span>YOUR GUESS</span>
+                <strong id="yourGuess">—</strong>
+              </div>
+              <div>
+                <span>ACTUAL ANSWER</span>
+                <strong id="actualAnswer">—</strong>
+              </div>
+              <div>
+                <span>DIFFERENCE</span>
+                <strong id="answerDifference">—</strong>
+              </div>
+            </div>
+            <button class="next-question-button" id="nextQuestionButton">
+              NEXT QUESTION →
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         RESULTS PAGE
+    ======================================= -->
+
+    <section class="page" id="page-results">
+
+      <div class="results-shell">
+
+        <div class="results-intro">
+          <span class="eyebrow">THAT'S A WRAP</span>
+          <h1>Look how far<br>you've come<span>.</span></h1>
+          <p id="resultsSubtitle">Your challenge is complete.</p>
+        </div>
+
+        <div class="results-score-card">
+          <span class="eyebrow">YOUR FINAL SCORE</span>
+          <div class="final-score-number" id="finalScore">0</div>
+          <span class="final-score-label">POINTS</span>
+          <div class="results-xp">✳ <strong id="finalXP">+0 XP</strong> EARNED</div>
+        </div>
+
+        <div class="results-stats-grid">
+          <div class="results-stat">
+            <strong id="finalAccuracy">0%</strong>
+            <span>ACCURACY</span>
+          </div>
+          <div class="results-stat">
+            <strong id="finalAverage">0</strong>
+            <span>AVERAGE SCORE</span>
+          </div>
+          <div class="results-stat">
+            <strong id="finalBest">0</strong>
+            <span>BEST ANSWER</span>
+          </div>
+        </div>
+
+        <div class="results-answer-list">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">QUESTION BY QUESTION</span>
+              <h2>Your answers.</h2>
+            </div>
+          </div>
+          <div id="resultsAnswers"></div>
+        </div>
+
+        <div class="results-actions">
+          <button class="play-button" id="resultsHomeButton">
+            BACK TO HOME <span>↗</span>
+          </button>
+          <button class="secondary-button" id="shareResultsButton">
+            SHARE RESULTS
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         ARCHIVE PAGE
+    ======================================= -->
+
+    <section class="page" id="page-archive">
+
+      <div class="content-shell">
+        <div class="page-intro">
+          <span class="eyebrow">A LITTLE TRIP BACK IN TIME</span>
+          <h1>The archive<span>.</span></h1>
+          <p>Missed a day? No problem. Revisit previous daily challenges.</p>
+        </div>
+
+        <div class="archive-toolbar">
+          <button class="secondary-button" id="archivePrevMonth">← PREVIOUS</button>
+          <strong id="archiveMonthLabel">MONTH YEAR</strong>
+          <button class="secondary-button" id="archiveNextMonth">NEXT →</button>
+        </div>
+
+        <div class="calendar-weekdays">
+          <span>MON</span><span>TUE</span><span>WED</span>
+          <span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+        </div>
+
+        <div class="archive-calendar" id="archiveCalendar"></div>
+
+        <div class="archive-note">
+          <span>✳</span>
+          <p>Archived games are for practice and do not replace your current daily result.</p>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         LEADERBOARD PAGE
+    ======================================= -->
+
+    <section class="page" id="page-leaderboard">
+
+      <div class="content-shell">
+        <div class="page-intro">
+          <span class="eyebrow">A LITTLE FRIENDLY COMPETITION</span>
+          <h1>The leaderboard<span>.</span></h1>
+          <p>Compare scores with player profiles saved in this browser.</p>
+        </div>
+
+        <div class="leaderboard-tabs">
+          <button class="leaderboard-tab active" data-board="all">ALL TIME</button>
+          <button class="leaderboard-tab" data-board="weekly">THIS WEEK</button>
+          <button class="leaderboard-tab" data-board="daily">TODAY</button>
+        </div>
+
+        <div class="leaderboard-table">
+          <div class="leaderboard-header">
+            <span>RANK</span>
+            <span>PLAYER</span>
+            <span>LEVEL</span>
+            <span>XP</span>
+          </div>
+          <div id="leaderboardRows"></div>
+        </div>
+
+        <p class="local-data-note">
+          This is a local leaderboard. It includes profiles created on this browser only.
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         QUESTIONS PAGE
+    ======================================= -->
+
+    <section class="page" id="page-questions">
+
+      <div class="content-shell">
+        <div class="page-intro">
+          <span class="eyebrow">CURIOSITY NEVER STOPS</span>
+          <h1>Explore questions<span>.</span></h1>
+          <p>Choose a category and discover what you know.</p>
+        </div>
+
+        <div class="category-grid" id="categoryGrid"></div>
+
+        <div class="question-library">
+          <div class="section-heading">
+            <h2>Question library</h2>
+            <span id="questionCountLabel">0 QUESTIONS</span>
+          </div>
+          <div id="questionLibraryList"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         PRACTICE PAGE
+    ======================================= -->
+
+    <section class="page" id="page-practice">
+
+      <div class="content-shell">
+        <div class="page-intro">
+          <span class="eyebrow">NO PRESSURE. JUST LEARNING.</span>
+          <h1>Practice makes progress<span>.</span></h1>
+          <p>Choose what you want to explore today.</p>
+        </div>
+
+        <div class="practice-settings">
+          <label for="practiceCategory">CATEGORY</label>
+          <select id="practiceCategory">
+            <option value="all">All categories</option>
+          </select>
+
+          <label for="practiceCount">NUMBER OF QUESTIONS</label>
+          <select id="practiceCount">
+            <option value="5">5 questions</option>
+            <option value="10" selected>10 questions</option>
+            <option value="20">20 questions</option>
+          </select>
+
+          <button class="play-button" id="startPracticeButton">
+            START PRACTICE <span>↗</span>
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         PROFILE PAGE
+    ======================================= -->
+
+    <section class="page" id="page-profile">
+
+      <div class="content-shell">
+        <div class="page-intro">
+          <span class="eyebrow">YOUR PERSONAL SPACE</span>
+          <h1>Your profile<span>.</span></h1>
+          <p>Your journey, your progress, your achievements.</p>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-card-avatar" id="profileAvatar">?</div>
+          <div class="profile-card-info">
+            <h2 id="profileName">Guest player</h2>
+            <span id="profileJoined">PLAYER SINCE TODAY</span>
+          </div>
+          <button class="secondary-button" id="editProfileButton">EDIT PROFILE</button>
+        </div>
+
+        <div class="profile-stats-grid">
+          <div class="profile-stat-card">
+            <strong id="profileXP">0</strong>
+            <span>TOTAL XP</span>
+          </div>
+          <div class="profile-stat-card">
+            <strong id="profileLevel">1</strong>
+            <span>LEVEL</span>
+          </div>
+          <div class="profile-stat-card">
+            <strong id="profileStreak">0</strong>
+            <span>DAY STREAK</span>
+          </div>
+          <div class="profile-stat-card">
+            <strong id="profileGames">0</strong>
+            <span>GAMES PLAYED</span>
+          </div>
+        </div>
+
+        <div class="profile-progress-card">
+          <div class="section-heading">
+            <h2>Level progress</h2>
+            <span id="profileProgressText">0 / 500 XP</span>
+          </div>
+          <div class="xp-track">
+            <div class="xp-track-fill" id="profileProgressFill"></div>
+          </div>
+        </div>
+
+        <div class="profile-history">
+          <div class="section-heading">
+            <h2>Recent games</h2>
+          </div>
+          <div id="profileHistory"></div>
+        </div>
+
+        <div class="profile-actions">
+          <button class="secondary-button" id="profileLogoutButton">LOG OUT</button>
+          <button class="danger-button" id="deleteProfileButton">DELETE LOCAL PROFILE</button>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         PLUS PAGE
+    ======================================= -->
+
+    <section class="page" id="page-plus">
+
+      <div class="content-shell plus-shell">
+        <div class="plus-hero">
+          <span class="plus-label">✳ THE NEXT LEVEL OF DAZURIO</span>
+          <h1>Make curiosity<br>your superpower<span>.</span></h1>
+          <p>More insights. More ways to play. More reasons to come back.</p>
+          <div class="plus-price">DAZURIO PLUS <span>PREVIEW</span></div>
+          <button class="play-button" id="activatePlusButton">
+            TRY PLUS PREVIEW <span>↗</span>
+          </button>
+          <p class="plus-disclaimer">Local demo only. No real payments or subscription.</p>
+        </div>
+
+        <div class="plus-features">
+          <article>
+            <span>01</span>
+            <h3>Deep statistics</h3>
+            <p>Explore your accuracy, strongest categories and progress over time.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Advanced practice</h3>
+            <p>Focus on the categories where you want to improve.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Extended history</h3>
+            <p>Look back at your previous games and personal records.</p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>Personal insights</h3>
+            <p>Discover patterns in your answers and learning habits.</p>
+          </article>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         HOW TO PLAY
+    ======================================= -->
+
+    <section class="page" id="page-how">
+
+      <div class="content-shell">
+        <div class="page-intro">
+          <span class="eyebrow">SIMPLE TO LEARN</span>
+          <h1>How to play<span>.</span></h1>
+          <p>It's easy. Getting close is the tricky part.</p>
+        </div>
+
+        <div class="how-steps">
+          <article><span>01</span><h2>Read the question.</h2><p>Each question asks you to estimate a real-world number or value.</p></article>
+          <article><span>02</span><h2>Make your guess.</h2><p>Enter your best estimate. You have 25 seconds for each question.</p></article>
+          <article><span>03</span><h2>Get as close as possible.</h2><p>The closer your answer, the more points you earn.</p></article>
+          <article><span>04</span><h2>Build your streak.</h2><p>Come back every day, collect XP and improve your personal record.</p></article>
+        </div>
+
+        <button class="play-button" data-page="home">GOT IT — LET'S PLAY <span>↗</span></button>
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         ABOUT
+    ======================================= -->
+
+    <section class="page" id="page-about">
+
+      <div class="content-shell">
+        <div class="page-intro">
+          <span class="eyebrow">A GAME FOR CURIOUS MINDS</span>
+          <h1>Small questions.<br>Big discoveries<span>.</span></h1>
+          <p>DAZURIO is a daily guessing game built around curiosity, learning and the joy of getting surprisingly close.</p>
+        </div>
+
+        <div class="about-copy">
+          <h2>One question can take you anywhere.</h2>
+          <p>From geography and science to history, nature, technology and everyday life, DAZURIO challenges you to think, estimate and discover something new.</p>
+          <p>Seven questions make one daily challenge. Everyone playing the same version gets the same daily set.</p>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         FAQ
+    ======================================= -->
+
+    <section class="page" id="page-faq">
+
+      <div class="content-shell">
+        <div class="page-intro">
+          <span class="eyebrow">GOOD TO KNOW</span>
+          <h1>Questions?<br>We've got answers<span>.</span></h1>
+        </div>
+
+        <div class="faq-list">
+
+          <details>
+            <summary>How many questions are in a daily game?</summary>
+            <p>Each daily challenge contains seven questions.</p>
+          </details>
+
+          <details>
+            <summary>How much time do I have?</summary>
+            <p>You have 25 seconds to submit each answer.</p>
+          </details>
+
+          <details>
+            <summary>How is my score calculated?</summary>
+            <p>Your score depends on how close your estimate is to the correct answer.</p>
+          </details>
+
+          <details>
+            <summary>Can I play previous challenges?</summary>
+            <p>Yes. Visit the Archive to replay previous daily sets.</p>
+          </details>
+
+          <details>
+            <summary>Does DAZURIO have online accounts?</summary>
+            <p>This prototype stores profiles and game data locally in your browser. It does not use online accounts.</p>
+          </details>
+
+          <details>
+            <summary>Is DAZURIO Plus a real subscription?</summary>
+            <p>No. In this prototype, Plus is a local preview and does not process payments.</p>
+          </details>
+
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ======================================
+         SETTINGS
+    ======================================= -->
+
+    <section class="page" id="page-settings">
+
+      <div class="content-shell">
+        <div class="page-intro">
+          <span class="eyebrow">MAKE IT YOURS</span>
+          <h1>Settings<span>.</span></h1>
+        </div>
+
+        <div class="settings-list">
+
+          <div class="setting-row">
+            <div><strong>Dark mode</strong><small>Change the appearance of DAZURIO.</small></div>
+            <button class="toggle-button" id="themeToggle" aria-label="Toggle dark mode"></button>
+          </div>
+
+          <div class="setting-row">
+            <div><strong>Sound effects</strong><small>Enable or disable game sounds.</small></div>
+            <button class="toggle-button" id="soundToggle" aria-label="Toggle sound"></button>
+          </div>
+
+          <div class="setting-row">
+            <div><strong>Animations</strong><small>Enable or reduce visual effects.</small></div>
+            <button class="toggle-button" id="animationToggle" aria-label="Toggle animations"></button>
+          </div>
+
+          <div class="setting-row">
+            <div><strong>Language</strong><small>Interface language.</small></div>
+            <select id="languageSelect">
+              <option value="en">English</option>
+              <option value="cs">Čeština (preview)</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div><strong>Export data</strong><small>Download your local profile and history.</small></div>
+            <button class="secondary-button" id="exportDataButton">EXPORT</button>
+          </div>
+
+          <div class="setting-row">
+            <div><strong>Reset game data</strong><small>Delete locally stored DAZURIO data.</small></div>
+            <button class="danger-button" id="resetDataButton">RESET</button>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ======================================
+       AUTH MODAL
+  ======================================= -->
+
+  <div class="modal-backdrop" id="authModal">
+    <div class="modal-card">
+      <button class="modal-close" data-close-modal aria-label="Close">×</button>
+
+      <span class="eyebrow">WELCOME TO DAZURIO</span>
+      <h2 id="authTitle">Your journey starts here.</h2>
+      <p id="authDescription">Create a local profile to keep track of your progress.</p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth-tab="register">REGISTER</button>
+        <button class="auth-tab" data-auth-tab="login">LOG IN</button>
+      </div>
+
+      <form id="authForm">
+        <label for="authUsername">USERNAME</label>
+        <input id="authUsername" type="text" maxlength="18" placeholder="Your username" required>
+
+        <label for="authPassword">PASSWORD</label>
+        <input id="authPassword" type="password" minlength="4" placeholder="At least 4 characters" required>
+
+        <p class="form-error" id="authError"></p>
+
+        <button class="play-button modal-submit" type="submit" id="authSubmitButton">
+          CREATE PROFILE <span>↗</span>
+        </button>
+      </form>
+
+      <p class="modal-footnote">Local prototype. Your profile stays in this browser.</p>
+    </div>
+  </div>
+
+
+  <!-- ======================================
+       EDIT PROFILE MODAL
+  ======================================= -->
+
+  <div class="modal-backdrop" id="editProfileModal">
+    <div class="modal-card">
+      <button class="modal-close" data-close-modal aria-label="Close">×</button>
+      <span class="eyebrow">YOUR PROFILE</span>
+      <h2>Edit your details.</h2>
+
+      <form id="editProfileForm">
+        <label for="editUsername">USERNAME</label>
+        <input id="editUsername" type="text" maxlength="18" required>
+        <p class="form-error" id="editProfileError"></p>
+        <button class="play-button modal-submit" type="submit">SAVE CHANGES <span>↗</span></button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ======================================
+       TOAST NOTIFICATIONS
+  ======================================= -->
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+
+  <!-- ======================================
+       FOOTER
+  ======================================= -->
+
+  <footer class="site-footer">
+    <div class="footer-main">
+      <div>
+        <a class="brand footer-brand" href="#" data-page="home">DAZURIO<span class="brand-dot">.</span></a>
+        <p>A little curiosity, every day.</p>
+      </div>
+
+      <div class="footer-links">
+        <button data-page="how">How to play</button>
+        <button data-page="about">About</button>
+        <button data-page="faq">FAQ</button>
+        <button data-page="archive">Archive</button>
+        <button data-page="questions">Questions</button>
+        <button data-page="settings">Settings</button>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© <span id="footerYear"></span> DAZURIO</span>
+      <span>MADE FOR CURIOUS MINDS.</span>
+      <button data-page="plus">DISCOVER PLUS ↗</button>
+    </div>
+  </footer>
+
+
+  <!-- ======================================
+       JAVASCRIPT FILES
+  ======================================= -->
+
+  <script src="questions.js"></script>
+  <script src="storage.js"></script>
+  <script src="effects.js"></script>
+  <script src="game.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
