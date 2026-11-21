@@ -604,10 +604,11 @@
   }
 
   function startGame(mode = "daily", options = {}) {
-    if (!isLoggedIn()) {
-      showToast("Pro spuštění hry se nejprve přihlas.", "warning");
-
+    // Guests may play the daily challenge; all extended modes require an account.
+    if (!isLoggedIn() && mode !== "daily") {
+      showToast("Tento režim je dostupný po vytvoření účtu.", "warning");
       document.dispatchEvent(new CustomEvent("dazurio:login-required"));
+      window.openAuthModal?.("register");
       return false;
     }
 
