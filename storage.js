@@ -353,6 +353,79 @@
   const STREAK_REWARDS=[{days:3,frame:"fire",title:"On a Roll"},{days:7,frame:"ocean",title:"Seven-Day Spark"},{days:14,frame:"sage",title:"Fortnight Focus"},{days:30,frame:"fire",title:"DAZURIO Devotee"},{days:100,frame:"ocean",title:"Century of Curiosity"}];
   function evaluatePlayerRewards(user){normalizeUser(user);const unlocked=[];ACHIEVEMENTS.forEach(a=>{if(a.test(user.stats,user)&&!user.achievements.includes(a.id)){user.achievements.push(a.id);unlocked.push(a);}});LEVEL_REWARDS.forEach(r=>{if(user.stats.level>=r.level){if(!user.cosmetics.frames.includes(r.frame))user.cosmetics.frames.push(r.frame);if(!user.cosmetics.titles.includes(r.title))user.cosmetics.titles.push(r.title);}});STREAK_REWARDS.forEach(r=>{if(user.stats.bestStreak>=r.days){if(!user.cosmetics.frames.includes(r.frame))user.cosmetics.frames.push(r.frame);if(!user.cosmetics.titles.includes(r.title))user.cosmetics.titles.push(r.title);}});return unlocked;}
   function getPlayerDashboard(){const user=getCurrentUser();if(!user)return null;normalizeUser(user);const history=user.history||[];const categories={};let diffTotal=0,diffCount=0;history.forEach(r=>(r.answers||[]).forEach(a=>{const c=a.category||"Other";categories[c]=(categories[c]||0)+1;const d=Number(a.difference);if(Number.isFinite(d)){diffTotal+=Math.abs(d);diffCount++;}}));const achievements=ACHIEVEMENTS.map(a=>{const unlocked=user.achievements.includes(a.id);return Object.assign({},a,{unlocked, title:a.secret&&!unlocked?"Hidden achievement":a.title, description:a.secret&&!unlocked?"Keep playing to discover this secret.":a.description});});const collections=[{id:"first-steps",title:"First Steps",icon:"🌱",description:"Complete your first game",earned:user.stats.gamesPlayed>=1},{id:"wildlife",title:"Wildlife Watcher",icon:"🦉",description:"Explore animal questions",earned:(categories.Animals||0)>=5},{id:"world",title:"World Traveler",icon:"🌍",description:"Answer geography questions",earned:(categories.Geography||0)>=5},{id:"history",title:"Time Keeper",icon:"⌛",description:"Explore history questions",earned:(categories.History||0)>=5},{id:"science",title:"Curious Scientist",icon:"🔬",description:"Explore science questions",earned:(categories.Science||0)>=5},{id:"streak",title:"Streak Society",icon:"🔥",description:"Reach a 7-day streak",earned:user.stats.bestStreak>=7},{id:"plus",title:"Plus Star",icon:"✦",description:"Unlock lifetime Plus",earned:Boolean(user.plus)}];return{stats:clone(user.stats),achievements,collections,cosmetics:clone(user.cosmetics),isPlus:Boolean(user.plus),totalPoints:history.reduce((sum,r)=>sum+nonNegative(r.score),0),strongestCategory:Object.entries(categories).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—",averageDifference:diffCount?Math.round(diffTotal/diffCount):0,categoryCounts:clone(categories),recentGames:history.length,averageScore:history.length?Math.round(history.reduce((n,r)=>n+nonNegative(r.score),0)/history.length):0};}
+
+  function getDeepInsights() {
+    const user = getCurrentUser();
+    if (!user) return null;
+    normalizeUser(user);
+    const history = (user.history || []).filter(r => r && ["daily", "endless"].includes(r.mode || "daily"));
+    const categoryMap = {};
+    const dailyMap = {};
+    let totalAnswers = 0, within5 = 0, within10 = 0, within20 = 0;
+    let relativeErrorTotal = 0, relativeErrorCount = 0;
+    let bestEstimate = null, largestMiss = null;
+    history.forEach(record => {
+      const date = record.date || dateKey(record.completedAt || new Date());
+      const day = dailyMap[date] || (dailyMap[date] = { games: 0, score: 0, accuracy: 0, answers: 0 });
+      day.games += 1; day.score += nonNegative(record.score); day.accuracy += nonNegative(record.accuracy); day.answers += nonNegative(record.questionCount);
+      (record.answers || []).forEach(answer => {
+        totalAnswers++;
+        const category = String(answer.category || "Other");
+        const bucket = categoryMap[category] || (categoryMap[category] = { category, answers: 0, within5: 0, within10: 0, within20: 0, errorTotal: 0, errorCount: 0, precisionTotal: 0 });
+        bucket.answers++;
+        const actual = Math.abs(Number(answer.answer));
+        const difference = Math.abs(Number(answer.difference));
+        if (Number.isFinite(actual) && actual > 0 && Number.isFinite(difference)) {
+          const percent = difference / actual * 100;
+          bucket.errorTotal += percent; bucket.errorCount++;
+          bucket.precisionTotal += Math.max(0, 100 - percent);
+          relativeErrorTotal += percent; relativeErrorCount++;
+          if (percent <= 5) { within5++; bucket.within5++; }
+          if (percent <= 10) { within10++; bucket.within10++; }
+          if (percent <= 20) { within20++; bucket.within20++; }
+          const candidate = { questionId: answer.questionId, category, percent, difference, guess: answer.guess, answer: answer.answer };
+          if (!bestEstimate || percent < bestEstimate.percent) bestEstimate = candidate;
+          if (!largestMiss || percent > largestMiss.percent) largestMiss = candidate;
+        }
+      });
+    });
+    const categories = Object.values(categoryMap).map(c => ({
+      category: c.category, answers: c.answers,
+      precision: c.errorCount ? Math.round(c.precisionTotal / c.errorCount) : null,
+      averageError: c.errorCount ? Math.round(c.errorTotal / c.errorCount * 10) / 10 : null,
+      within10: c.errorCount ? Math.round(c.within10 / c.errorCount * 100) : null
+    })).sort((a,b) => (b.precision ?? -1) - (a.precision ?? -1));
+    const today = dateKey(new Date());
+    const start = new Date(today + "T12:00:00");
+    const dayRows = [];
+    for (let i=13;i>=0;i--) {
+      const d = new Date(start.getTime() - i*86400000);
+      const key = dateKey(d), row = dailyMap[key];
+      dayRows.push({ date:key, label:key.slice(5), games:row?.games||0, score:row?.score||0, accuracy:row?.games?Math.round(row.accuracy/row.games):0 });
+    }
+    const avg = rows => rows.length ? Math.round(rows.reduce((n,r)=>n+nonNegative(r.accuracy),0)/rows.length) : null;
+    const last7 = history.filter(r => daysBetween(r.date || today, today) >= 0 && daysBetween(r.date || today, today) < 7);
+    const previous7 = history.filter(r => daysBetween(r.date || today, today) >= 7 && daysBetween(r.date || today, today) < 14);
+    const currentAvg = avg(last7), previousAvg = avg(previous7);
+    const eligible = categories.filter(c => c.answers >= 3 && c.precision !== null);
+    const weakest = [...eligible].sort((a,b)=>a.precision-b.precision)[0] || null;
+    const strongest = [...eligible].sort((a,b)=>b.precision-a.precision)[0] || null;
+    const bestGame = [...history].sort((a,b)=>nonNegative(b.score)-nonNegative(a.score))[0] || null;
+    return {
+      games: history.length, answers: totalAnswers,
+      averageAccuracy: history.length ? Math.round(history.reduce((n,r)=>n+nonNegative(r.accuracy),0)/history.length) : 0,
+      averageRelativeError: relativeErrorCount ? Math.round(relativeErrorTotal/relativeErrorCount*10)/10 : null,
+      within5: relativeErrorCount ? Math.round(within5/relativeErrorCount*100) : 0,
+      within10: relativeErrorCount ? Math.round(within10/relativeErrorCount*100) : 0,
+      within20: relativeErrorCount ? Math.round(within20/relativeErrorCount*100) : 0,
+      categories, trend: dayRows, bestGame: bestGame ? { score:bestGame.score, date:bestGame.date, accuracy:bestGame.accuracy } : null,
+      bestEstimate, largestMiss,
+      currentWeekAccuracy: currentAvg, previousWeekAccuracy: previousAvg,
+      weekChange: currentAvg !== null && previousAvg !== null ? currentAvg-previousAvg : null,
+      strongest, weakest
+    };
+  }
+
   function equipCosmetic(kind,value){const db=readDatabase();const user=getCurrentUserFrom(db);if(!user)throw new Error("Sign in to customize your profile.");normalizeUser(user);if(kind==="frame"&&user.cosmetics.frames.includes(value))user.cosmetics.equippedFrame=value;else if(kind==="title"&&user.cosmetics.titles.includes(value))user.cosmetics.equippedTitle=value;else throw new Error("That cosmetic has not been unlocked yet.");writeDatabase(db);return clone(user.cosmetics);}
 
   function grantCosmetic(kind, value) {
@@ -1098,6 +1171,7 @@
     levelFromXP,
     levelProgressFromXP,
     getPlayerDashboard,
+    getDeepInsights,
     equipCosmetic,
     grantCosmetic,
     getLocalPlayers,
