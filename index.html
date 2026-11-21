@@ -674,11 +674,17 @@
           <span class="plus-label">✳ THE NEXT LEVEL OF DAZURIO</span>
           <h1>Make curiosity<br>your superpower<span>.</span></h1>
           <p>More insights. More ways to play. More reasons to come back.</p>
-          <div class="plus-price">DAZURIO PLUS <span>PREVIEW</span></div>
-          <button class="play-button" id="activatePlusButton">
-            TRY PLUS PREVIEW <span>↗</span>
-          </button>
-          <p class="plus-disclaimer">Local demo only. No real payments or subscription.</p>
+          <div class="plus-price">DAZURIO PLUS <span>LIFETIME EDITION</span></div>
+          <p class="plus-disclaimer">A one-time unlock. No monthly payments and no expiry. Enter your secret unlock code below.</p>
+          <form class="plus-redeem-form" id="plusRedeemForm">
+            <label for="plusCodeInput">SECRET UNLOCK CODE</label>
+            <div class="plus-code-row"><input id="plusCodeInput" type="password" autocomplete="off" placeholder="Enter your secret code" required><button class="play-button" type="submit" id="redeemPlusButton">UNLOCK PLUS ↗</button></div>
+            <p class="plus-redeem-status" id="plusRedeemStatus" role="status"></p>
+          </form>
+          <div class="plus-unlocked-panel" id="plusUnlockedPanel" hidden>
+            <span class="plus-unlocked-icon">✦</span><strong>DAZURIO PLUS UNLOCKED</strong>
+            <p>Lifetime access is active on this profile.</p>
+          </div>
         </div>
 
         <div class="plus-features">
@@ -697,11 +703,11 @@
             <h3>Extended history</h3>
             <p>Look back at your previous games and personal records.</p>
           </article>
-          <article>
-            <span>04</span>
-            <h3>Personal insights</h3>
-            <p>Discover patterns in your answers and learning habits.</p>
-          </article>
+          <article><span>04</span><h3>Personal insights</h3><p>Discover patterns in your answers and learning habits.</p></article>
+          <article><span>05</span><h3>Exclusive cosmetics</h3><p>Unlock Aurora and Gold avatar frames plus DAZURIO LEGEND and STARLIGHT titles.</p></article>
+          <article><span>06</span><h3>Plus profile badge</h3><p>Show your lifetime Plus status on your profile.</p></article>
+          <article><span>07</span><h3>Unlimited practice</h3><p>Train with extra practice sessions and category filters.</p></article>
+          <article><span>08</span><h3>Lifetime access</h3><p>Unlock once and keep Plus on this profile forever.</p></article>
         </div>
 
       </div>
