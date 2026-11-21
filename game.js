@@ -107,19 +107,16 @@
       }
     } catch (_) {}
 
-    // A stable yearly shuffle and consecutive seven-question slices guarantee
-    // that adjacent daily challenges never repeat a question.
-    const year = Number(seed.slice(0, 4));
-    const date = new Date(seed + "T12:00:00");
-    const dayOfYear = Math.floor((date - new Date(year, 0, 1, 12)) / 86400000);
-    let hash = year ^ 0x5f3759df;
+    // Date-seeded shuffle: the same date always gets the same seven questions,
+    // while the next date receives a newly shuffled set.
+    let hash = 216 * 31;
+    for (const char of seed) hash = (hash * 31 + char.charCodeAt(0)) | 0;
     const random = () => {
       hash = (hash * 1664525 + 1013904223) | 0;
       return (hash >>> 0) / 4294967296;
     };
     const pool = shuffleWithRandom(all, random);
-    const offset = (dayOfYear * QUESTIONS_PER_DAILY) % pool.length;
-    const selected = Array.from({length: Math.min(QUESTIONS_PER_DAILY, pool.length)}, (_, i) => pool[(offset + i) % pool.length]);
+    const selected = pool.slice(0, Math.min(QUESTIONS_PER_DAILY, pool.length));
     try { localStorage.setItem(cacheKey, JSON.stringify(selected.map(question => question.id))); } catch (_) {}
     return selected;
   }
