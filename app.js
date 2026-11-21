@@ -344,10 +344,21 @@
           : "Profile";
       }
 
+      const frame = byId("headerAvatarFrame");
+      const title = byId("headerEquippedTitle");
       if (avatar) {
         avatar.textContent = user
           ? (user.displayName || user.username).charAt(0).toUpperCase()
           : "👤";
+        avatar.style.backgroundImage = user?.avatarUrl ? "url('" + user.avatarUrl + "')" : "";
+        avatar.classList.toggle("has-photo", Boolean(user?.avatarUrl));
+      }
+      if (frame) {
+        const equipped = user?.cosmetics?.equippedFrame || "classic";
+        frame.className = "profile-avatar-frame frame-" + equipped;
+      }
+      if (title) {
+        title.textContent = user?.cosmetics?.equippedTitle || (user ? "Curious Mind" : "PLAY AS A GUEST");
       }
     }
 
@@ -574,7 +585,15 @@
     setText("profileBestScore", (stats.bestScore || 0).toLocaleString());
     setText("profileBestStreak", stats.bestStreak || 0);
     setText("profileAccuracy", (stats.averageAccuracy || 0) + "%");
-    setText("profileAvatar", (user.displayName || user.username || "P").charAt(0).toUpperCase());
+    const profileAvatar = byId("profileAvatar");
+    if (profileAvatar) {
+      profileAvatar.textContent = (user.displayName || user.username || "P").charAt(0).toUpperCase();
+      profileAvatar.style.backgroundImage = user.avatarUrl ? "url('" + user.avatarUrl + "')" : "";
+      profileAvatar.classList.toggle("has-photo", Boolean(user.avatarUrl));
+    }
+    const profileFrame = byId("profileAvatarFrame");
+    if (profileFrame) profileFrame.className = "profile-card-avatar-frame frame-" + (user.cosmetics?.equippedFrame || "classic");
+    setText("profileEquippedTitle", (user.cosmetics?.equippedTitle || "Curious Mind").toUpperCase());
     const profileProgress = byId("profileProgressFill");
     const profileLevelXP = profileProgression.current;
     if (profileProgress) profileProgress.style.width = (profileLevelXP / profileProgression.required * 100) + "%";
@@ -634,6 +653,8 @@
     if (username) {
       username.value = user.username || "";
     }
+    const error = byId("editProfileError");
+    if (error) error.textContent = "";
 
     modal.classList.add("open", "active");
     modal.setAttribute("aria-hidden", "false");
@@ -667,6 +688,11 @@
     const names={classic:"Classic",sage:"Sage",ocean:"Ocean",aurora:"Aurora",gold:"Gold"};const fs=byId("cosmeticFrameSelect"),ts=byId("cosmeticTitleSelect");
     if(fs){fs.replaceChildren();data.cosmetics.frames.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=names[v]||v;o.selected=v===data.cosmetics.equippedFrame;fs.appendChild(o);});}
     if(ts){ts.replaceChildren();data.cosmetics.titles.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;o.selected=v===data.cosmetics.equippedTitle;ts.appendChild(o);});}
+    const frame=byId("cosmeticPreviewFrame");if(frame)frame.className="cosmetic-preview-avatar-frame frame-"+(data.cosmetics.equippedFrame||"classic");
+    setText("cosmeticPreviewTitle",data.cosmetics.equippedTitle||"Curious Mind");
+    const preview=byId("cosmeticPreviewAvatar"),user=storage().getCurrentUser();if(preview&&user){preview.textContent=(user.displayName||user.username||"P").charAt(0).toUpperCase();preview.style.backgroundImage=user.avatarUrl?"url('"+user.avatarUrl+"')":"";preview.classList.toggle("has-photo",Boolean(user.avatarUrl));}
+    if(fs)fs.onchange=()=>{if(frame)frame.className="cosmetic-preview-avatar-frame frame-"+fs.value;};
+    if(ts)ts.onchange=()=>setText("cosmeticPreviewTitle",ts.value);
   }
   function renderSeasonalEvent(){const card=byId("seasonalEventCard");if(!card)return;let e=null;try{e=JSON.parse(localStorage.getItem("dazurio_seasonal_event")||"null");}catch(_){}const today=localDateKey();if(!e||(e.start&&today<e.start)||(e.end&&today>e.end)){card.hidden=true;return;}card.hidden=false;setText("seasonalEventTitle",e.title||"Seasonal event");setText("seasonalEventDescription",e.description||"");const img=byId("seasonalEventImage");if(img&&e.image){img.src=e.image;img.hidden=false;}else if(img)img.hidden=true;}
 
@@ -1209,11 +1235,9 @@
       });
     });
 
-    $$("[data-close-modal]").forEach(button => {
+    $("[data-close-modal]").forEach(button => {
       button.addEventListener("click", () => {
-        const modal = button.closest(".modal-backdrop, .modal-card, .modal") ||
-          byId("authModal");
-
+        const modal = button.closest(".modal-backdrop, .modal") || button.closest(".modal-card")?.parentElement || byId("authModal");
         closeModal(modal);
       });
     });
@@ -1349,7 +1373,10 @@
       }
     });
 
-    byId("saveCosmeticsButton")?.addEventListener("click",()=>{try{storage().equipCosmetic("frame",byId("cosmeticFrameSelect")?.value);storage().equipCosmetic("title",byId("cosmeticTitleSelect")?.value);notify("Profile look saved.","success");}catch(e){notify(e.message||"Could not save cosmetics.","error");}});
+    byId("saveCosmeticsButton")?.addEventListener("click",()=>{try{storage().equipCosmetic("frame",byId("cosmeticFrameSelect")?.value);storage().equipCosmetic("title",byId("cosmeticTitleSelect")?.value);updateAccountControls();renderProfile();notify("Profile look saved.","success");}catch(e){notify(e.message||"Could not save cosmetics.","error");}});
+    byId("profileImageInput")?.addEventListener("change",event=>{const file=event.target.files?.[0];if(!file)return;if(!/^image\/(png|jpeg|webp)$/.test(file.type)){notify("Choose a JPG, PNG or WebP image.","error");return;}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const canvas=document.createElement("canvas"),scale=Math.min(1,512/Math.max(img.width,img.height));canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);const dataUrl=canvas.toDataURL("image/jpeg",.78);try{storage().updateProfile({avatarUrl:dataUrl});updateAccountControls();renderProfile();notify("Profile picture updated.","success");}catch(error){notify(error.message||"Could not save this picture.","error");}};img.onerror=()=>notify("Could not read this image.","error");img.src=String(reader.result);};reader.readAsDataURL(file);});
+    byId("studioGrantTitleButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("title",byId("studioCustomTitle")?.value||"");renderPlayerDashboard();notify("Title unlocked for the current player.","success");setText("studioRewardStatus","Title added to the current profile.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant title.");}});
+    byId("studioGrantFrameButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("frame",byId("studioGrantFrame")?.value||"");renderPlayerDashboard();notify("Frame unlocked for the current player.","success");setText("studioRewardStatus","Frame added to the current profile.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant frame.");}});
     byId("editProfileButton")?.addEventListener(
       "click",
       openEditProfile
