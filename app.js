@@ -441,8 +441,14 @@
     const stats = user?.stats || getGuestStats();
 
     const xp = Math.max(0, Number(stats.xp) || 0);
-    const level = Math.floor(xp / 250) + 1;
-    const currentLevelXP = xp % 250;
+    const progression = storage().levelProgressFromXP
+      ? storage().levelProgressFromXP(xp)
+      : (() => {
+          let remaining = xp, level = 1, required = 200;
+          while (remaining >= required) { remaining -= required; level += 1; required += 50; }
+          return { level, current: remaining, required, remaining: required - remaining };
+        })();
+    const { level, current: currentLevelXP, required: requiredLevelXP, remaining: xpToNextLevel } = progression;
 
     // XP is the single source of truth. Never trust a stale saved level field.
     if (user?.stats && user.stats.level !== level) user.stats.level = level;
@@ -461,7 +467,7 @@
     setText("progressLevel", level);
     const percentage = Math.min(
       100,
-      Math.max(0, currentLevelXP / 250 * 100)
+      Math.max(0, currentLevelXP / requiredLevelXP * 100)
     );
 
     const progress = byId("xpProgressFill");
@@ -469,8 +475,8 @@
       progress.style.width = percentage + "%";
     }
 
-    setText("progressXP", `${currentLevelXP} / 250 XP`);
-    setText("nextLevelXP", `${250 - currentLevelXP} XP TO NEXT LEVEL`);
+    setText("progressXP", `${currentLevelXP} / ${requiredLevelXP} XP`);
+    setText("nextLevelXP", `${xpToNextLevel} XP TO NEXT LEVEL`);
 
     updateDailyCountdown();
   }
@@ -559,7 +565,10 @@
     setText("profileName", user.displayName || user.username);
     setText("profileJoined", user.createdAt || "");
     setText("profileXP", (stats.xp || 0).toLocaleString());
-    setText("profileLevel", Math.floor(Math.max(0, Number(stats.xp) || 0) / 250) + 1);
+    const profileProgression = storage().levelProgressFromXP
+      ? storage().levelProgressFromXP(stats.xp || 0)
+      : { level: 1, current: stats.xp || 0, required: 200 };
+    setText("profileLevel", profileProgression.level);
     setText("profileStreak", stats.streak || 0);
     setText("profileGames", stats.gamesPlayed || 0);
     setText("profileBestScore", (stats.bestScore || 0).toLocaleString());
@@ -567,9 +576,9 @@
     setText("profileAccuracy", (stats.averageAccuracy || 0) + "%");
     setText("profileAvatar", (user.displayName || user.username || "P").charAt(0).toUpperCase());
     const profileProgress = byId("profileProgressFill");
-    const profileLevelXP = (stats.xp || 0) % 250;
-    if (profileProgress) profileProgress.style.width = (profileLevelXP / 250 * 100) + "%";
-    setText("profileProgressText", profileLevelXP + " / 250 XP");
+    const profileLevelXP = profileProgression.current;
+    if (profileProgress) profileProgress.style.width = (profileLevelXP / profileProgression.required * 100) + "%";
+    setText("profileProgressText", profileLevelXP + " / " + profileProgression.required + " XP");
 
     renderHistory(storage().getHistory(8) || []);
   }
