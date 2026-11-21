@@ -588,6 +588,11 @@
 
     const summary = getSummary();
     const storage = getStorage();
+    if (state.mode === "daily") {
+      const now = new Date();
+      const key = [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
+      try { localStorage.setItem("dazurio_daily_completed_" + key, "1"); } catch (_) {}
+    }
 
     if (isLoggedIn() && storage && typeof storage.saveGameResult === "function") {
       try {
@@ -627,6 +632,16 @@
   }
 
   function startGame(mode = "daily", options = {}) {
+    if (mode === "daily") {
+      const now = new Date();
+      const key = [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
+      try {
+        if (localStorage.getItem("dazurio_daily_completed_" + key) === "1") {
+          showToast("Dnešní výzvu už máš dokončenou. Vrať se zítra!", "info");
+          return false;
+        }
+      } catch (_) {}
+    }
     // Guests may play the daily challenge; all extended modes require an account.
     if (!isLoggedIn() && mode !== "daily" && mode !== "archive") {
       showToast("Tento režim je dostupný po vytvoření účtu.", "warning");
