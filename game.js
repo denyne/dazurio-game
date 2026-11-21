@@ -294,6 +294,9 @@
       if (element) element.textContent = value;
     });
 
+    const unitHint = $("answerUnitHint");
+    if (unitHint) unitHint.textContent = question.unit ? `Answer using ${question.unit}.` : "Enter a numeric estimate.";
+
     const input = $("answerInput");
 
     if (input) {
