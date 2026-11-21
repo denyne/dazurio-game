@@ -955,15 +955,6 @@
   }
 
   function bindMainActions() {
-    // Home mode cards are driven by data-mode attributes.
-    $$('[data-mode]').forEach(button => {
-      button.addEventListener("click", () => {
-        const mode = button.dataset.mode;
-        if (mode === "endless") startEndless();
-        else if (mode === "practice") navigateTo("practice");
-      });
-    });
-
     byId("playTodayButton")?.addEventListener("click", startDaily);
 
     byId("endlessModeButton")?.addEventListener("click", startEndless);
