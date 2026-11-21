@@ -1407,11 +1407,14 @@
       const description = byId("studioQuestionDescription")?.value.trim() || "";
       const category = byId("studioQuestionCategory")?.value || "Numbers";
       const difficulty = byId("studioQuestionDifficulty")?.value || "medium";
-      const answer = Number(byId("studioQuestionAnswer")?.value);
-      const min = Number(byId("studioQuestionMin")?.value);
-      const max = Number(byId("studioQuestionMax")?.value);
+      const answerRaw = byId("studioQuestionAnswer")?.value ?? "";
+      const minRaw = byId("studioQuestionMin")?.value ?? "";
+      const maxRaw = byId("studioQuestionMax")?.value ?? "";
+      const answer = Number(answerRaw);
+      const min = Number(minRaw);
+      const max = Number(maxRaw);
       const unit = byId("studioQuestionUnit")?.value.trim() || "";
-      if (!question || !Number.isFinite(answer) || !Number.isFinite(min) || !Number.isFinite(max) || min > answer || answer > max || min >= max) {
+      if (!question || answerRaw === "" || minRaw === "" || maxRaw === "" || !Number.isFinite(answer) || !Number.isFinite(min) || !Number.isFinite(max) || min > answer || answer > max || min >= max) {
         setText("studioQuestionStatus", "Enter a question and valid minimum, exact answer and maximum.");
         return;
       }
