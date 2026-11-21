@@ -581,6 +581,7 @@
     setText("profileProgressText", profileLevelXP + " / " + profileProgression.required + " XP");
 
     renderHistory(storage().getHistory(8) || []);
+    renderPlayerDashboard();
   }
 
   function renderHistory(history) {
@@ -657,6 +658,17 @@
       notify(error.message || "Profile update failed.", "error");
     }
   }
+
+  function renderPlayerDashboard(){
+    const data=storage().getPlayerDashboard?.();if(!data)return;
+    setText("insightTotalPoints",data.totalPoints.toLocaleString());setText("insightAnswers",(data.stats.totalAnswers||0).toLocaleString());setText("insightStrongest",data.strongestCategory);setText("insightDifference",data.averageDifference.toLocaleString());
+    const grid=byId("achievementGrid");if(grid){grid.replaceChildren();data.achievements.forEach(a=>{const c=document.createElement("article");c.className="achievement-card "+(a.unlocked?"is-unlocked":"is-locked");const i=document.createElement("span");i.textContent=a.icon;const t=document.createElement("strong");t.textContent=a.title;const d=document.createElement("small");d.textContent=a.description;const s=document.createElement("em");s.textContent=a.unlocked?"UNLOCKED":"LOCKED";c.append(i,t,d,s);grid.appendChild(c);});}
+    setText("achievementCount",data.achievements.filter(a=>a.unlocked).length+" / "+data.achievements.length);
+    const names={classic:"Classic",sage:"Sage",ocean:"Ocean",aurora:"Aurora",gold:"Gold"};const fs=byId("cosmeticFrameSelect"),ts=byId("cosmeticTitleSelect");
+    if(fs){fs.replaceChildren();data.cosmetics.frames.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=names[v]||v;o.selected=v===data.cosmetics.equippedFrame;fs.appendChild(o);});}
+    if(ts){ts.replaceChildren();data.cosmetics.titles.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;o.selected=v===data.cosmetics.equippedTitle;ts.appendChild(o);});}
+  }
+  function renderSeasonalEvent(){const card=byId("seasonalEventCard");if(!card)return;let e=null;try{e=JSON.parse(localStorage.getItem("dazurio_seasonal_event")||"null");}catch(_){}const today=localDateKey();if(!e||(e.start&&today<e.start)||(e.end&&today>e.end)){card.hidden=true;return;}card.hidden=false;setText("seasonalEventTitle",e.title||"Seasonal event");setText("seasonalEventDescription",e.description||"");const img=byId("seasonalEventImage");if(img&&e.image){img.src=e.image;img.hidden=false;}else if(img)img.hidden=true;}
 
   // ŽEBŘÍČEK
 
@@ -1273,6 +1285,7 @@
     byId("studioCloseButton")?.addEventListener("click", closeStudio);
     studio?.addEventListener("click", event => { if (event.target === studio) closeStudio(); });
     byId("studioDiagnosticsButton")?.addEventListener("click", refreshStudioDiagnostics);
+    byId("studioSaveEventButton")?.addEventListener("click",()=>{const title=byId("studioEventTitle")?.value.trim(),description=byId("studioEventDescription")?.value.trim(),image=byId("studioEventImage")?.value.trim(),start=byId("studioEventStart")?.value||"",end=byId("studioEventEnd")?.value||"";if(!title){setText("studioEventStatus","Add an event title first.");return;}if(image&&!/^https:\/\//i.test(image)){setText("studioEventStatus","Artwork must use https://.");return;}if(start&&end&&end<start){setText("studioEventStatus","End date must be after start date.");return;}localStorage.setItem("dazurio_seasonal_event",JSON.stringify({title,description,image,start,end}));setText("studioEventStatus","Event published in this browser preview.");renderSeasonalEvent();});
     byId("studioValidateButton")?.addEventListener("click", () => {
       const validation = window.QuestionDatabase?.validate?.();
       if (!validation) { notify("Question validation is unavailable.", "warning"); return; }
@@ -1336,6 +1349,7 @@
       }
     });
 
+    byId("saveCosmeticsButton")?.addEventListener("click",()=>{try{storage().equipCosmetic("frame",byId("cosmeticFrameSelect")?.value);storage().equipCosmetic("title",byId("cosmeticTitleSelect")?.value);notify("Profile look saved.","success");}catch(e){notify(e.message||"Could not save cosmetics.","error");}});
     byId("editProfileButton")?.addEventListener(
       "click",
       openEditProfile
@@ -1450,6 +1464,7 @@
       try { renderProfile(); } catch (error) { console.warn("Profile could not render:", error); }
       try { renderArchive(); } catch (error) { console.warn("Archive could not render:", error); }
       try { renderQuestionLibrary(); } catch (error) { console.warn("Question library could not render:", error); }
+      try { renderSeasonalEvent(); } catch (error) { console.warn("Seasonal event could not render:", error); }
 
       const initialHash = window.location.hash;
 
