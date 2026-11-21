@@ -1,63 +1,126 @@
-DAZURIO – local browser build
-============================
+# 🎮 DAZURIO
+### MADE FOR CURIOUS MINDS
 
-Files
------
-index.html      Main app page
-style.css      Styling and responsive layout
-app.js         Navigation, login UI, profile, settings, archive and page actions
-game.js       Daily, archive, practice and endless game flow
-effects.js     UI effects, animation and sounds
-questions.js   Question database
-storage.js    Local browser storage and account/progress helpers
+DAZURIO je browserová vědomostní a odhadovací hra pro zvídavé lidi. Otestuj svůj odhad, porovnávej výsledky, sbírej XP, postupuj úrovněmi, odemykej achievementy a buduj svůj vlastní hráčský profil.
 
+Cílem DAZURIA je spojit zábavu, znalosti, soutěžení a dlouhodobý hráčský postup do jednoho příjemného herního zážitku.
 
-Start
------
-1. Extract the ZIP into a folder.
-2. Open index.html in a modern browser (Chrome, Edge or Firefox).
-3. Create a local demo account and play.
+---
 
-If your browser blocks local file storage or scripts, run a local server from this
-folder (Python installed):
+## ✨ Hlavní funkce
 
-  python -m http.server 8000
+### 🎯 Herní režimy
 
-Then open http://localhost:8000
+- **Daily Challenge** – každodenní výzva se stejnou sadou otázek pro hráče daného dne.
+- **Archive** – možnost zahrát si starší denní výzvy.
+- **Endless** – nekonečné hraní.
+- **Practice** – trénink a procvičování znalostí.
+- **Speed Run** – odpovídej co nejrychleji.
+- **Survival** – pokus se vydržet co nejdéle.
+- **Mystery** – tajemný herní režim.
+- **World Tour** – otázky z různých koutů světa.
+- **Boss Challenge** – speciální výzva pro zkušené hráče.
 
+### 🏆 Hráčský postup
 
-Current prototype features
---------------------------
-- Daily and archive challenges, Endless, Practice, Speed Run, Survival, Mystery,
-  World Tour and Boss Challenge.
-- Plus challenge links that friends can open, plus-only archive filters, and
-  all-time, daily, weekly and monthly local leaderboards.
-- Player levels, streak milestones, weekly quests, achievements, collectible
-  collections, profile frames, titles and avatar pictures.
-- Lifetime Plus demo unlock with advanced practice, extended local history,
-  additional insights, exclusive frames/titles, an Early Access title and a Plus achievement.
-- Local friends, local friend rankings, event/question/reward tools, a local
-  player manager and visual Owner cosmetics in DAZURIO Studio.
+- XP a levelovací systém.
+- Odměny za dosažené úrovně.
+- Denní série a speciální odměny za jejich udržení.
+- Běžné i tajné achievementy.
+- Sběratelské kolekce.
+- Osobní statistiky a historie her.
+- Profilové obrázky, rámečky a tituly.
 
-Important prototype limitations
--------------------------------
-All accounts, friends, cosmetics, event settings and leaderboards are stored in
-this browser only. They do not synchronize across browsers or devices. Online
-friends, global leaderboards, server-run events and secure account roles need a
-real backend.
+### 💎 DAZURIO PLUS
 
-The Plus redemption code is currently checked in client-side JavaScript. It is
-visible to anyone inspecting the source and is only a prototype convenience,
-not secure payment or entitlement validation. The Studio passphrase is also a
-client-side convenience lock. The Owner frame/title are visual cosmetics only;
-they do not grant trusted administrator permissions.
+DAZURIO Plus je navržené jako jednorázové doživotní odemčení, nikoliv měsíční předplatné.
 
-Notes
------
-Accounts, progress and settings are saved locally in this browser. This is a
-client-side demo, not a secure production authentication service. It does not
-synchronize data across devices.
+Plánované a prototypované výhody:
 
-The scripts have been syntax checked, the question database validated, and basic
-storage registration/login/save-history/logout smoke-tested. Full interactive
-browser testing was not completed in this environment.
+- Pokročilý Practice režim.
+- Výběr obtížnosti a kategorií.
+- Delší tréninkové série.
+- Rozšířená historie her.
+- Detailnější statistiky.
+- Exkluzivní profilové rámečky.
+- Speciální tituly a označení PLUS.
+- Vlastní výzvy pro kamarády.
+- Pokročilé filtry Archivu.
+- Speciální achievement Lifetime Member.
+- Přednostní přístup k novým funkcím.
+
+### 👑 Profil a kosmetika
+
+Každý hráč si může budovat vlastní identitu:
+
+- Vlastní profilový obrázek.
+- Profilové rámečky.
+- Speciální tituly.
+- Achievementy.
+- Sběratelské odměny.
+- Exkluzivní kosmetické předměty pro DAZURIO Plus.
+
+### 🌍 Komunita
+
+- Seznam přátel.
+- Žebříčky hráčů.
+- Denní, týdenní, měsíční a celkové pořadí.
+- Sdílení výsledků.
+- Vlastní výzvy pro kamarády.
+
+### 🛠️ DAZURIO Studio
+
+Administrátorské nástroje v prototypu zahrnují:
+
+- Správu otázek.
+- Tvorbu eventů.
+- Správu odměn.
+- Správu lokálních hráčů.
+- Přidělování kosmetických předmětů.
+- OWNER titul a speciální OWNER rámeček.
+
+---
+
+## 📁 Struktura projektu
+
+| Soubor | Popis |
+|---|---|
+| `index.html` | Hlavní stránka a struktura aplikace |
+| `style.css` | Design, vzhled a responzivní styly |
+| `app.js` | Navigace, profily, nastavení a ovládání |
+| `game.js` | Herní logika a herní režimy |
+| `questions.js` | Databáze otázek |
+| `storage.js` | Ukládání účtů, statistik a postupu |
+| `effects.js` | Animace a zvukové efekty |
+
+---
+
+## 🔐 Soukromí a bezpečnost
+
+DAZURIO je v současnosti prototyp klientské browserové aplikace.
+
+Je důležité vědět:
+
+- Účty, postup, přátelé, kosmetika a žebříčky se ukládají lokálně v prohlížeči.
+- Data se zatím automaticky nesynchronizují mezi zařízeními.
+- Projekt zatím nemá kompletní serverovou autentizaci ani centrální databázi.
+- OWNER titul a rámeček jsou v současnosti pouze kosmetické označení.
+- Ověřování Plus kódu a přístup do Mod Studio jsou zatím řešeny na straně klienta, nikoliv bezpečně na serveru.
+
+**Nikdy nevkládej do veřejného repozitáře hesla, API klíče, přístupové tokeny ani jiné soukromé údaje.**
+
+Pokud se skutečný tajný klíč dostane do veřejného repozitáře, je potřeba ho zneplatnit a vygenerovat nový. Pouhé smazání ze souboru nemusí odstranit jeho kopie z historie Git commitů.
+
+### Co je potřeba pro plnohodnotnou online verzi?
+
+- Bezpečná serverová autentizace.
+- Centrální databáze hráčů.
+- Synchronizace postupu mezi zařízeními.
+- Skutečné online přátelství.
+- Globální žebříčky.
+- Bezpečné administrátorské role.
+- Serverové ověřování DAZURIO Plus.
+
+---
+
+## 🧪
