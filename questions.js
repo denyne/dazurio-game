@@ -3459,6 +3459,7 @@
 
   window.QuestionDatabase = {
     getAll: getAllQuestions,
+    getBuiltIn: () => QUESTIONS.map(cloneQuestion),
     getById: getQuestionById,
     getByCategory: getQuestionsByCategory,
     getByDifficulty: getQuestionsByDifficulty,
