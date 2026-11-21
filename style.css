@@ -468,3 +468,8 @@ body.dark-mode .extra-modes{background:var(--surface);border-color:var(--line)}
 .player-passport-card .passport-progress-card .section-heading h2{font:800 15px Manrope,sans-serif;margin:0}
 .player-passport-card .passport-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:16px}
 @media(max-width:650px){.player-passport-card .passport-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Monthly Boss heading: clean left alignment without decorative crown */
+.monthly-boss-card>.section-heading{justify-content:flex-start;align-items:flex-start;margin-bottom:12px}
+.monthly-boss-card>.section-heading>div{width:100%;min-width:0}
+.monthly-boss-card>.section-heading h2{margin-top:2px}
