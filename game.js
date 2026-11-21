@@ -390,7 +390,7 @@
 
     let guess = value;
 
-    if (guess === null && !timedOut) {
+    if (guess == null && !timedOut) {
       guess = input ? input.value.trim() : "";
     }
 
