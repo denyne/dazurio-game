@@ -985,7 +985,7 @@
     },
     {
       id: "nat-new-011",
-      category: "Nature",
+      category: "Animals",
       difficulty: "easy",
       question: "How many legs does a spider have?",
       description: "Count all walking legs.",
@@ -997,7 +997,7 @@
     },
     {
       id: "nat-new-012",
-      category: "Nature",
+      category: "Animals",
       difficulty: "easy",
       question: "How many arms does an octopus have?",
       description: "Use the usual biological description.",
@@ -1009,7 +1009,7 @@
     },
     {
       id: "nat-new-013",
-      category: "Nature",
+      category: "Animals",
       difficulty: "easy",
       question: "How many hearts does an octopus have?",
       description: "Count its systemic and branchial hearts.",
@@ -1021,7 +1021,7 @@
     },
     {
       id: "nat-new-014",
-      category: "Nature",
+      category: "Animals",
       difficulty: "easy",
       question: "How many wings does a bee have?",
       description: "Count both pairs of wings.",
@@ -1033,7 +1033,7 @@
     },
     {
       id: "nat-new-015",
-      category: "Nature",
+      category: "Animals",
       difficulty: "medium",
       question: "How many teeth does a typical adult dog have?",
       description: "Use the full adult dentition.",
@@ -1045,7 +1045,7 @@
     },
     {
       id: "nat-new-016",
-      category: "Nature",
+      category: "Animals",
       difficulty: "medium",
       question: "How many teeth does a typical adult cat have?",
       description: "Use the full adult dentition.",
@@ -1057,7 +1057,7 @@
     },
     {
       id: "nat-new-017",
-      category: "Nature",
+      category: "Animals",
       difficulty: "medium",
       question: "How many chromosomes are in a typical human body cell?",
       description: "Count the chromosomes in a diploid cell.",
@@ -1069,7 +1069,7 @@
     },
     {
       id: "nat-new-018",
-      category: "Nature",
+      category: "Animals",
       difficulty: "medium",
       question: "How many chromosomes does a domestic horse usually have?",
       description: "Use the diploid chromosome count.",
@@ -1081,7 +1081,7 @@
     },
     {
       id: "nat-new-019",
-      category: "Nature",
+      category: "Animals",
       difficulty: "easy",
       question: "How many stomach compartments does a cow have?",
       description: "Count the four main compartments.",
@@ -1093,7 +1093,7 @@
     },
     {
       id: "nat-new-020",
-      category: "Nature",
+      category: "Animals",
       difficulty: "easy",
       question: "How many species of living penguins are commonly recognized?",
       description: "Use the commonly accepted modern species count.",
@@ -1465,7 +1465,7 @@
     },
     {
       id: "spo-new-051",
-      category: "Sport",
+      category: "Sports",
       difficulty: "easy",
       question: "How many players from one football team are on the pitch at the start of a match?",
       description: "Count the goalkeeper and outfield players.",
@@ -1477,7 +1477,7 @@
     },
     {
       id: "spo-new-052",
-      category: "Sport",
+      category: "Sports",
       difficulty: "medium",
       question: "How many minutes are in regular football match time, excluding stoppage time?",
       description: "Count both halves.",
@@ -1489,7 +1489,7 @@
     },
     {
       id: "spo-new-053",
-      category: "Sport",
+      category: "Sports",
       difficulty: "medium",
       question: "How high is a basketball hoop above the floor?",
       description: "Give the official height in centimetres.",
@@ -1501,7 +1501,7 @@
     },
     {
       id: "spo-new-054",
-      category: "Sport",
+      category: "Sports",
       difficulty: "easy",
       question: "How many points is a free throw worth in basketball?",
       description: "Use standard FIBA rules.",
@@ -1513,7 +1513,7 @@
     },
     {
       id: "spo-new-055",
-      category: "Sport",
+      category: "Sports",
       difficulty: "easy",
       question: "How many players from one volleyball team are on court?",
       description: "Count the players in indoor volleyball.",
@@ -1525,7 +1525,7 @@
     },
     {
       id: "spo-new-056",
-      category: "Sport",
+      category: "Sports",
       difficulty: "medium",
       question: "How many metres long is an Olympic swimming pool?",
       description: "Use the long-course pool length.",
@@ -1537,7 +1537,7 @@
     },
     {
       id: "spo-new-057",
-      category: "Sport",
+      category: "Sports",
       difficulty: "easy",
       question: "How many holes are played in a standard full round of golf?",
       description: "Count the holes in a full round.",
@@ -1549,7 +1549,7 @@
     },
     {
       id: "spo-new-058",
-      category: "Sport",
+      category: "Sports",
       difficulty: "easy",
       question: "How many sets must a player win to win a standard men's Grand Slam tennis match?",
       description: "Use best-of-five format.",
@@ -1561,7 +1561,7 @@
     },
     {
       id: "spo-new-059",
-      category: "Sport",
+      category: "Sports",
       difficulty: "easy",
       question: "How many rings are in the Olympic symbol?",
       description: "Count the interlocking rings.",
@@ -1573,7 +1573,7 @@
     },
     {
       id: "spo-new-060",
-      category: "Sport",
+      category: "Sports",
       difficulty: "medium",
       question: "How many squares are on a standard chessboard?",
       description: "Use an 8 by 8 board.",
@@ -1921,7 +1921,7 @@
     },
     {
       id: "bod-new-089",
-      category: "Body",
+      category: "Human Body",
       difficulty: "medium",
       question: "What is the average normal human body temperature in degrees Celsius?",
       description: "Use the traditional reference value, not a strict limit.",
@@ -1933,7 +1933,7 @@
     },
     {
       id: "bod-new-090",
-      category: "Body",
+      category: "Human Body",
       difficulty: "easy",
       question: "How many litres of blood does an average adult have approximately?",
       description: "Give a typical approximate volume.",
@@ -1945,7 +1945,7 @@
     },
     {
       id: "bod-new-091",
-      category: "Body",
+      category: "Human Body",
       difficulty: "medium",
       question: "How many teeth does a typical adult human have including wisdom teeth?",
       description: "Count a complete adult set.",
@@ -1957,7 +1957,7 @@
     },
     {
       id: "bod-new-092",
-      category: "Body",
+      category: "Human Body",
       difficulty: "medium",
       question: "How many muscles are commonly estimated in the human body?",
       description: "Use the often cited approximate count.",
@@ -1969,7 +1969,7 @@
     },
     {
       id: "bod-new-093",
-      category: "Body",
+      category: "Human Body",
       difficulty: "medium",
       question: "How many times does an adult heart beat per minute at a typical resting rate?",
       description: "Use a representative resting rate.",
@@ -1981,7 +1981,7 @@
     },
     {
       id: "bod-new-094",
-      category: "Body",
+      category: "Human Body",
       difficulty: "easy",
       question: "How many litres of air can an average adult lung hold at total capacity approximately?",
       description: "Use a typical adult total lung capacity.",
@@ -1993,7 +1993,7 @@
     },
     {
       id: "bod-new-095",
-      category: "Body",
+      category: "Human Body",
       difficulty: "easy",
       question: "How many taste types are commonly recognized in basic human taste science?",
       description: "Count sweet, sour, salty, bitter and umami.",
@@ -2005,7 +2005,7 @@
     },
     {
       id: "bod-new-096",
-      category: "Body",
+      category: "Human Body",
       difficulty: "medium",
       question: "How many bones are in a typical newborn baby's body approximately?",
       description: "Use the common estimate before many bones fuse.",
@@ -2017,7 +2017,7 @@
     },
     {
       id: "bod-new-097",
-      category: "Body",
+      category: "Human Body",
       difficulty: "easy",
       question: "How many pairs of ribs does a typical human have?",
       description: "Count the pairs in a typical adult.",
@@ -2029,7 +2029,7 @@
     },
     {
       id: "bod-new-098",
-      category: "Body",
+      category: "Human Body",
       difficulty: "easy",
       question: "How many chambers does the human stomach have?",
       description: "The human stomach is a single-chamber organ.",
@@ -2099,6 +2099,18 @@
       name: "Sports",
       icon: "⚽",
       description: "Games, records and athletic performance."
+    },
+    {
+      id: "Food",
+      name: "Food",
+      icon: "🍎",
+      description: "Food, cooking and everyday measurements."
+    },
+    {
+      id: "Culture",
+      name: "Culture",
+      icon: "🎭",
+      description: "Arts, language, music and curious facts."
     },
     {
       id: "Numbers",
