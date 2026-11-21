@@ -30,12 +30,14 @@ Current prototype features
 --------------------------
 - Daily and archive challenges, Endless, Practice, Speed Run, Survival, Mystery,
   World Tour and Boss Challenge.
+- Plus challenge links that friends can open, plus-only archive filters, and
+  all-time, daily, weekly and monthly local leaderboards.
 - Player levels, streak milestones, weekly quests, achievements, collectible
   collections, profile frames, titles and avatar pictures.
 - Lifetime Plus demo unlock with advanced practice, extended local history,
-  additional insights, exclusive frames/titles and a Plus achievement.
-- Local friends, local leaderboards, event/question/reward tools and a local
-  player manager in DAZURIO Studio.
+  additional insights, exclusive frames/titles, an Early Access title and a Plus achievement.
+- Local friends, local friend rankings, event/question/reward tools, a local
+  player manager and visual Owner cosmetics in DAZURIO Studio.
 
 Important prototype limitations
 -------------------------------
