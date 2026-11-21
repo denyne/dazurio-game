@@ -911,6 +911,33 @@
     }
   }
 
+
+  function renderResults(summary) {
+    const container = byId("resultsAnswers");
+    if (!container || !summary) return;
+    container.replaceChildren();
+    (summary.answers || []).forEach((answer, index) => {
+      const row = document.createElement("article");
+      row.className = "result-answer-row";
+      const number = document.createElement("span");
+      number.className = "result-answer-number";
+      number.textContent = String(index + 1).padStart(2, "0");
+      const details = document.createElement("div");
+      details.className = "result-answer-details";
+      const question = (window.QuestionDatabase?.getById?.(answer.questionId))?.question || "Question";
+      const title = document.createElement("strong");
+      title.textContent = question;
+      const meta = document.createElement("small");
+      meta.textContent = answer.guess === null ? "No answer" : "Your guess: " + answer.guess + " · Actual: " + answer.answer;
+      details.append(title, meta);
+      const points = document.createElement("b");
+      points.textContent = answer.points + " pts";
+      row.append(number, details, points);
+      container.appendChild(row);
+    });
+    setText("resultsSubtitle", summary.mode === "daily" ? "Today's challenge is complete." : "Your game is complete.");
+  }
+
   // UDÁLOSTI
 
   function bindNavigation() {
@@ -1109,7 +1136,8 @@
       bindMainActions();
       bindSettings();
       bindLeaderboardTabs();
-      document.addEventListener("dazurio:game-finished", () => {
+      document.addEventListener("dazurio:game-finished", event => {
+        renderResults(event.detail);
         refreshHome();
         renderProfile();
         renderLeaderboard("all");
