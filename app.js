@@ -1508,7 +1508,7 @@
       });
     });
 
-    $("[data-close-modal]").forEach(button => {
+    $$("[data-close-modal]").forEach(button => {
       button.addEventListener("click", () => {
         const modal = button.closest(".modal-backdrop, .modal") || button.closest(".modal-card")?.parentElement || byId("authModal");
         closeModal(modal);
