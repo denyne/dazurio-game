@@ -361,3 +361,16 @@ body.dark-mode .extra-modes{background:var(--surface);border-color:var(--line)}
 .archive-plus-filter label{font-weight:900;letter-spacing:.8px}
 .archive-plus-filter select{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text)}
 .archive-plus-filter small{font-size:10px}
+
+
+/* DAZURIO Studio: keep the full admin workspace reachable with the mouse wheel. */
+#studioOverlay{display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+#studioOverlay .studio-panel{width:min(100%,760px);max-height:none;min-height:0;margin:0 auto;overflow:visible}
+#studioOverlay .studio-heading{position:sticky;top:0;z-index:3;padding:12px 0;background:var(--surface)}
+#studioOverlay .studio-tool-section{scroll-margin-top:76px}
+#studioOverlay .studio-event-editor{max-height:none;overflow:visible}
+#studioOverlay{scrollbar-width:thin;scrollbar-color:var(--muted) transparent}
+#studioOverlay::-webkit-scrollbar{width:10px}
+#studioOverlay::-webkit-scrollbar-thumb{background:var(--muted);border:3px solid transparent;border-radius:99px;background-clip:padding-box}
+.studio-achievement-grant{display:grid;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.studio-achievement-grant select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--text)}
