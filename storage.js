@@ -691,7 +691,9 @@
 
   function saveGameResult(result) {
     const input = result || {};
-    if (!["daily", "endless", "boss"].includes(input.mode || "daily")) {\n      throw new Error("This mode does not save rewarded results.");\n    }
+    if (!["daily", "endless", "boss"].includes(input.mode || "daily")) {
+      throw new Error("This mode does not save rewarded results.");
+    }
     const database = readDatabase();
     const user = getCurrentUserFrom(database);
 
