@@ -80,6 +80,11 @@
       : [];
 
     user.plus = Boolean(user.plus);
+    user.prestige = Math.max(0, nonNegative(user.prestige));
+    user.mysteryBoxes = Math.max(0, nonNegative(user.mysteryBoxes));
+    user.lifetimeXP = Math.max(nonNegative(user.lifetimeXP), nonNegative(user.stats.xp));
+    user.showcaseAchievements = Array.isArray(user.showcaseAchievements) ? user.showcaseAchievements.slice(0,3) : [];
+    user.lastComebackClaimedAt = user.lastComebackClaimedAt || null;
     user.achievements = Array.isArray(user.achievements) ? user.achievements : [];
     user.claimedWeeklyRewards = Array.isArray(user.claimedWeeklyRewards) ? user.claimedWeeklyRewards : [];
     user.friends = Array.isArray(user.friends) ? Array.from(new Set(user.friends.map(String))) : [];
@@ -700,6 +705,7 @@
 
     stats.gamesPlayed += 1;
     stats.xp += xp;
+    user.lifetimeXP += xp;
     stats.level = levelFromXP(stats.xp);
 
     stats.totalScore += score;
@@ -727,6 +733,8 @@
     }
 
     if (record.mode === "daily") updateStreak(user, playedDate);
+    if (stats.gamesPlayed > 0 && stats.gamesPlayed % 10 === 0) user.mysteryBoxes += 1;
+    if (record.mode === "daily" && stats.bestStreak > 0 && stats.bestStreak % 7 === 0 && stats.streak === stats.bestStreak) user.mysteryBoxes += 1;
     record.unlockedAchievements = evaluatePlayerRewards(user).map(a=>a.id);
 
     user.updatedAt = new Date().toISOString();
@@ -756,6 +764,7 @@
     }
     user.claimedWeeklyRewards.push(start);
     user.stats.xp += 150;
+    user.lifetimeXP += 150;
     user.stats.level = levelFromXP(user.stats.xp);
     evaluatePlayerRewards(user);
     user.updatedAt = new Date().toISOString();
@@ -1027,6 +1036,45 @@
     return true;
   }
 
+
+  function getLegendsProgress() {
+    const user=getCurrentUserFrom(readDatabase()); if(!user)return null; normalizeUser(user);
+    const gap=user.stats.lastPlayedDate?daysBetween(user.stats.lastPlayedDate,todayKey()):0;
+    return {prestige:user.prestige,mysteryBoxes:user.mysteryBoxes,lifetimeXP:user.lifetimeXP,level:user.stats.level,canPrestige:user.stats.level>=25,comebackAvailable:gap>=3&&user.lastComebackClaimedAt!==todayKey(),showcase:clone(user.showcaseAchievements)};
+  }
+  function openMysteryBox() {
+    const db=readDatabase(),user=getCurrentUserFrom(db); if(!user)throw new Error("Sign in to open mystery boxes."); normalizeUser(user);
+    if(user.mysteryBoxes<1)throw new Error("Earn a Mystery Box every 10 rewarded games or 7-day streak.");
+    user.mysteryBoxes--; const roll=Math.random()*100; let rarity,reward;
+    if(roll<1){rarity="MYTHIC";reward={kind:"title",value:"DAZURIO LEGEND"};}
+    else if(roll<6){rarity="LEGENDARY";reward={kind:"frame",value:"prism"};}
+    else if(roll<22){rarity="EPIC";reward={kind:"title",value:"Mystery Hunter"};}
+    else if(roll<52){rarity="RARE";reward={kind:"frame",value:Math.random()<.5?"ocean":"sage"};}
+    else{rarity="COMMON";reward={kind:"xp",value:75};}
+    if(reward.kind==="title"&&!user.cosmetics.titles.includes(reward.value))user.cosmetics.titles.push(reward.value);
+    if(reward.kind==="frame"&&!user.cosmetics.frames.includes(reward.value))user.cosmetics.frames.push(reward.value);
+    if(reward.kind==="xp"){user.stats.xp+=75;user.lifetimeXP+=75;user.stats.level=levelFromXP(user.stats.xp);}
+    writeDatabase(db); return {rarity,reward};
+  }
+  function claimComebackReward() {
+    const db=readDatabase(),user=getCurrentUserFrom(db);if(!user)throw new Error("Sign in to claim your comeback reward.");normalizeUser(user);
+    const gap=user.stats.lastPlayedDate?daysBetween(user.stats.lastPlayedDate,todayKey()):0;
+    if(gap<3||user.lastComebackClaimedAt===todayKey())throw new Error("Return after at least 3 days away to claim this reward.");
+    user.lastComebackClaimedAt=todayKey();user.stats.xp+=100;user.lifetimeXP+=100;user.stats.level=levelFromXP(user.stats.xp);user.mysteryBoxes++;evaluatePlayerRewards(user);writeDatabase(db);return true;
+  }
+  function performPrestige() {
+    const db=readDatabase(),user=getCurrentUserFrom(db);if(!user)throw new Error("Sign in to enter Prestige.");normalizeUser(user);
+    if(user.stats.level<25)throw new Error("Reach level 25 to unlock Prestige.");
+    user.prestige++;user.stats.xp=0;user.stats.level=1;const title="PRESTIGE "+user.prestige;
+    if(!user.cosmetics.titles.includes(title))user.cosmetics.titles.push(title);user.cosmetics.equippedTitle=title;
+    if(!user.cosmetics.frames.includes("gold"))user.cosmetics.frames.push("gold");user.cosmetics.equippedFrame="gold";writeDatabase(db);return {prestige:user.prestige,title};
+  }
+  function saveTrophyShowcase(ids) {
+    const db=readDatabase(),user=getCurrentUserFrom(db);if(!user)throw new Error("Sign in to edit your trophy showcase.");normalizeUser(user);
+    const selected=Array.from(new Set((Array.isArray(ids)?ids:[]).map(String))).slice(0,3);
+    user.showcaseAchievements=selected.filter(id=>user.achievements.includes(id)&&ACHIEVEMENTS.some(a=>a.id===id));writeDatabase(db);return clone(user.showcaseAchievements);
+  }
+
   // VEŘEJNÉ API
 
   window.DazurioStorage = {
@@ -1058,7 +1106,12 @@
     getFriends,
     grantCosmeticToPlayer,
     getAchievementCatalog,
-    grantAchievementToPlayer
+    grantAchievementToPlayer,
+    getLegendsProgress,
+    openMysteryBox,
+    claimComebackReward,
+    performPrestige,
+    saveTrophyShowcase
   };
 
   init();

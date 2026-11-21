@@ -732,6 +732,18 @@
     renderWeeklyQuests();
     renderDailyCalendar();
     renderWeeklyCompetition();
+    renderLegendsHub(data);
+  }
+  function renderLegendsHub(data){
+    const p=storage().getLegendsProgress?.();if(!p)return;
+    setText("prestigeLevel",p.prestige);setText("prestigeStatus",p.canPrestige?"Prestige ready — level resets to 1.":"Reach level 25 to unlock Prestige.");
+    const pb=byId("prestigeButton");if(pb)pb.disabled=!p.canPrestige;
+    setText("mysteryBoxCount",p.mysteryBoxes);const mb=byId("openMysteryBoxButton");if(mb)mb.disabled=p.mysteryBoxes<1;
+    const cb=byId("comebackRewardButton");if(cb)cb.disabled=!p.comebackAvailable;
+    setText("comebackRewardStatus",p.comebackAvailable?"Your return reward is ready!":"Available after 3 days away.");
+    const choices=byId("trophyShowcaseChoices");if(choices){choices.replaceChildren();data.achievements.filter(x=>x.unlocked).forEach(item=>{const label=document.createElement("label");label.className="trophy-showcase-choice";const input=document.createElement("input");input.type="checkbox";input.value=item.id;input.checked=p.showcase.includes(item.id);input.addEventListener("change",()=>{if(choices.querySelectorAll("input:checked").length>3){input.checked=false;notify("Choose up to three trophies.","warning");}});const t=document.createElement("span");t.textContent=item.icon+" "+item.title;label.append(input,t);choices.appendChild(label);});}
+    const display=byId("trophyShowcaseDisplay");if(display){display.replaceChildren();data.achievements.filter(x=>p.showcase.includes(x.id)).forEach(item=>{const chip=document.createElement("span");chip.className="trophy-showcase-chip";chip.textContent=item.icon+" "+item.title;display.appendChild(chip);});}
+    const map=byId("achievementMap");if(map){map.replaceChildren();data.achievements.forEach((item,i)=>{const node=document.createElement("article");node.className="achievement-map-node"+(item.unlocked?" is-done":"");const icon=document.createElement("span");icon.textContent=item.unlocked?item.icon:"🔒";const title=document.createElement("strong");title.textContent=item.title;const step=document.createElement("small");step.textContent="STEP "+(i+1);node.append(icon,title,step);map.appendChild(node);});}
   }
   function renderStudioPlayers() {
     const select=byId("studioPlayerTarget");if(!select)return;
@@ -1464,6 +1476,11 @@
   function bindMainActions() {
     byId("playTodayButton")?.addEventListener("click", startDaily);
     byId("addFriendButton")?.addEventListener("click",()=>{try{storage().addFriend(byId("friendUsernameInput")?.value||"");if(byId("friendUsernameInput"))byId("friendUsernameInput").value="";setText("friendsStatus","Friend added to your local list.");renderFriends();}catch(error){setText("friendsStatus",error.message||"Could not add friend.");}});
+    byId("openMysteryBoxButton")?.addEventListener("click",()=>{try{const r=storage().openMysteryBox();setText("mysteryBoxResult",r.rarity+" · "+(r.reward.value||("+"+r.reward.value+" XP")));renderProfile();notify("Mystery box opened: "+r.rarity,"success");}catch(e){notify(e.message||"No box available.","warning");}});
+    byId("comebackRewardButton")?.addEventListener("click",()=>{try{storage().claimComebackReward();renderProfile();notify("Welcome back! +100 XP and a Mystery Box.","success");}catch(e){notify(e.message||"Not available yet.","warning");}});
+    byId("prestigeButton")?.addEventListener("click",()=>{try{const r=storage().performPrestige();renderProfile();notify("Welcome to "+r.title+"!","success");}catch(e){notify(e.message||"Prestige unavailable.","warning");}});
+    byId("saveTrophyShowcaseButton")?.addEventListener("click",()=>{try{const ids=Array.from(byId("trophyShowcaseChoices")?.querySelectorAll("input:checked")||[]).map(x=>x.value);storage().saveTrophyShowcase(ids);renderProfile();notify("Trophy showcase saved.","success");}catch(e){notify(e.message||"Could not save showcase.","warning");}});
+
 
     const studio = byId("studioOverlay");
     const openStudio = () => {
