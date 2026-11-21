@@ -971,7 +971,7 @@
     user.plusUnlockedAt = new Date().toISOString();
     user.cosmetics = Object.assign({frames:["classic"],equippedFrame:"classic",titles:["Curious Mind"],equippedTitle:"Curious Mind"},user.cosmetics||{});
     ["aurora","gold","prism","starlight"].forEach(frame => { if (!user.cosmetics.frames.includes(frame)) user.cosmetics.frames.push(frame); });
-    ["DAZURIO LEGEND","STARLIGHT","PLUS ELITE"].forEach(title => { if (!user.cosmetics.titles.includes(title)) user.cosmetics.titles.push(title); });
+    ["DAZURIO LEGEND","STARLIGHT","PLUS ELITE","EARLY ACCESS"].forEach(title => { if (!user.cosmetics.titles.includes(title)) user.cosmetics.titles.push(title); });
     evaluatePlayerRewards(user);
     user.updatedAt = new Date().toISOString();
     writeDatabase(database);
