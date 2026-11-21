@@ -744,9 +744,9 @@
       };
       answerInput.addEventListener("input", () => {
         const raw = answerInput.value;
-        if (/^[0-9]+$/.test(raw.replace(/[\\s\\u00a0]/g, ""))) {
-          const digits = raw.replace(/[\\s\\u00a0]/g, "");
-          const groupedInput = digits.replace(/\\B(?=(\\d{3})+(?!\\d))/g, " ");
+        if (/^[0-9]+$/.test(raw.replace(/[\s\u00a0]/g, ""))) {
+          const digits = raw.replace(/[\s\u00a0]/g, "");
+          const groupedInput = digits.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
           if (groupedInput !== raw) {
             const oldEnd = answerInput.selectionStart === raw.length;
             answerInput.value = groupedInput;
