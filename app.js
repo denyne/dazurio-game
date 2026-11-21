@@ -600,7 +600,7 @@
     if (profileProgress) profileProgress.style.width = (profileLevelXP / profileProgression.required * 100) + "%";
     setText("profileProgressText", profileLevelXP + " / " + profileProgression.required + " XP");
 
-    renderHistory(storage().getHistory(user.plus ? 100 : 8) || []);
+    renderHistory(storage().getHistory(user.plus ? 500 : 8) || []);
     renderPlusStatus();
     renderPlayerDashboard();
   }
@@ -685,7 +685,7 @@
 
   function renderPlayerDashboard(){
     const data=storage().getPlayerDashboard?.();if(!data)return;
-    setText("insightTotalPoints",data.totalPoints.toLocaleString());setText("insightAnswers",(data.stats.totalAnswers||0).toLocaleString());setText("insightStrongest",data.strongestCategory);setText("insightDifference",data.averageDifference.toLocaleString());
+    setText("insightTotalPoints",data.totalPoints.toLocaleString());setText("insightAnswers",(data.stats.totalAnswers||0).toLocaleString());setText("insightStrongest",data.strongestCategory);setText("insightDifference",data.averageDifference.toLocaleString());setText("insightAverageScore",(data.averageScore||0).toLocaleString());setText("insightRecentGames",data.recentGames||0);setText("insightCategoryCount",Object.keys(data.categoryCounts||{}).length);document.querySelectorAll("[data-plus-feature]").forEach(el=>el.hidden=!data.isPlus);const plusHint=byId("plusInsightsHint");if(plusHint){plusHint.hidden=Boolean(data.isPlus);plusHint.textContent=data.isPlus?"":"Unlock Plus for deeper performance insights.";}
     const grid=byId("achievementGrid");if(grid){grid.replaceChildren();data.achievements.forEach(a=>{const c=document.createElement("article");c.className="achievement-card "+(a.unlocked?"is-unlocked":"is-locked");const i=document.createElement("span");i.textContent=a.unlocked?a.icon:(a.title==="Hidden achievement"?"❔":a.icon);const t=document.createElement("strong");t.textContent=a.title;const d=document.createElement("small");d.textContent=a.description;const s=document.createElement("em");s.textContent=a.unlocked?"UNLOCKED":"LOCKED";c.append(i,t,d,s);grid.appendChild(c);});}
     setText("achievementCount",data.achievements.filter(a=>a.unlocked).length+" / "+data.achievements.length);
     const collectionGrid=byId("collectionGrid");
