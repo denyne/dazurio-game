@@ -1342,7 +1342,73 @@
     }
   }
 
+
+  function renderPlusAnalytics() {
+    const panel = byId("plusInsightsPanel");
+    if (!panel) return;
+    const active = Boolean(storage()?.isPlus?.());
+    panel.hidden = !active;
+    if (!active) return;
+    const data = storage()?.getDeepInsights?.();
+    if (!data) return;
+    const fmt = value => Number(value || 0).toLocaleString();
+    setText("insightAverageAccuracy", data.games ? data.averageAccuracy + "%" : "—");
+    setText("insightWithin10", data.answers ? data.within10 + "%" : "—");
+    setText("insightAverageError", data.averageRelativeError === null ? "—" : data.averageRelativeError + "%");
+    setText("insightAnswerCount", fmt(data.answers));
+    const trend = byId("insightTrend");
+    if (trend) {
+      trend.replaceChildren();
+      data.trend.forEach(day => {
+        const item = document.createElement("div");
+        item.className = "insight-day";
+        const bar = document.createElement("div");
+        bar.className = "insight-day-bar";
+        bar.style.height = (day.games ? Math.max(5, day.accuracy) : 3) + "%";
+        bar.title = day.games ? day.label + ": " + day.accuracy + "% · " + day.games + " game(s)" : day.label + ": no games";
+        if (!day.games) bar.classList.add("is-empty");
+        const label = document.createElement("small"); label.textContent = day.label;
+        item.append(bar,label); trend.append(item);
+      });
+    }
+    const categories = byId("insightCategories");
+    if (categories) {
+      categories.replaceChildren();
+      if (!data.categories.length) {
+        const empty=document.createElement("p");empty.className="insights-empty";empty.textContent="Play Daily or Endless to build your category report.";categories.append(empty);
+      } else {
+        data.categories.forEach(item => {
+          const row=document.createElement("div");row.className="insight-category-row";
+          const top=document.createElement("div");
+          const name=document.createElement("strong");name.textContent=item.category;
+          const score=document.createElement("b");score.textContent=item.precision===null?"—":item.precision+"%";
+          top.append(name,score);
+          const track=document.createElement("div");track.className="insight-category-track";
+          const fill=document.createElement("span");fill.style.width=(item.precision===null?0:item.precision)+"%";track.append(fill);
+          const meta=document.createElement("small");meta.textContent=item.answers+" answers · "+(item.within10===null?"—":item.within10+"% within 10%");
+          row.append(top,track,meta);categories.append(row);
+        });
+      }
+    }
+    const highlights=byId("insightHighlights");
+    if (highlights) {
+      highlights.replaceChildren();
+      const add=(label,value,detail)=>{const box=document.createElement("article");const strong=document.createElement("strong");strong.textContent=value;const small=document.createElement("small");small.textContent=label;const p=document.createElement("p");p.textContent=detail;box.append(small,strong,p);highlights.append(box);};
+      if (!data.games) add("FIRST STEP","Ready when you are","Complete a Daily or Endless game to unlock your first insights.");
+      else {
+        if(data.strongest)add("STRONGEST CATEGORY",data.strongest.category,data.strongest.precision+"% precision · "+data.strongest.answers+" answers");
+        if(data.weakest && data.weakest.category!==data.strongest?.category)add("ROOM TO GROW",data.weakest.category,data.weakest.precision+"% precision · try a focused practice session");
+        if(data.bestGame)add("PERSONAL BEST",fmt(data.bestGame.score)+" pts",data.bestGame.date+" · "+data.bestGame.accuracy+"% game accuracy");
+        if(data.weekChange!==null)add("WEEK VS. WEEK", (data.weekChange>0?"+":"")+data.weekChange+" points",data.weekChange>0?"Your average accuracy is improving.":data.weekChange<0?"Try a short practice session to rebuild your rhythm.":"Your average accuracy is holding steady.");
+        if(data.bestEstimate)add("CLOSEST ESTIMATE",data.bestEstimate.percent.toFixed(1)+"% off",data.bestEstimate.category+" · difference "+fmt(data.bestEstimate.difference));
+        if(data.largestMiss)add("BIGGEST MISS",data.largestMiss.percent.toFixed(1)+"% off",data.largestMiss.category+" · a chance to learn something new");
+      }
+    }
+    setText("insightFootnote", data.answers ? "Relative error uses the absolute difference divided by the correct answer. Zero-answer questions are excluded. Trends show average game accuracy per day." : "Your detailed report will fill in as you complete Daily and Endless games. Practice and Archive sessions do not count toward scored progress.");
+  }
+
   function renderPlusStatus() {
+    renderPlusAnalytics();
     const active = Boolean(storage()?.isPlus?.());
     const panel = byId("plusUnlockedPanel");
     const form = byId("plusRedeemForm");
