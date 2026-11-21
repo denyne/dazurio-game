@@ -695,7 +695,42 @@
     if(fs)fs.onchange=()=>{if(frame)frame.className="cosmetic-preview-avatar-frame frame-"+fs.value;};
     if(ts)ts.onchange=()=>setText("cosmeticPreviewTitle",ts.value);
     renderWeeklyQuests();
+    renderCollections();
   }
+  function renderCollections() {
+    const grid = byId("collectionGrid");
+    if (!grid) return;
+    const history = storage().getHistory?.() || [];
+    const counts = {};
+    history.filter(r => ["daily","endless"].includes(r.mode)).forEach(record => (record.answers || []).forEach(answer => {
+      const category = answer.category || "Other";
+      counts[category] = (counts[category] || 0) + 1;
+    }));
+    const sets = [
+      {name:"Space Explorer",category:"Space",icon:"🚀"},
+      {name:"History Master",category:"History",icon:"🏛️"},
+      {name:"Nature Lover",category:"Animals",icon:"🦊"},
+      {name:"Number Wizard",category:"Numbers",icon:"🔢"},
+      {name:"Food Scientist",category:"Food",icon:"🍎"}
+    ];
+    grid.replaceChildren();
+    let unlocked=0;
+    sets.forEach(set => {
+      const count=counts[set.category]||0;
+      const tier=count>=30?3:count>=15?2:count>=5?1:0;
+      unlocked+=tier;
+      const card=document.createElement("article");
+      card.className="collection-card"+(tier?" is-collected":"");
+      const icon=document.createElement("span");icon.textContent=set.icon;
+      const title=document.createElement("strong");title.textContent=set.name;
+      const detail=document.createElement("small");detail.textContent=count+" / 30 category answers";
+      const badges=document.createElement("div");badges.className="collection-tiers";
+      ["BRONZE","SILVER","GOLD"].forEach((label,index)=>{const chip=document.createElement("i");chip.textContent=label;chip.className=index<tier?"is-earned":"";badges.appendChild(chip);});
+      card.append(icon,title,detail,badges);grid.appendChild(card);
+    });
+    setText("collectionCount",unlocked+" / 15");
+  }
+
   function getCurrentWeekStart() {
     const date = new Date();
     date.setHours(12,0,0,0);
