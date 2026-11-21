@@ -82,7 +82,7 @@
       .replace(/^page-/, "");
 
     const accountPages = new Set([
-      "practice", "archive", "leaderboard", "profile", "settings", "plus"
+      "practice", "archive", "questions", "leaderboard", "profile", "settings", "plus"
     ]);
 
     if (accountPages.has(target) && !hasAccount()) {
@@ -388,6 +388,8 @@
     return false;
   }
 
+  function requireLogin() { return requireAccount("this feature"); }
+
   function startDaily() {
     if (!safeStorage()) return;
     game()?.startGame("daily");
@@ -433,6 +435,7 @@
     const user = storage().getCurrentUser();
 
     if (!user) {
+      setText("profileAvatar", "G");
       setText("profileName", "Guest");
       setText("profileJoined", "Sign in to see your profile");
       setText("profileXP", "0");
@@ -458,6 +461,11 @@
     setText("profileBestScore", (stats.bestScore || 0).toLocaleString());
     setText("profileBestStreak", stats.bestStreak || 0);
     setText("profileAccuracy", (stats.averageAccuracy || 0) + "%");
+    setText("profileAvatar", (user.displayName || user.username || "P").charAt(0).toUpperCase());
+    const profileProgress = byId("profileProgressFill");
+    const profileLevelXP = (stats.xp || 0) % 250;
+    if (profileProgress) profileProgress.style.width = (profileLevelXP / 250 * 100) + "%";
+    setText("profileProgressText", profileLevelXP + " / 250 XP");
 
     renderHistory(storage().getHistory(8) || []);
   }
@@ -799,6 +807,7 @@
 
   function saveSetting(key, value) {
     try {
+      if (!hasAccount()) { requireAccount("personal settings"); return; }
       const settings = storage().getSettings() || {};
       settings[key] = value;
 
@@ -966,6 +975,18 @@
   function bindMainActions() {
     byId("playTodayButton")?.addEventListener("click", startDaily);
     byId("guestContinueButton")?.addEventListener("click", () => closeAuthModal());
+    document.addEventListener("dazurio:login-required", () => openAuthModal("register"));
+    byId("gameBackButton")?.addEventListener("click", () => { game()?.abandonGame?.(); navigateTo("home"); });
+    byId("shareResultsButton")?.addEventListener("click", async () => {
+      const summary = game()?.getSummary?.();
+      if (!summary) return;
+      const shareText = "DAZURIO — " + summary.score + " points in " + summary.totalQuestions + " questions!";
+      try {
+        if (navigator.share) await navigator.share({ title: "My DAZURIO result", text: shareText });
+        else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(shareText); notify("Result copied to clipboard.", "success"); }
+        else notify(shareText, "info");
+      } catch (error) { if (error?.name !== "AbortError") notify("Could not share this result.", "error"); }
+    });
 
     byId("endlessModeButton")?.addEventListener("click", startEndless);
 
