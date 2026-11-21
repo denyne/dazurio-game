@@ -656,7 +656,7 @@
       );
     }
 
-    updateStreak(user, playedDate);
+    if (record.mode === "daily") updateStreak(user, playedDate);
 
     user.updatedAt = new Date().toISOString();
 
