@@ -1161,7 +1161,7 @@
   function saveTrophyShowcase(ids) {
     const db=readDatabase(),user=getCurrentUserFrom(db);if(!user)throw new Error("Sign in to edit your trophy showcase.");normalizeUser(user);
     const selected=Array.from(new Set((Array.isArray(ids)?ids:[]).map(String))).slice(0,3);
-    user.showcaseAchievements=selected.filter(id=>user.achievements.includes(id)&&ACHIEVEMENTS.some(a=>a.id===id));writeDatabase(db);return clone(user.showcaseAchievements);
+    user.showcaseAchievements=selected.filter(id=>user.achievements.includes(id)&&ACHIEVEMENTS.some(a=>a.id===id));const unlocked=evaluatePlayerRewards(user);writeDatabase(db);return {showcase:clone(user.showcaseAchievements),unlocked:unlocked.map(a=>a.id)};
   }
 
 
