@@ -307,6 +307,8 @@
 
     const result = $("answerResult");
     if (result) result.hidden = true;
+    const targetDisplay = $("targetDisplay");
+    if (targetDisplay) targetDisplay.hidden = true;
 
     const submit = $("submitAnswerButton");
     if (submit) submit.disabled = false;
