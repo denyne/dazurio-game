@@ -367,30 +367,29 @@
 
   // SPUŠTĚNÍ HER
 
-  function requireLogin() {
-    if (!safeStorage()) return false;
+  function hasAccount() {
+    return Boolean(safeStorage() && storage().getCurrentUser());
+  }
 
-    if (!storage().getCurrentUser()) {
-      openAuthModal("login");
-      notify("Sign in to play and save your progress.", "warning");
-      return false;
-    }
-
-    return true;
+  function requireAccount(feature = "this feature") {
+    if (hasAccount()) return true;
+    openAuthModal("register");
+    notify(`Create a free account to unlock ${feature}.`, "info");
+    return false;
   }
 
   function startDaily() {
-    if (!requireLogin()) return;
+    if (!safeStorage()) return;
     game()?.startGame("daily");
   }
 
   function startEndless() {
-    if (!requireLogin()) return;
+    if (!requireAccount("Endless mode")) return;
     game()?.startGame("endless");
   }
 
   function startPractice() {
-    if (!requireLogin()) return;
+    if (!requireAccount("Practice mode")) return;
 
     const categorySelect = byId("practiceCategory");
     const countSelect = byId("practiceCount");
@@ -412,7 +411,7 @@
   }
 
   function startArchiveGame(date) {
-    if (!requireLogin()) return;
+    if (!requireAccount("the daily archive")) return;
     game()?.startGame("archive", { date });
   }
 
@@ -956,6 +955,7 @@
 
   function bindMainActions() {
     byId("playTodayButton")?.addEventListener("click", startDaily);
+    byId("guestContinueButton")?.addEventListener("click", () => closeAuthModal());
 
     byId("endlessModeButton")?.addEventListener("click", startEndless);
 
@@ -966,12 +966,12 @@
 
     byId("archiveModeButton")?.addEventListener(
       "click",
-      () => navigateTo("archive")
+      () => { if (requireAccount("the daily archive")) navigateTo("archive"); }
     );
 
     byId("leaderboardModeButton")?.addEventListener(
       "click",
-      () => navigateTo("leaderboard")
+      () => { if (requireAccount("the leaderboard")) navigateTo("leaderboard"); }
     );
 
     byId("startPracticeButton")?.addEventListener(
@@ -990,10 +990,10 @@
     );
 
     byId("profileButton")?.addEventListener("click", () => {
-      if (storage().getCurrentUser()) {
+      if (hasAccount()) {
         navigateTo("profile");
       } else {
-        openAuthModal("login");
+        openAuthModal("register");
       }
     });
 
