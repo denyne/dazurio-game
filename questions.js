@@ -2101,12 +2101,6 @@
       description: "Games, records and athletic performance."
     },
     {
-      id: "Food",
-      name: "Food",
-      icon: "🍎",
-      description: "Food, cooking and everyday measurements."
-    },
-    {
       id: "Culture",
       name: "Culture",
       icon: "🎭",
