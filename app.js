@@ -275,6 +275,8 @@
       closeAuthModal();
       updateAccountControls();
       refreshHome();
+      updateDailyCountdown();
+      window.setInterval(updateDailyCountdown, 1000);
       renderProfile();
     } catch (error) {
       const message = error?.message || "Something went wrong.";
@@ -352,12 +354,65 @@
 
   // DOMÁCÍ STRÁNKA
 
+
+  function localDateKey(date = new Date()) {
+    return [date.getFullYear(), String(date.getMonth()+1).padStart(2,"0"), String(date.getDate()).padStart(2,"0")].join("-");
+  }
+  function dailyCompletionKey(key = localDateKey()) { return "dazurio_daily_completed_" + key; }
+  function hasCompletedDaily(key = localDateKey()) {
+    try {
+      if (localStorage.getItem(dailyCompletionKey(key)) === "1") return true;
+      if (hasAccount()) return (storage().getHistory() || []).some(record => record.mode === "daily" && record.date === key);
+    } catch (error) { console.warn("Daily status unavailable", error); }
+    return false;
+  }
+  function getGuestStats() {
+    try { return JSON.parse(localStorage.getItem("dazurio_guest_stats_v1") || '{"streak":0,"xp":0,"gamesPlayed":0,"level":1,"lastPlayedDate":null}'); }
+    catch (_) { return {streak:0,xp:0,gamesPlayed:0,level:1,lastPlayedDate:null}; }
+  }
+  function saveGuestDaily(summary) {
+    if (!summary || summary.mode !== "daily") return;
+    const today = localDateKey();
+    try {
+      const stats = getGuestStats();
+      if (stats.lastPlayedDate !== today) {
+        const previous = stats.lastPlayedDate ? new Date(stats.lastPlayedDate + "T12:00:00") : null;
+        const current = new Date(today + "T12:00:00");
+        const gap = previous ? Math.round((current - previous) / 86400000) : 0;
+        stats.streak = gap === 1 ? (stats.streak || 0) + 1 : 1;
+        stats.gamesPlayed = (stats.gamesPlayed || 0) + 1;
+        stats.xp = (stats.xp || 0) + (summary.score || 0);
+        stats.level = Math.floor(stats.xp / 250) + 1;
+        stats.lastPlayedDate = today;
+        localStorage.setItem("dazurio_guest_stats_v1", JSON.stringify(stats));
+      }
+      localStorage.setItem(dailyCompletionKey(today), "1");
+    } catch (error) { console.warn("Guest progress save failed", error); }
+  }
+  function updateDailyCountdown() {
+    const now = new Date(), tomorrow = new Date(now);
+    tomorrow.setHours(24,0,0,0);
+    const left = Math.max(0, tomorrow - now);
+    const hh = String(Math.floor(left/3600000)).padStart(2,"0");
+    const mm = String(Math.floor((left%3600000)/60000)).padStart(2,"0");
+    const ss = String(Math.floor((left%60000)/1000)).padStart(2,"0");
+    setText("dailyCountdown", hh + ":" + mm + ":" + ss);
+    const done = hasCompletedDaily();
+    setText("dailyStatusLabel", done ? "COMPLETED TODAY" : "NEW CHALLENGE IN");
+    const button = byId("playTodayButton");
+    if (button) {
+      button.disabled = done;
+      const label = button.querySelector("span");
+      if (label) label.textContent = done ? "DAILY COMPLETED" : "PLAY TODAY";
+    }
+    setText("dailyStatusText", done ? "Today's challenge is complete. Come back tomorrow for seven new questions." : "Your seven questions are waiting. A fresh set arrives every day.");
+  }
   function refreshHome() {
     if (!safeStorage()) return;
 
     const user = storage().getCurrentUser();
 
-    const stats = user?.stats || {};
+    const stats = user?.stats || getGuestStats();
 
     setText("homeStreak", stats.streak || 0);
     setText("homeXP", (stats.xp || 0).toLocaleString());
@@ -380,13 +435,7 @@
     setText("progressXP", currentLevelXP);
     setText("nextLevelXP", 250);
 
-    const dailyStatus = byId("dailyStatusText");
-
-    if (dailyStatus) {
-      dailyStatus.textContent = user
-        ? "Ready for today's challenge?"
-        : "Play today as a guest — no account needed.";
-    }
+    updateDailyCountdown();
   }
 
   // SPUŠTĚNÍ HER
@@ -406,6 +455,11 @@
 
   function startDaily() {
     if (!safeStorage()) return;
+    if (hasCompletedDaily()) {
+      notify("Dnešní výzvu už máš dokončenou. Nová bude po půlnoci.", "info");
+      updateDailyCountdown();
+      return;
+    }
     game()?.startGame("daily");
   }
 
@@ -1257,6 +1311,7 @@
       bindSettings();
       bindLeaderboardTabs();
       document.addEventListener("dazurio:game-finished", event => {
+        if (event.detail?.mode === "daily" && !hasAccount()) saveGuestDaily(event.detail);
         renderResults(event.detail);
         refreshHome();
         renderProfile();
