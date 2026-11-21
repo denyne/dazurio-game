@@ -696,7 +696,7 @@
     const collectionGrid=byId("collectionGrid");
     if(collectionGrid){collectionGrid.replaceChildren();(data.collections||[]).forEach(item=>{const card=document.createElement("article");card.className="collection-card "+(item.earned?"is-collected":"");const icon=document.createElement("span");icon.textContent=item.icon;const title=document.createElement("strong");title.textContent=item.title;const desc=document.createElement("small");desc.textContent=item.description;const state=document.createElement("em");state.textContent=item.earned?"COLLECTED":"NOT YET";card.append(icon,title,desc,state);collectionGrid.appendChild(card);});setText("collectionProgress",(data.collections||[]).filter(x=>x.earned).length+" / "+(data.collections||[]).length);}
     renderFriends();
-    const names={classic:"Classic",sage:"Sage",ocean:"Ocean",aurora:"Aurora",gold:"Gold"};const fs=byId("cosmeticFrameSelect"),ts=byId("cosmeticTitleSelect");
+    const names={classic:"Classic",sage:"Sage",ocean:"Ocean",aurora:"Aurora",gold:"Gold",fire:"Fire",prism:"Prism",starlight:"Starlight",owner:"♛ Owner"};const fs=byId("cosmeticFrameSelect"),ts=byId("cosmeticTitleSelect");
     if(fs){fs.replaceChildren();data.cosmetics.frames.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=names[v]||v;o.selected=v===data.cosmetics.equippedFrame;fs.appendChild(o);});}
     if(ts){ts.replaceChildren();data.cosmetics.titles.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;o.selected=v===data.cosmetics.equippedTitle;ts.appendChild(o);});}
     const frame=byId("cosmeticPreviewFrame");if(frame)frame.className="cosmetic-preview-avatar-frame frame-"+(data.cosmetics.equippedFrame||"classic");
