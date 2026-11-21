@@ -359,8 +359,10 @@
       const title = String(value || "").trim().slice(0, 32);
       if (title.length < 2) throw new Error("Enter a title with at least 2 characters.");
       if (!user.cosmetics.titles.includes(title)) user.cosmetics.titles.push(title);
+      if (title === "OWNER") user.cosmetics.equippedTitle = "OWNER";
     } else if (kind === "frame" && ["sage", "ocean", "aurora", "gold", "fire", "prism", "starlight", "owner"].includes(value)) {
       if (!user.cosmetics.frames.includes(value)) user.cosmetics.frames.push(value);
+      if (value === "owner") user.cosmetics.equippedFrame = "owner";
     } else {
       throw new Error("That reward is not supported.");
     }
@@ -905,8 +907,10 @@
       const title = String(value || "").trim().slice(0,32);
       if (title.length < 2) throw new Error("Enter a title with at least 2 characters.");
       if (!user.cosmetics.titles.includes(title)) user.cosmetics.titles.push(title);
+      if (title === "OWNER") user.cosmetics.equippedTitle = "OWNER";
     } else if (kind === "frame" && ["sage","ocean","aurora","gold","fire","prism","starlight","owner"].includes(value)) {
       if (!user.cosmetics.frames.includes(value)) user.cosmetics.frames.push(value);
+      if (value === "owner") user.cosmetics.equippedFrame = "owner";
     } else throw new Error("Unsupported reward.");
     writeDatabase(db);
     return true;
