@@ -81,6 +81,16 @@
       .replace(/^#/, "")
       .replace(/^page-/, "");
 
+    const accountPages = new Set([
+      "practice", "archive", "leaderboard", "profile", "settings", "plus"
+    ]);
+
+    if (accountPages.has(target) && !hasAccount()) {
+      openAuthModal("register");
+      notify("Create a free account to unlock this section.", "info");
+      return;
+    }
+
     const pageElement = byId("page-" + target);
 
     if (!pageElement) {
