@@ -418,7 +418,7 @@
         const gap = previous ? Math.round((current - previous) / 86400000) : 0;
         stats.streak = gap === 1 ? (stats.streak || 0) + 1 : 1;
         stats.gamesPlayed = (stats.gamesPlayed || 0) + 1;
-        stats.xp = (stats.xp || 0) + (summary.score || 0);
+        stats.xp = (stats.xp || 0) + (summary.xp || 0);
         stats.level = Math.floor(stats.xp / 250) + 1;
         stats.lastPlayedDate = today;
         localStorage.setItem("dazurio_guest_stats_v1", JSON.stringify(stats));
@@ -815,7 +815,14 @@
         button.classList.add("is-today");
       }
 
-      if (date > todayStart) {
+      let archiveDone = false;
+      try { archiveDone = localStorage.getItem("dazurio_archive_completed_" + dateString) === "1"; } catch (_) {}
+      if (archiveDone) {
+        button.disabled = true;
+        button.classList.add("is-completed");
+        button.setAttribute("aria-label", dateString + " — completed");
+        button.title = "Already played";
+      } else if (date > todayStart) {
         button.disabled = true;
         button.classList.add("is-disabled");
       } else {
@@ -1480,6 +1487,7 @@
       document.addEventListener("dazurio:game-finished", event => {
         if (event.detail?.mode === "daily" && !hasAccount()) saveGuestDaily(event.detail);
         try { renderResults(event.detail); } catch (error) { console.error("Results UI update failed:", error); }
+        if (event.detail?.mode === "archive") { try { renderArchive(); } catch (_) {} }
         try { refreshHome(); } catch (error) { console.error("Home stats update failed:", error); }
         try { renderProfile(); } catch (error) { console.error("Profile update failed:", error); }
         try { renderLeaderboard("all"); } catch (error) { console.error("Leaderboard update failed:", error); }
