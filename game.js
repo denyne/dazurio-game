@@ -3,7 +3,7 @@
   "use strict";
 
   const QUESTIONS_PER_DAILY = 7;
-  const DAILY_SET_PREFIX = "dazurio_daily_set_v3_";
+  const DAILY_SET_PREFIX = "dazurio_daily_set_v4_";
   const ARCHIVE_DONE_PREFIX = "dazurio_archive_completed_";
   const SECONDS_PER_QUESTION = 25;
   const MAX_POINTS_PER_QUESTION = 1000;
@@ -95,7 +95,8 @@
   }
 
   function getDailyQuestions(dateValue) {
-    const all = getAllQuestions();
+    const db = getDatabase();
+    const all = db && typeof db.getBuiltIn === "function" ? db.getBuiltIn() : getAllQuestions();
     if (!all.length) return [];
     const seed = getDateKey(dateValue);
     const cacheKey = DAILY_SET_PREFIX + seed;
