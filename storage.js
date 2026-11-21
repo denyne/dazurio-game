@@ -343,6 +343,24 @@
   function getPlayerDashboard(){const user=getCurrentUser();if(!user)return null;normalizeUser(user);const history=user.history||[];const categories={};let diffTotal=0,diffCount=0;history.forEach(r=>(r.answers||[]).forEach(a=>{const c=a.category||"Other";categories[c]=(categories[c]||0)+1;const d=Number(a.difference);if(Number.isFinite(d)){diffTotal+=Math.abs(d);diffCount++;}}));return{stats:clone(user.stats),achievements:ACHIEVEMENTS.map(a=>Object.assign({},a,{unlocked:user.achievements.includes(a.id)})),cosmetics:clone(user.cosmetics),totalPoints:history.reduce((sum,r)=>sum+nonNegative(r.score),0),strongestCategory:Object.entries(categories).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—",averageDifference:diffCount?Math.round(diffTotal/diffCount):0};}
   function equipCosmetic(kind,value){const db=readDatabase();const user=getCurrentUserFrom(db);if(!user)throw new Error("Sign in to customize your profile.");normalizeUser(user);if(kind==="frame"&&user.cosmetics.frames.includes(value))user.cosmetics.equippedFrame=value;else if(kind==="title"&&user.cosmetics.titles.includes(value))user.cosmetics.equippedTitle=value;else throw new Error("That cosmetic has not been unlocked yet.");writeDatabase(db);return clone(user.cosmetics);}
 
+  function grantCosmetic(kind, value) {
+    const database = readDatabase();
+    const user = getCurrentUserFrom(database);
+    if (!user) throw new Error("Sign in before granting a reward.");
+    normalizeUser(user);
+    if (kind === "title") {
+      const title = String(value || "").trim().slice(0, 32);
+      if (title.length < 2) throw new Error("Enter a title with at least 2 characters.");
+      if (!user.cosmetics.titles.includes(title)) user.cosmetics.titles.push(title);
+    } else if (kind === "frame" && ["sage", "ocean", "aurora", "gold"].includes(value)) {
+      if (!user.cosmetics.frames.includes(value)) user.cosmetics.frames.push(value);
+    } else {
+      throw new Error("That reward is not supported.");
+    }
+    writeDatabase(database);
+    return clone(user.cosmetics);
+  }
+
   function getCurrentUserFrom(database) {
     return database.users.find(
       user => user.id === database.currentUserId
@@ -521,6 +539,14 @@
       }
 
       user.displayName = name;
+    }
+
+    if (updates.avatarUrl !== undefined) {
+      const avatar = String(updates.avatarUrl || "");
+      if (avatar && (!avatar.startsWith("data:image/") || avatar.length > 900000)) {
+        throw new Error("Please choose a valid image under 700 KB.");
+      }
+      user.avatarUrl = avatar || null;
     }
 
     if (updates.username !== undefined) {
@@ -905,7 +931,8 @@
     levelFromXP,
     levelProgressFromXP,
     getPlayerDashboard,
-    equipCosmetic
+    equipCosmetic,
+    grantCosmetic
   };
 
   init();
