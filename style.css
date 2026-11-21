@@ -149,3 +149,25 @@ body.dark-mode{color-scheme:dark;--bg:#151914;--surface:#20271f;--soft:#293128;-
 #page-how .play-button{display:inline-flex;margin-top:34px;transform:translateY(10px)}
 #page-how .play-button:hover{transform:translateY(7px)}
 #keyboardHintsToggle,#numberFormatSelect{flex-shrink:0}
+
+
+/* High-contrast dark theme: all native controls and secondary surfaces follow theme tokens */
+body.dark-mode{background:var(--bg);color:var(--text);color-scheme:dark}
+body.dark-mode .site-header{background:rgba(21,25,20,.94);border-color:var(--line)}
+body.dark-mode .home-hero,body.dark-mode .daily-status,body.dark-mode .plus-hero{border-color:var(--line);background:linear-gradient(120deg,#263323,#20271f 72%,#252d22);color:var(--text)}
+body.dark-mode .stats-strip .stat-item,body.dark-mode .mode-row,body.dark-mode .xp-progress,body.dark-mode .answer-form,body.dark-mode .answer-result,body.dark-mode .results-score-card,body.dark-mode .results-stat,body.dark-mode .profile-stat-card,body.dark-mode .archive-calendar,body.dark-mode .leaderboard-table,body.dark-mode .category-card,body.dark-mode .settings-list,body.dark-mode .practice-settings,body.dark-mode .profile-card,body.dark-mode .profile-history,body.dark-mode .about-copy,body.dark-mode .faq-list,body.dark-mode .how-steps,body.dark-mode .modal-card{background:var(--surface);color:var(--text);border-color:var(--line)}
+body.dark-mode input,body.dark-mode select,body.dark-mode textarea,body.dark-mode .answer-input-wrap input,body.dark-mode .practice-settings select,body.dark-mode .setting-row select,body.dark-mode .modal-card form input{background:#171d17!important;color:#f0f5ec!important;border-color:#465342!important}
+body.dark-mode input::placeholder,body.dark-mode textarea::placeholder{color:#a3ad9d!important;opacity:1}
+body.dark-mode .answer-comparison>div,body.dark-mode .suggestion-button,body.dark-mode .auth-tabs,body.dark-mode .guest-continue-button,body.dark-mode .leaderboard-header{background:#293328;color:#e9f0e4;border-color:#465342}
+body.dark-mode .answer-comparison span,body.dark-mode .answer-result p,body.dark-mode .question-description,body.dark-mode .setting-row small,body.dark-mode .page-intro p,body.dark-mode .hero-description,body.dark-mode .daily-status p,body.dark-mode .mode-copy small,body.dark-mode .local-data-note{color:#b8c3b2}
+body.dark-mode .nav-link,body.dark-mode .back-link,body.dark-mode .footer-links button,body.dark-mode .footer-bottom button{color:#bdc8b7}
+body.dark-mode .nav-link:hover,body.dark-mode .nav-link.active{color:#f0f5ec}
+body.dark-mode .play-button,body.dark-mode .submit-answer-button,body.dark-mode .next-question-button{background:#a9d67b;color:#172014}
+body.dark-mode .secondary-button,body.dark-mode .leaderboard-tab,body.dark-mode .mobile-menu{background:var(--surface);color:var(--text);border-color:var(--line)}
+body.dark-mode .calendar-day{background:#293328;color:#edf2e9}
+body.dark-mode .calendar-day.is-today,body.dark-mode .leaderboard-tab.active{background:#a9d67b;color:#172014}
+body.dark-mode .toggle-button{background:#53604f}
+body.dark-mode .toggle-button.active,body.dark-mode .toggle-button.is-active{background:#a9d67b}
+body.dark-mode .toggle-button:after{background:#f6f8f3}
+body.dark-mode .toast{background:#20271f;color:#edf2e9;border-color:#465342}
+body.dark-mode .target-display{background:var(--surface);color:var(--text);border-color:var(--line)}
