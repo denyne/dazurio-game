@@ -3,6 +3,8 @@
   "use strict";
 
   const QUESTIONS_PER_DAILY = 7;
+  const DAILY_SET_PREFIX = "dazurio_daily_set_v2_";
+  const ARCHIVE_DONE_PREFIX = "dazurio_archive_completed_";
   const SECONDS_PER_QUESTION = 25;
   const MAX_POINTS_PER_QUESTION = 1000;
 
@@ -94,28 +96,51 @@
   function getDailyQuestions(dateValue) {
     const all = getAllQuestions();
     if (!all.length) return [];
-
     const seed = getDateKey(dateValue);
+    const cacheKey = DAILY_SET_PREFIX + seed;
+    try {
+      const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
+      if (Array.isArray(cached)) {
+        const byId = new Map(all.map(question => [question.id, question]));
+        const restored = cached.map(id => byId.get(id)).filter(Boolean);
+        if (restored.length === QUESTIONS_PER_DAILY) return restored;
+      }
+    } catch (_) {}
 
-    let hash = 0;
-
-    for (const char of seed) {
-      hash = (hash * 31 + char.charCodeAt(0)) | 0;
-    }
-
+    // A stable yearly shuffle and consecutive seven-question slices guarantee
+    // that adjacent daily challenges never repeat a question.
+    const year = Number(seed.slice(0, 4));
+    const date = new Date(seed + "T12:00:00");
+    const dayOfYear = Math.floor((date - new Date(year, 0, 1, 12)) / 86400000);
+    let hash = year ^ 0x5f3759df;
     const random = () => {
       hash = (hash * 1664525 + 1013904223) | 0;
       return (hash >>> 0) / 4294967296;
     };
+    const pool = shuffleWithRandom(all, random);
+    const offset = (dayOfYear * QUESTIONS_PER_DAILY) % pool.length;
+    const selected = Array.from({length: Math.min(QUESTIONS_PER_DAILY, pool.length)}, (_, i) => pool[(offset + i) % pool.length]);
+    try { localStorage.setItem(cacheKey, JSON.stringify(selected.map(question => question.id))); } catch (_) {}
+    return selected;
+  }
 
-    const pool = [...all];
-
-    for (let i = pool.length - 1; i > 0; i--) {
+  function shuffleWithRandom(items, random) {
+    const result = [...items];
+    for (let i = result.length - 1; i > 0; i--) {
       const j = Math.floor(random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
+      [result[i], result[j]] = [result[j], result[i]];
     }
+    return result;
+  }
 
-    return pool.slice(0, QUESTIONS_PER_DAILY);
+  function archiveCompletionKey(date) { return ARCHIVE_DONE_PREFIX + getDateKey(date); }
+  function hasCompletedArchive(date) {
+    const key = getDateKey(date);
+    try {
+      if (localStorage.getItem(archiveCompletionKey(key)) === "1") return true;
+    } catch (_) {}
+    const history = getStorage()?.getHistory?.() || [];
+    return history.some(record => record.mode === "archive" && record.date === key);
   }
 
   function getPracticeQuestions(options = {}) {
@@ -566,7 +591,7 @@
       date: state.options.date || null,
       category: state.options.category || null,
       score,
-      xp: Math.floor(score / 10),
+      xp: (state.mode === "daily" || state.mode === "endless") ? Math.floor(score / 10) : 0,
       totalQuestions: total,
       correctAnswers: state.answers.filter(
         answer => answer.points >= 700
@@ -597,13 +622,16 @@
 
     const summary = getSummary();
     const storage = getStorage();
-    if (state.mode === "daily") {
+    if (state.mode === "daily" || state.mode === "archive") {
       const now = new Date();
       const key = [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
-      try { localStorage.setItem("dazurio_daily_completed_" + key, "1"); } catch (_) {}
+      try {
+        if (state.mode === "daily") localStorage.setItem("dazurio_daily_completed_" + key, "1");
+        else localStorage.setItem(archiveCompletionKey(state.options.date || key), "1");
+      } catch (_) {}
     }
 
-    if (isLoggedIn() && storage && typeof storage.saveGameResult === "function") {
+    if ((state.mode === "daily" || state.mode === "endless") && isLoggedIn() && storage && typeof storage.saveGameResult === "function") {
       try {
         storage.saveGameResult(summary);
       } catch (error) {
@@ -640,13 +668,19 @@
     }));
   }
 
+  function safeArchiveDate(options) { return options && options.date ? options.date : new Date(); }
+
   function startGame(mode = "daily", options = {}) {
-    if (mode === "daily") {
+    if (mode === "daily" || mode === "archive") {
       const now = new Date();
       const key = [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
       try {
-        if (localStorage.getItem("dazurio_daily_completed_" + key) === "1") {
+        if (mode === "daily" && localStorage.getItem("dazurio_daily_completed_" + key) === "1") {
           showToast("Dnešní výzvu už máš dokončenou. Vrať se zítra!", "info");
+          return false;
+        }
+        if (mode === "archive" && hasCompletedArchive(safeArchiveDate(options))) {
+          showToast("Tuto archivní výzvu už máš odehranou.", "info");
           return false;
         }
       } catch (_) {}
