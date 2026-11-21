@@ -166,6 +166,7 @@
       </section>
 
 
+      <section class="seasonal-event-card" id="seasonalEventCard" hidden><img id="seasonalEventImage" alt="" hidden><div><span class="eyebrow">LIMITED TIME</span><h2 id="seasonalEventTitle"></h2><p id="seasonalEventDescription"></p></div><span class="seasonal-event-tag">EVENT</span></section>
       <!-- GAME MODES -->
 
       <section class="modes-section">
@@ -652,6 +653,7 @@
           </div>
         </div>
 
+        <section class="player-dashboard-card"><div class="section-heading"><div><span class="eyebrow">YOUR PROGRESS</span><h2>Player insights</h2></div></div><div class="insights-grid"><article><small>TOTAL POINTS</small><strong id="insightTotalPoints">0</strong></article><article><small>QUESTIONS ANSWERED</small><strong id="insightAnswers">0</strong></article><article><small>STRONGEST CATEGORY</small><strong id="insightStrongest">—</strong></article><article><small>AVERAGE DIFFERENCE</small><strong id="insightDifference">0</strong></article></div></section><section class="player-dashboard-card"><div class="section-heading"><div><span class="eyebrow">MILESTONES</span><h2>Achievements</h2></div><span id="achievementCount">0 / 7</span></div><div class="achievement-grid" id="achievementGrid"></div></section><section class="player-dashboard-card"><div class="section-heading"><div><span class="eyebrow">MAKE IT YOURS</span><h2>Profile cosmetics</h2></div></div><div class="cosmetic-controls"><label>Profile frame<select id="cosmeticFrameSelect"></select></label><label>Player title<select id="cosmeticTitleSelect"></select></label><button class="secondary-button" id="saveCosmeticsButton" type="button">SAVE LOOK</button></div></section>
         <div class="profile-history">
           <div class="section-heading">
             <h2>Recent games</h2>
@@ -1002,7 +1004,7 @@
         <div class="studio-card"><small>SESSION RUNTIME</small><strong id="studioRuntime">—</strong><span>time since load</span></div>
         <div class="studio-card"><small>MOTION PREFERENCE</small><strong id="studioMotion">—</strong><span>system accessibility setting</span></div>
       </div>
-      <div class="studio-actions"><button type="button" id="studioValidateButton">Run question check</button><button type="button" id="studioDiagnosticsButton">Refresh diagnostics</button><button type="button" id="studioResetDailyButton">Reset today's daily lock</button></div>
+      <div class="studio-event-editor"><span class="eyebrow">SEASONAL EVENT BUILDER</span><label>Event title<input id="studioEventTitle" maxlength="48" placeholder="Halloween week"></label><label>Description<input id="studioEventDescription" maxlength="120" placeholder="A limited-time curiosity event"></label><label>Artwork URL<input id="studioEventImage" type="url" placeholder="https://…"></label><label>Start date<input id="studioEventStart" type="date"></label><label>End date<input id="studioEventEnd" type="date"></label><button type="button" id="studioSaveEventButton">PUBLISH LOCAL EVENT</button><p id="studioEventStatus" aria-live="polite"></p></div><div class="studio-actions"><button type="button" id="studioValidateButton">Run question check</button><button type="button" id="studioDiagnosticsButton">Refresh diagnostics</button><button type="button" id="studioResetDailyButton">Reset today's daily lock</button></div>
       <p class="studio-note">Local preview tools only. The passphrase is a convenience lock only; client-side tools are not secure server authentication. Daily reset is intended for testing.</p>
     </div>
   </section>
