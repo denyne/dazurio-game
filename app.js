@@ -720,6 +720,9 @@
     const players=storage().getLocalPlayers?.()||[];select.replaceChildren();
     const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Select local player";select.appendChild(placeholder);
     players.forEach(player=>{const option=document.createElement("option");option.value=player.id;option.textContent=(player.displayName||player.username)+" · L"+player.level+(player.plus?" · PLUS":"");select.appendChild(option);});
+    const achievements=storage().getAchievementCatalog?.()||[];
+    const achievementSelect=byId("studioPlayerAchievement");
+    if(achievementSelect){achievementSelect.replaceChildren();const first=document.createElement("option");first.value="";first.textContent="Choose achievement";achievementSelect.appendChild(first);achievements.forEach(item=>{const option=document.createElement("option");option.value=item.id;option.textContent=item.icon+" "+item.title;achievementSelect.appendChild(option);});}
     setText("studioPlayerManagerStatus",players.length+" local profile(s) found.");
   }
 
@@ -1580,6 +1583,7 @@
     byId("studioGrantOwnerButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("title","OWNER");storage().grantCosmetic("frame","owner");renderProfile();updateAccountControls();setText("studioRewardStatus","Owner visual cosmetics added. This is not an admin permission.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant Owner cosmetics.");}});
     byId("studioRefreshPlayersButton")?.addEventListener("click",renderStudioPlayers);
     byId("studioGrantPlayerRewardButton")?.addEventListener("click",()=>{try{const id=byId("studioPlayerTarget")?.value||"";if(!id)throw new Error("Choose a player first.");const title=byId("studioPlayerRewardTitle")?.value.trim()||"";const frame=byId("studioPlayerRewardFrame")?.value||"";if(!title&&!frame)throw new Error("Enter a title or choose a frame.");if(title)storage().grantCosmeticToPlayer(id,"title",title);if(frame)storage().grantCosmeticToPlayer(id,"frame",frame);setText("studioPlayerManagerStatus","Reward granted to that local profile.");renderStudioPlayers();updateAccountControls();renderProfile();}catch(error){setText("studioPlayerManagerStatus",error.message||"Could not grant reward.");}});
+    byId("studioGrantAchievementButton")?.addEventListener("click",()=>{try{const id=byId("studioPlayerTarget")?.value||"";const achievement=byId("studioPlayerAchievement")?.value||"";if(!id)throw new Error("Choose a player first.");if(!achievement)throw new Error("Choose an achievement first.");const result=storage().grantAchievementToPlayer(id,achievement);const player=(storage().getLocalPlayers?.()||[]).find(item=>item.id===id);const name=player?.displayName||player?.username||"player";setText("studioPlayerManagerStatus",result.title+(result.alreadyUnlocked?" was already unlocked for ":" unlocked for ")+name+".");if(storage().getCurrentUser?.()?.id===id)renderPlayerDashboard();}catch(error){setText("studioPlayerManagerStatus",error.message||"Could not unlock achievement.");}});
     byId("editProfileButton")?.addEventListener(
       "click",
       openEditProfile
