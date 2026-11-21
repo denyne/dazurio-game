@@ -277,6 +277,7 @@
       refreshHome();
       updateDailyCountdown();
       window.setInterval(updateDailyCountdown, 1000);
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) updateDailyCountdown(); });
       renderProfile();
     } catch (error) {
       const message = error?.message || "Something went wrong.";
@@ -941,12 +942,18 @@
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     let node;
     while ((node = walker.nextNode())) {
-      if (!node.nodeValue.trim()) continue;
       if (node.__dazOriginalText === undefined) node.__dazOriginalText = node.nodeValue;
-      const original = node.__dazOriginalText.trim();
-      const translated = translate(original);
-      if (cs && dictionary[original]) node.nodeValue = node.nodeValue.replace(original, translated);
-      else if (!cs && dictionary[original]) node.nodeValue = node.nodeValue.replace(translated, original);
+      const originalValue = node.__dazOriginalText;
+      if (!cs) {
+        node.nodeValue = originalValue;
+        continue;
+      }
+      const leading = (originalValue.match(/^\\s*/) || [""])[0];
+      const trailing = (originalValue.match(/\\s*$/) || [""])[0];
+      const key = originalValue.trim();
+      node.nodeValue = dictionary[key]
+        ? leading + dictionary[key] + trailing
+        : originalValue;
     }
     document.querySelectorAll("[placeholder],[aria-label],[title]").forEach(el => {
       ["placeholder","aria-label","title"].forEach(attr => {
@@ -1185,7 +1192,14 @@
       byId("studioCloseButton")?.focus();
     };
     const closeStudio = () => { if (studio) studio.hidden = true; };
-    byId("studioOpenButton")?.addEventListener("click", openStudio);
+    byId("studioOpenButton")?.addEventListener("click", () => {
+      const password = window.prompt("Moderator password");
+      if (password !== "DAZURIO-ADMIN") {
+        if (password !== null) notify("Incorrect moderator password.", "error");
+        return;
+      }
+      openStudio();
+    });
     byId("studioCloseButton")?.addEventListener("click", closeStudio);
     studio?.addEventListener("click", event => { if (event.target === studio) closeStudio(); });
     byId("studioValidateButton")?.addEventListener("click", () => {
@@ -1304,8 +1318,9 @@
     byId("numberFormatSelect")?.addEventListener("change", event => saveSetting("numberFormat", event.target.value));
 
     byId("languageSelect")?.addEventListener("change", event => {
-      saveSetting("language", event.target.value);
-      applyLanguage(event.target.value);
+      const language = event.target.value === "cs" ? "cs" : "en";
+      saveSetting("language", language);
+      applyLanguage(language);
 
       notify(
         event.target.value === "en"
@@ -1355,6 +1370,8 @@
 
       updateAccountControls();
       loadSettings();
+      updateDailyCountdown();
+      window.setInterval(updateDailyCountdown, 1000);
       refreshHome();
       renderProfile();
       renderArchive();
