@@ -82,6 +82,7 @@
     user.plus = Boolean(user.plus);
     user.achievements = Array.isArray(user.achievements) ? user.achievements : [];
     user.claimedWeeklyRewards = Array.isArray(user.claimedWeeklyRewards) ? user.claimedWeeklyRewards : [];
+    user.friends = Array.isArray(user.friends) ? Array.from(new Set(user.friends.map(String))) : [];
     user.cosmetics = Object.assign({ frames: ["classic"], equippedFrame: "classic", titles: ["Curious Mind"], equippedTitle: "Curious Mind" }, user.cosmetics || {});
     if (!Array.isArray(user.cosmetics.frames)) user.cosmetics.frames = ["classic"];
     if (!Array.isArray(user.cosmetics.titles)) user.cosmetics.titles = ["Curious Mind"];
@@ -339,9 +340,10 @@
     { id:"high-score",title:"Big Brain Energy",description:"Earn 5,000 points in one game.",icon:"🏆",test:s=>s.bestScore>=5000 },
     { id:"accuracy",title:"Close Enough?",description:"Reach 80% average accuracy.",icon:"🎯",test:s=>s.gamesPlayed>=3&&s.averageAccuracy>=80 }
   ];
-  const LEVEL_REWARDS=[{level:3,frame:"sage",title:"Rising Explorer"},{level:5,frame:"ocean",title:"Curiosity Seeker"},{level:10,frame:"aurora",title:"Knowledge Keeper"},{level:20,frame:"gold",title:"DAZURIO Legend"}];
-  function evaluatePlayerRewards(user){normalizeUser(user);const unlocked=[];ACHIEVEMENTS.forEach(a=>{if(a.test(user.stats)&&!user.achievements.includes(a.id)){user.achievements.push(a.id);unlocked.push(a);}});LEVEL_REWARDS.forEach(r=>{if(user.stats.level>=r.level){if(!user.cosmetics.frames.includes(r.frame))user.cosmetics.frames.push(r.frame);if(!user.cosmetics.titles.includes(r.title))user.cosmetics.titles.push(r.title);}});return unlocked;}
-  function getPlayerDashboard(){const user=getCurrentUser();if(!user)return null;normalizeUser(user);const history=user.history||[];const categories={};let diffTotal=0,diffCount=0;history.forEach(r=>(r.answers||[]).forEach(a=>{const c=a.category||"Other";categories[c]=(categories[c]||0)+1;const d=Number(a.difference);if(Number.isFinite(d)){diffTotal+=Math.abs(d);diffCount++;}}));return{stats:clone(user.stats),achievements:ACHIEVEMENTS.map(a=>Object.assign({},a,{unlocked:user.achievements.includes(a.id)})),cosmetics:clone(user.cosmetics),totalPoints:history.reduce((sum,r)=>sum+nonNegative(r.score),0),strongestCategory:Object.entries(categories).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—",averageDifference:diffCount?Math.round(diffTotal/diffCount):0};}
+  const LEVEL_REWARDS=[{level:3,frame:"sage",title:"Rising Explorer"},{level:5,frame:"ocean",title:"Curiosity Seeker"},{level:10,frame:"aurora",title:"Knowledge Keeper"},{level:20,frame:"gold",title:"DAZURIO Legend"},{level:30,frame:"prism",title:"Prismatic Mind"},{level:50,frame:"starlight",title:"Cosmic Scholar"}];
+  const STREAK_REWARDS=[{days:3,frame:"fire",title:"On a Roll"},{days:7,frame:"aurora",title:"Seven-Day Spark"},{days:14,frame:"prism",title:"Fortnight Focus"},{days:30,frame:"starlight",title:"DAZURIO Devotee"},{days:100,frame:"gold",title:"Century of Curiosity"}];
+  function evaluatePlayerRewards(user){normalizeUser(user);const unlocked=[];ACHIEVEMENTS.forEach(a=>{if(a.test(user.stats)&&!user.achievements.includes(a.id)){user.achievements.push(a.id);unlocked.push(a);}});LEVEL_REWARDS.forEach(r=>{if(user.stats.level>=r.level){if(!user.cosmetics.frames.includes(r.frame))user.cosmetics.frames.push(r.frame);if(!user.cosmetics.titles.includes(r.title))user.cosmetics.titles.push(r.title);}});STREAK_REWARDS.forEach(r=>{if(user.stats.bestStreak>=r.days){if(!user.cosmetics.frames.includes(r.frame))user.cosmetics.frames.push(r.frame);if(!user.cosmetics.titles.includes(r.title))user.cosmetics.titles.push(r.title);}});return unlocked;}
+  function getPlayerDashboard(){const user=getCurrentUser();if(!user)return null;normalizeUser(user);const history=user.history||[];const categories={};let diffTotal=0,diffCount=0;history.forEach(r=>(r.answers||[]).forEach(a=>{const c=a.category||"Other";categories[c]=(categories[c]||0)+1;const d=Number(a.difference);if(Number.isFinite(d)){diffTotal+=Math.abs(d);diffCount++;}}));return{stats:clone(user.stats),achievements:ACHIEVEMENTS.map(a=>Object.assign({},a,{unlocked:user.achievements.includes(a.id)})),cosmetics:clone(user.cosmetics),isPlus:Boolean(user.plus),totalPoints:history.reduce((sum,r)=>sum+nonNegative(r.score),0),strongestCategory:Object.entries(categories).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—",averageDifference:diffCount?Math.round(diffTotal/diffCount):0,categoryCounts:clone(categories),recentGames:history.length,averageScore:history.length?Math.round(history.reduce((n,r)=>n+nonNegative(r.score),0)/history.length):0};}
   function equipCosmetic(kind,value){const db=readDatabase();const user=getCurrentUserFrom(db);if(!user)throw new Error("Sign in to customize your profile.");normalizeUser(user);if(kind==="frame"&&user.cosmetics.frames.includes(value))user.cosmetics.equippedFrame=value;else if(kind==="title"&&user.cosmetics.titles.includes(value))user.cosmetics.equippedTitle=value;else throw new Error("That cosmetic has not been unlocked yet.");writeDatabase(db);return clone(user.cosmetics);}
 
   function grantCosmetic(kind, value) {
@@ -353,7 +355,7 @@
       const title = String(value || "").trim().slice(0, 32);
       if (title.length < 2) throw new Error("Enter a title with at least 2 characters.");
       if (!user.cosmetics.titles.includes(title)) user.cosmetics.titles.push(title);
-    } else if (kind === "frame" && ["sage", "ocean", "aurora", "gold"].includes(value)) {
+    } else if (kind === "frame" && ["sage", "ocean", "aurora", "gold", "fire", "prism", "starlight", "owner"].includes(value)) {
       if (!user.cosmetics.frames.includes(value)) user.cosmetics.frames.push(value);
     } else {
       throw new Error("That reward is not supported.");
@@ -847,6 +849,65 @@
     return clone(rows);
   }
 
+
+  // LOCAL COMMUNITY TOOLS — profiles are limited to this browser's database.
+  function getLocalPlayers() {
+    const db = readDatabase();
+    return clone(db.users.map(user => {
+      normalizeUser(user);
+      return { id:user.id, username:user.username, displayName:user.displayName || user.username, level:user.stats.level || 1, score:user.stats.totalScore || 0, plus:Boolean(user.plus), equippedTitle:user.cosmetics.equippedTitle || "Curious Mind", avatarUrl:user.avatarUrl || "" };
+    }));
+  }
+  function addFriend(username) {
+    const db = readDatabase();
+    const current = getCurrentUserFrom(db);
+    if (!current) throw new Error("Sign in to add friends.");
+    normalizeUser(current);
+    const wanted = normalizeUsername(username);
+    if (!wanted) throw new Error("Enter a username.");
+    const target = db.users.find(user => normalizeUsername(user.username) === wanted);
+    if (!target) throw new Error("That player is not registered in this browser yet.");
+    if (target.id === current.id) throw new Error("You cannot add yourself.");
+    if (current.friends.includes(target.id)) throw new Error("This player is already your friend.");
+    current.friends.push(target.id);
+    writeDatabase(db);
+    return getFriends();
+  }
+  function removeFriend(userId) {
+    const db = readDatabase();
+    const current = getCurrentUserFrom(db);
+    if (!current) throw new Error("Sign in first.");
+    normalizeUser(current);
+    current.friends = current.friends.filter(id => id !== String(userId));
+    writeDatabase(db);
+    return getFriends();
+  }
+  function getFriends() {
+    const db = readDatabase();
+    const current = getCurrentUserFrom(db);
+    if (!current) return [];
+    normalizeUser(current);
+    return clone(current.friends.map(id => db.users.find(user => user.id === id)).filter(Boolean).map(user => {
+      normalizeUser(user);
+      return { id:user.id, username:user.username, displayName:user.displayName || user.username, level:user.stats.level || 1, score:user.stats.totalScore || 0, plus:Boolean(user.plus), equippedTitle:user.cosmetics.equippedTitle || "Curious Mind" };
+    }).sort((a,b)=>b.score-a.score));
+  }
+  function grantCosmeticToPlayer(userId, kind, value) {
+    const db = readDatabase();
+    const user = db.users.find(item => item.id === String(userId));
+    if (!user) throw new Error("Player not found in this browser.");
+    normalizeUser(user);
+    if (kind === "title") {
+      const title = String(value || "").trim().slice(0,32);
+      if (title.length < 2) throw new Error("Enter a title with at least 2 characters.");
+      if (!user.cosmetics.titles.includes(title)) user.cosmetics.titles.push(title);
+    } else if (kind === "frame" && ["sage","ocean","aurora","gold","fire","prism","starlight","owner"].includes(value)) {
+      if (!user.cosmetics.frames.includes(value)) user.cosmetics.frames.push(value);
+    } else throw new Error("Unsupported reward.");
+    writeDatabase(db);
+    return true;
+  }
+
   // NASTAVENÍ
 
   function getSettings() {
@@ -901,8 +962,8 @@
     user.plusLifetime = true;
     user.plusUnlockedAt = new Date().toISOString();
     user.cosmetics = Object.assign({frames:["classic"],equippedFrame:"classic",titles:["Curious Mind"],equippedTitle:"Curious Mind"},user.cosmetics||{});
-    ["aurora","gold"].forEach(frame => { if (!user.cosmetics.frames.includes(frame)) user.cosmetics.frames.push(frame); });
-    ["DAZURIO LEGEND","STARLIGHT"].forEach(title => { if (!user.cosmetics.titles.includes(title)) user.cosmetics.titles.push(title); });
+    ["aurora","gold","prism","starlight"].forEach(frame => { if (!user.cosmetics.frames.includes(frame)) user.cosmetics.frames.push(frame); });
+    ["DAZURIO LEGEND","STARLIGHT","PLUS ELITE"].forEach(title => { if (!user.cosmetics.titles.includes(title)) user.cosmetics.titles.push(title); });
     user.updatedAt = new Date().toISOString();
     writeDatabase(database);
     return true;
@@ -965,7 +1026,12 @@
     levelProgressFromXP,
     getPlayerDashboard,
     equipCosmetic,
-    grantCosmetic
+    grantCosmetic,
+    getLocalPlayers,
+    addFriend,
+    removeFriend,
+    getFriends,
+    grantCosmeticToPlayer
   };
 
   init();
