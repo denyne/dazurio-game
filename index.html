@@ -41,9 +41,9 @@
       <button class="plus-link" data-page="plus">
         <span class="plus-spark">✳</span> DAZURIO PLUS
       </button>
-      <button class="profile-button" id="profileButton">
-        <span class="profile-avatar" id="headerAvatar">?</span>
-        <span id="headerUsername">Profile</span>
+      <button class="profile-button" id="profileButton" aria-label="Open profile">
+        <span class="profile-avatar-frame frame-classic" id="headerAvatarFrame"><span class="profile-avatar" id="headerAvatar">?</span></span>
+        <span class="header-profile-copy"><strong id="headerUsername">Profile</strong><small id="headerEquippedTitle">Curious Mind</small></span>
       </button>
       <button class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
         <span></span><span></span>
@@ -616,9 +616,10 @@
         </div>
 
         <div class="profile-card">
-          <div class="profile-card-avatar" id="profileAvatar">?</div>
+          <div class="profile-card-avatar-frame frame-classic" id="profileAvatarFrame"><div class="profile-card-avatar" id="profileAvatar">?</div></div>
           <div class="profile-card-info">
             <h2 id="profileName">Guest player</h2>
+            <span id="profileEquippedTitle" class="profile-equipped-title">CURIOUS MIND</span>
             <span id="profileJoined">PLAYER SINCE TODAY</span>
           </div>
           <button class="secondary-button" id="editProfileButton">EDIT PROFILE</button>
@@ -653,7 +654,7 @@
           </div>
         </div>
 
-        <section class="player-dashboard-card"><div class="section-heading"><div><span class="eyebrow">YOUR PROGRESS</span><h2>Player insights</h2></div></div><div class="insights-grid"><article><small>TOTAL POINTS</small><strong id="insightTotalPoints">0</strong></article><article><small>QUESTIONS ANSWERED</small><strong id="insightAnswers">0</strong></article><article><small>STRONGEST CATEGORY</small><strong id="insightStrongest">—</strong></article><article><small>AVERAGE DIFFERENCE</small><strong id="insightDifference">0</strong></article></div></section><section class="player-dashboard-card"><div class="section-heading"><div><span class="eyebrow">MILESTONES</span><h2>Achievements</h2></div><span id="achievementCount">0 / 7</span></div><div class="achievement-grid" id="achievementGrid"></div></section><section class="player-dashboard-card"><div class="section-heading"><div><span class="eyebrow">MAKE IT YOURS</span><h2>Profile cosmetics</h2></div></div><div class="cosmetic-controls"><label>Profile frame<select id="cosmeticFrameSelect"></select></label><label>Player title<select id="cosmeticTitleSelect"></select></label><button class="secondary-button" id="saveCosmeticsButton" type="button">SAVE LOOK</button></div></section>
+        <section class="player-dashboard-card"><div class="section-heading"><div><span class="eyebrow">YOUR PROGRESS</span><h2>Player insights</h2></div></div><div class="insights-grid"><article><small>TOTAL POINTS</small><strong id="insightTotalPoints">0</strong></article><article><small>QUESTIONS ANSWERED</small><strong id="insightAnswers">0</strong></article><article><small>STRONGEST CATEGORY</small><strong id="insightStrongest">—</strong></article><article><small>AVERAGE DIFFERENCE</small><strong id="insightDifference">0</strong></article></div></section><section class="player-dashboard-card"><div class="section-heading"><div><span class="eyebrow">MILESTONES</span><h2>Achievements</h2></div><span id="achievementCount">0 / 7</span></div><div class="achievement-grid" id="achievementGrid"></div></section><section class="player-dashboard-card"><div class="section-heading"><div><span class="eyebrow">MAKE IT YOURS</span><h2>Profile cosmetics</h2></div></div><div class="cosmetic-preview-row"><div class="cosmetic-preview-avatar-frame frame-classic" id="cosmeticPreviewFrame"><div class="cosmetic-preview-avatar" id="cosmeticPreviewAvatar">?</div></div><div><strong id="cosmeticPreviewTitle">Curious Mind</strong><small>LIVE PREVIEW</small></div></div><div class="cosmetic-controls"><label>Profile frame<select id="cosmeticFrameSelect"></select></label><label>Player title<select id="cosmeticTitleSelect"></select></label><button class="secondary-button" id="saveCosmeticsButton" type="button">SAVE LOOK</button></div><label class="avatar-upload-label" for="profileImageInput">PROFILE PICTURE<input id="profileImageInput" type="file" accept="image/png,image/jpeg,image/webp"></label><small class="profile-image-note">Upload a JPG, PNG or WebP image. It is resized and saved in this browser.</small></section>
         <div class="profile-history">
           <div class="section-heading">
             <h2>Recent games</h2>
@@ -933,7 +934,7 @@
 
       <form id="editProfileForm">
         <label for="editUsername">USERNAME</label>
-        <input id="editUsername" type="text" maxlength="18" required>
+        <input id="editUsername" type="text" maxlength="20" required autocomplete="username">
         <p class="form-error" id="editProfileError"></p>
         <button class="play-button modal-submit" type="submit">SAVE CHANGES <span>↗</span></button>
       </form>
@@ -1004,7 +1005,7 @@
         <div class="studio-card"><small>SESSION RUNTIME</small><strong id="studioRuntime">—</strong><span>time since load</span></div>
         <div class="studio-card"><small>MOTION PREFERENCE</small><strong id="studioMotion">—</strong><span>system accessibility setting</span></div>
       </div>
-      <div class="studio-event-editor"><span class="eyebrow">SEASONAL EVENT BUILDER</span><label>Event title<input id="studioEventTitle" maxlength="48" placeholder="Halloween week"></label><label>Description<input id="studioEventDescription" maxlength="120" placeholder="A limited-time curiosity event"></label><label>Artwork URL<input id="studioEventImage" type="url" placeholder="https://…"></label><label>Start date<input id="studioEventStart" type="date"></label><label>End date<input id="studioEventEnd" type="date"></label><button type="button" id="studioSaveEventButton">PUBLISH LOCAL EVENT</button><p id="studioEventStatus" aria-live="polite"></p></div><div class="studio-actions"><button type="button" id="studioValidateButton">Run question check</button><button type="button" id="studioDiagnosticsButton">Refresh diagnostics</button><button type="button" id="studioResetDailyButton">Reset today's daily lock</button></div>
+      <details class="studio-tool-section"><summary><span>＋ Add seasonal event</span><small>Create a limited-time event</small></summary><div class="studio-event-editor"><span class="eyebrow">SEASONAL EVENT BUILDER</span><label>Event title<input id="studioEventTitle" maxlength="48" placeholder="Halloween week"></label><label>Description<input id="studioEventDescription" maxlength="120" placeholder="A limited-time curiosity event"></label><label>Artwork URL<input id="studioEventImage" type="url" placeholder="https://…"></label><label>Start date<input id="studioEventStart" type="date"></label><label>End date<input id="studioEventEnd" type="date"></label><button type="button" id="studioSaveEventButton">PUBLISH LOCAL EVENT</button><p id="studioEventStatus" aria-live="polite"></p></div></details><details class="studio-tool-section"><summary><span>＋ Manage player rewards</span><small>Grant a title or profile frame to the signed-in player</small></summary><div class="studio-event-editor"><label>New title<input id="studioCustomTitle" maxlength="32" placeholder="Autumn Explorer"></label><button type="button" id="studioGrantTitleButton">GRANT TITLE</button><label>Profile frame<select id="studioGrantFrame"><option value="sage">Sage</option><option value="ocean">Ocean</option><option value="aurora">Aurora</option><option value="gold">Gold</option></select></label><button type="button" id="studioGrantFrameButton">GRANT FRAME</button><p id="studioRewardStatus" aria-live="polite"></p></div></details><div class="studio-actions"><button type="button" id="studioValidateButton">Run question check</button><button type="button" id="studioDiagnosticsButton">Refresh diagnostics</button><button type="button" id="studioResetDailyButton">Reset today's daily lock</button></div>
       <p class="studio-note">Local preview tools only. The passphrase is a convenience lock only; client-side tools are not secure server authentication. Daily reset is intended for testing.</p>
     </div>
   </section>
