@@ -382,3 +382,5 @@ body.dark-mode .extra-modes{background:var(--surface);border-color:var(--line)}
 .title-rank-plus{color:#bd83f2!important;background:transparent!important;border:0!important;text-shadow:0 0 6px #c98bff99,0 0 11px #a34be966;box-shadow:none!important}
 @keyframes ownerTitleGlow{from{filter:brightness(.96);text-shadow:0 0 4px #f3bf4f88,0 0 8px #f3b33d66}to{filter:brightness(1.18);text-shadow:0 0 7px #f3bf4f,0 0 15px #f3b33daa}}
 @media(prefers-reduced-motion:reduce){.title-rank-owner{animation:none}}
+
+.trophy-showcase-display{display:flex;flex-wrap:wrap;gap:8px}.trophy-showcase-chip{padding:8px 11px;border:1px solid #d6b45c66;border-radius:999px;background:#d6b45c18;font-size:11px;font-weight:800}
