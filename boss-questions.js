@@ -68,16 +68,16 @@
     "id": "boss-hard-003",
     "category": "Astronomy",
     "difficulty": "hard",
-    "question": "How many Earth days does Venus take to orbit the Sun?",
-    "description": "Use its sidereal orbital period.",
-    "answer": 224.701,
+    "question": "How many Earth days does Venus take to rotate once relative to distant stars?",
+    "description": "Use Venus's sidereal rotation period, which is retrograde.",
+    "answer": 243.025,
     "unit": "days",
-    "min": 100,
-    "max": 400,
+    "min": 150,
+    "max": 350,
     "suggestions": [
-      157.2907,
-      224.701,
-      292.1113
+      170.1175,
+      243.025,
+      315.9325
     ]
   },
   {
@@ -100,16 +100,16 @@
     "id": "boss-hard-004",
     "category": "Astronomy",
     "difficulty": "hard",
-    "question": "How many Earth years does Neptune take to orbit the Sun?",
-    "description": "Use its sidereal orbital period.",
-    "answer": 164.8,
-    "unit": "years",
-    "min": 100,
-    "max": 250,
+    "question": "Approximately how many kilometres per second is Neptune's mean orbital speed around the Sun?",
+    "description": "Estimate the planet's average orbital velocity.",
+    "answer": 5.43,
+    "unit": "km/s",
+    "min": 2,
+    "max": 10,
     "suggestions": [
-      115.36,
-      164.8,
-      214.24
+      3.8009999999999997,
+      5.43,
+      7.059
     ]
   },
   {
@@ -1220,16 +1220,16 @@
     "id": "boss-hard-039",
     "category": "Geography",
     "difficulty": "hard",
-    "question": "How many metres deep is Lake Baikal at its deepest point?",
-    "description": "Use its maximum depth.",
-    "answer": 1642,
-    "unit": "m",
-    "min": 800,
-    "max": 2500,
+    "question": "Approximately how many cubic kilometres of freshwater does Lake Baikal contain?",
+    "description": "Estimate the lake's immense freshwater volume.",
+    "answer": 23615,
+    "unit": "km³",
+    "min": 10000,
+    "max": 40000,
     "suggestions": [
-      1149.3999999999999,
-      1642,
-      2134.6
+      16530.5,
+      23615,
+      30699.5
     ]
   },
   {
@@ -1412,16 +1412,16 @@
     "id": "boss-hard-045",
     "category": "Biology",
     "difficulty": "hard",
-    "question": "How many teeth does a typical adult dog have?",
-    "description": "Use the full adult dentition.",
-    "answer": 42,
-    "unit": "teeth",
+    "question": "How many pairs of autosomes are present in a typical domestic dog somatic cell?",
+    "description": "Dogs have 78 chromosomes in most somatic cells, including two sex chromosomes.",
+    "answer": 38,
+    "unit": "pairs",
     "min": 20,
     "max": 60,
     "suggestions": [
-      29.4,
-      42,
-      54.6
+      26.599999999999998,
+      38,
+      49.4
     ]
   },
   {
