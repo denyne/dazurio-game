@@ -295,7 +295,12 @@
     });
 
     const unitHint = $("answerUnitHint");
-    if (unitHint) unitHint.textContent = question.unit ? `Answer using ${question.unit}.` : "Enter a numeric estimate.";
+    if (unitHint) {
+      const czechUnits = { meters: "metry (m)", kilometers: "kilometry (km)", "km²": "kilometry čtvereční (km²)", "meters per second": "metry za sekundu (m/s)", "km/h": "kilometry za hodinu (km/h)", centimeters: "centimetry (cm)", grams: "gramy (g)", liters: "litry (l)", milliliters: "mililitry (ml)", "°C": "stupně Celsia (°C)", minutes: "minuty", seconds: "sekundy", hours: "hodiny", days: "dny", years: "roky", "billion years": "miliardy let", "beats per minute": "údery za minutu", kilocalories: "kilokalorie (kcal)", players: "hráči", countries: "státy", continents: "světadíly", bones: "kosti", teeth: "zuby", neurons: "neurony", elements: "prvky", planets: "planety", combinations: "kombinace", sides: "strany", pixels: "pixely", bits: "bity", transistors: "tranzistory", keys: "klávesy", hearts: "srdce", legs: "nohy", Earths: "Země", BCE: "př. n. l.", year: "rok", "%": "procenta" };
+      unitHint.textContent = question.unit
+        ? (document.documentElement.lang === "cs" ? `Odpovídej v jednotkách: ${czechUnits[question.unit] || question.unit}.` : `Answer using ${question.unit}.`)
+        : (document.documentElement.lang === "cs" ? "Zadej číselný odhad." : "Enter a numeric estimate.");
+    }
 
     const input = $("answerInput");
 
