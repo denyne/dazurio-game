@@ -862,8 +862,7 @@
       min: 0,
       max: 500000,
       suggestions: [1000, 10000, 100000, 250000]
-    }
-
+    },
     {
       id: "sci-new-001",
       category: "Science",
