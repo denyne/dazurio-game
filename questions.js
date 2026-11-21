@@ -3327,7 +3327,7 @@
       0,
       Math.min(
         Math.floor(Number(count) || 0),
-        QUESTIONS.length
+        getAllQuestions().length
       )
     );
 
