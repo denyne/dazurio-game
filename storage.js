@@ -705,6 +705,11 @@
 
     normalizeUser(user);
 
+    const bossMonth = input.mode === "boss" ? String(input.bossMonth || dateKey(new Date()).slice(0,7)) : null;
+    if (input.mode === "boss" && user.history.some(item => item.mode === "boss" && item.bossMonth === bossMonth)) {
+      throw new Error("This month’s Boss Challenge has already been completed.");
+    }
+
     const score = Math.round(
       nonNegative(input.score)
     );
@@ -746,6 +751,7 @@
       date: playedDate,
       completedAt: playedAt,
       mode: input.mode || "daily",
+      bossMonth,
       score,
       xp,
       accuracy: Math.round(accuracy),
