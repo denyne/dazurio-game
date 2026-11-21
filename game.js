@@ -193,9 +193,7 @@
 
   function getBossQuestions(options = {}) { const all=getAllQuestions();const hard=all.filter(q=>String(q.difficulty||"").toLowerCase()==="hard");const pool=hard.length>=5?hard:all;const month=String(options.monthKey||new Date().toISOString().slice(0,7));const hash=value=>{let h=2166136261;for(const ch of String(value))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};const chosen=[...pool].sort((a,b)=>hash(month+":"+a.id)-hash(month+":"+b.id)).slice(0,Math.min(5,pool.length));const rank={easy:0,medium:1,hard:2};return chosen.sort((a,b)=>(rank[String(a.difficulty||"medium").toLowerCase()]??1)-(rank[String(b.difficulty||"medium").toLowerCase()]??1));}
 
-  function getBossQuestions(options = {}) { const all=getAllQuestions();const hard=all.filter(q=>String(q.difficulty||"").toLowerCase()==="hard");const pool=hard.length>=5?hard:all;const month=String(options.monthKey||new Date().toISOString().slice(0,7));const hash=value=>{let h=2166136261;for(const ch of String(value))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};const chosen=[...pool].sort((a,b)=>hash(month+":"+a.id)-hash(month+":"+b.id)).slice(0,Math.min(5,pool.length));const rank={easy:0,medium:1,hard:2};return chosen.sort((a,b)=>(rank[String(a.difficulty||"medium").toLowerCase()]??1)-(rank[String(b.difficulty||"medium").toLowerCase()]??1));}
-
-  function getEndlessQuestions() {
+    function getEndlessQuestions() {
     return shuffle(getAllQuestions());
   }
   function getSpeedRunQuestions() { return shuffle(getAllQuestions()).slice(0, Math.min(20, getAllQuestions().length)); }
