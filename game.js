@@ -183,11 +183,18 @@
     }
 
     if (difficulty !== "all") pool = pool.filter(question => String(question.difficulty || "").toLowerCase() === difficulty);
+    if (difficulty !== "all") pool = pool.filter(question => String(question.difficulty || "").toLowerCase() === difficulty);
     if (!pool.length) return [];
 
     const safeCount = Math.max(1, Math.min(count, pool.length));
 
     return shuffle(pool).slice(0, safeCount);
+  }
+
+  function getBossQuestions() {
+    const hard = getAllQuestions().filter(question => String(question.difficulty || "").toLowerCase() === "hard");
+    const pool = hard.length >= 5 ? hard : getAllQuestions();
+    return shuffle(pool).slice(0, Math.min(5, pool.length));
   }
 
   function getBossQuestions() {
