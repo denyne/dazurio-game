@@ -40,7 +40,7 @@
     startDailyClock();
   }
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) updateDailyCountdown();
+    if (!document.hidden) tickDailyClock();
   });
 
   function setText(id, value) {
@@ -975,23 +975,32 @@
       const key = String(value || "").trim();
       return cs && dictionary[key] ? dictionary[key] : key;
     };
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    let node;
-    while ((node = walker.nextNode())) {
-      if (node.__dazOriginalText === undefined) node.__dazOriginalText = node.nodeValue;
-      const originalValue = node.__dazOriginalText;
-      if (!cs) {
-        node.nodeValue = originalValue;
-        continue;
-      }
-      const leading = (originalValue.match(/^\\s*/) || [""])[0];
-      const trailing = (originalValue.match(/\\s*$/) || [""])[0];
-      const key = originalValue.trim();
-      node.nodeValue = dictionary[key]
-        ? leading + dictionary[key] + trailing
-        : originalValue;
+    try {
+      const textNodes = [];
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) textNodes.push(walker.currentNode);
+      textNodes.forEach(textNode => {
+        if (!textNode.__dazOriginalText) textNode.__dazOriginalText = textNode.nodeValue || "";
+        const originalValue = textNode.__dazOriginalText;
+        if (!cs) {
+          textNode.nodeValue = originalValue;
+          return;
+        }
+        const key = originalValue.trim();
+        const translated = dictionary[key];
+        if (!translated) {
+          textNode.nodeValue = originalValue;
+          return;
+        }
+        const leadingLength = originalValue.length - originalValue.trimStart().length;
+        const trailingLength = originalValue.length - originalValue.trimEnd().length;
+        textNode.nodeValue = originalValue.slice(0, leadingLength) + translated +
+          (trailingLength ? originalValue.slice(originalValue.length - trailingLength) : "");
+      });
+    } catch (translationError) {
+      console.warn("DAZURIO language update skipped a text node:", translationError);
     }
-    document.querySelectorAll("[placeholder],[aria-label],[title]").forEach(el => {
+    try { document.querySelectorAll("[placeholder],[aria-label],[title]").forEach(el => {
       ["placeholder","aria-label","title"].forEach(attr => {
         const original = el.dataset["i18n"+attr] || el.getAttribute(attr);
         if (!el.dataset["i18n"+attr]) el.dataset["i18n"+attr] = original;
@@ -999,7 +1008,7 @@
         if (value !== original) el.setAttribute(attr, value);
         else if (!cs) el.setAttribute(attr, original);
       });
-    });
+    }); } catch (attributeTranslationError) { console.warn("DAZURIO attribute translation skipped:", attributeTranslationError); }
     document.documentElement.lang = cs ? "cs" : "en";
   }
 
@@ -1213,6 +1222,17 @@
     byId("profileLogoutButton")?.addEventListener("click", handleLogout);
   }
 
+  let studioErrorCount = 0;
+  window.addEventListener("error", () => { studioErrorCount += 1; });
+  window.addEventListener("unhandledrejection", () => { studioErrorCount += 1; });
+  function refreshStudioDiagnostics() {
+    const memory = performance && performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) + " MB" : "Not exposed";
+    setText("studioMemory", memory);
+    setText("studioErrors", String(studioErrorCount));
+    setText("studioRuntime", Math.round(performance.now() / 1000) + " s");
+    setText("studioMotion", window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "Reduced" : "Standard");
+  }
+
   function bindMainActions() {
     byId("playTodayButton")?.addEventListener("click", startDaily);
 
@@ -1222,22 +1242,30 @@
       setText("studioQuestionCount", window.QuestionDatabase?.getCount?.() ?? window.DAZURIO_QUESTIONS?.length ?? "—");
       setText("studioDate", localDateKey());
       setText("studioDailyStatus", hasCompletedDaily() ? "Completed" : "Available");
+      refreshStudioDiagnostics();
       const validation = window.QuestionDatabase?.validate?.();
       setText("studioHealth", validation ? (validation.valid ? "Healthy" : "Needs review") : "Unknown");
       studio.hidden = false;
       byId("studioCloseButton")?.focus();
     };
     const closeStudio = () => { if (studio) studio.hidden = true; };
-    byId("studioOpenButton")?.addEventListener("click", () => {
-      const password = window.prompt("Moderator password");
-      if (password !== "DAZURIO-ADMIN") {
-        if (password !== null) notify("Incorrect moderator password.", "error");
-        return;
-      }
+    const passwordModal = byId("studioPasswordModal");
+    const passwordForm = byId("studioPasswordForm");
+    const closePasswordModal = () => { if (passwordModal) passwordModal.hidden = true; if (byId("studioPasswordInput")) byId("studioPasswordInput").value = ""; };
+    byId("studioOpenButton")?.addEventListener("click", () => { if (passwordModal) { passwordModal.hidden = false; byId("studioPasswordInput")?.focus(); } });
+    byId("studioPasswordClose")?.addEventListener("click", closePasswordModal);
+    passwordModal?.addEventListener("click", event => { if (event.target === passwordModal) closePasswordModal(); });
+    passwordForm?.addEventListener("submit", event => {
+      event.preventDefault();
+      const password = byId("studioPasswordInput")?.value || "";
+      if (password !== "DAZURIO-ADMIN") { setText("studioPasswordError", "Incorrect password. Try again."); byId("studioPasswordInput")?.select(); return; }
+      closePasswordModal();
+      setText("studioPasswordError", "");
       openStudio();
     });
     byId("studioCloseButton")?.addEventListener("click", closeStudio);
     studio?.addEventListener("click", event => { if (event.target === studio) closeStudio(); });
+    byId("studioDiagnosticsButton")?.addEventListener("click", refreshStudioDiagnostics);
     byId("studioValidateButton")?.addEventListener("click", () => {
       const validation = window.QuestionDatabase?.validate?.();
       if (!validation) { notify("Question validation is unavailable.", "warning"); return; }
@@ -1403,14 +1431,14 @@
       }
       document.addEventListener("dazurio:game-finished", event => {
         if (event.detail?.mode === "daily" && !hasAccount()) saveGuestDaily(event.detail);
-        renderResults(event.detail);
-        refreshHome();
-        renderProfile();
-        renderLeaderboard("all");
+        try { renderResults(event.detail); } catch (error) { console.error("Results UI update failed:", error); }
+        try { refreshHome(); } catch (error) { console.error("Home stats update failed:", error); }
+        try { renderProfile(); } catch (error) { console.error("Profile update failed:", error); }
+        try { renderLeaderboard("all"); } catch (error) { console.error("Leaderboard update failed:", error); }
       });
 
-      updateAccountControls();
-      loadSettings();
+      try { updateAccountControls(); } catch (error) { console.error("Account UI init failed:", error); }
+      try { loadSettings(); } catch (error) { console.error("Settings init failed:", error); }
       updateDailyCountdown();
       try { refreshHome(); } catch (error) { console.warn("Home stats could not render:", error); }
       try { renderProfile(); } catch (error) { console.warn("Profile could not render:", error); }
@@ -1436,7 +1464,7 @@
     } catch (error) {
       console.error("DAZURIO initialization error:", error);
       console.error("DAZURIO boot details:", error?.stack || error);
-      notify("Aplikaci se nepodařilo správně spustit. Obnovuji základní obrazovku…", "error");
+      notify("Některá část aplikace se nenačetla. Základní stránka zůstává dostupná.", "warning");
       document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
       document.getElementById("page-home")?.classList.add("active");
       startDailyClock();
