@@ -864,73 +864,6 @@
       suggestions: [1000, 10000, 100000, 250000]
     }
 
-  ];
-
-  // ==========================================
-  // CATEGORY INFORMATION
-  // ==========================================
-
-  const QUESTION_CATEGORIES = [
-    {
-      id: "Geography",
-      name: "Geography",
-      icon: "🌍",
-      description: "Our planet, countries, mountains and oceans."
-    },
-    {
-      id: "Science",
-      name: "Science",
-      icon: "🔬",
-      description: "Physics, chemistry, nature and discoveries."
-    },
-    {
-      id: "Human Body",
-      name: "Human Body",
-      icon: "🧠",
-      description: "The incredible numbers inside us."
-    },
-    {
-      id: "Animals",
-      name: "Animals",
-      icon: "🦁",
-      description: "Amazing creatures and their abilities."
-    },
-    {
-      id: "Space",
-      name: "Space",
-      icon: "🚀",
-      description: "Planets, stars and the universe."
-    },
-    {
-      id: "History",
-      name: "History",
-      icon: "🏛️",
-      description: "Events and civilizations from the past."
-    },
-    {
-      id: "Technology",
-      name: "Technology",
-      icon: "💻",
-      description: "Computers, inventions and digital life."
-    },
-    {
-      id: "Food",
-      name: "Food & Everyday",
-      icon: "🍉",
-      description: "Food, measurements and everyday facts."
-    },
-    {
-      id: "Sports",
-      name: "Sports",
-      icon: "⚽",
-      description: "Games, records and athletic performance."
-    },
-    {
-      id: "Numbers",
-      name: "Numbers",
-      icon: "🔢",
-      description: "Surprising numbers and calculations."
-    }
     {
       id: "sci-new-001",
       category: "Science",
@@ -2109,6 +2042,74 @@
     }
   ];
 
+  // ==========================================
+  // CATEGORY INFORMATION
+  // ==========================================
+
+  const QUESTION_CATEGORIES = [
+    {
+      id: "Geography",
+      name: "Geography",
+      icon: "🌍",
+      description: "Our planet, countries, mountains and oceans."
+    },
+    {
+      id: "Science",
+      name: "Science",
+      icon: "🔬",
+      description: "Physics, chemistry, nature and discoveries."
+    },
+    {
+      id: "Human Body",
+      name: "Human Body",
+      icon: "🧠",
+      description: "The incredible numbers inside us."
+    },
+    {
+      id: "Animals",
+      name: "Animals",
+      icon: "🦁",
+      description: "Amazing creatures and their abilities."
+    },
+    {
+      id: "Space",
+      name: "Space",
+      icon: "🚀",
+      description: "Planets, stars and the universe."
+    },
+    {
+      id: "History",
+      name: "History",
+      icon: "🏛️",
+      description: "Events and civilizations from the past."
+    },
+    {
+      id: "Technology",
+      name: "Technology",
+      icon: "💻",
+      description: "Computers, inventions and digital life."
+    },
+    {
+      id: "Food",
+      name: "Food & Everyday",
+      icon: "🍉",
+      description: "Food, measurements and everyday facts."
+    },
+    {
+      id: "Sports",
+      name: "Sports",
+      icon: "⚽",
+      description: "Games, records and athletic performance."
+    },
+    {
+      id: "Numbers",
+      name: "Numbers",
+      icon: "🔢",
+      description: "Surprising numbers and calculations."
+    }
+  ];
+
+  
   // ==========================================
   // DATABASE HELPERS
   // ==========================================
