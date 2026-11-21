@@ -165,6 +165,7 @@
 
     const category = String(options.category || "").trim();
     const count = Math.floor(Number(options.count) || QUESTIONS_PER_DAILY);
+    const difficulty = String(options.difficulty || "all").toLowerCase();
 
     let pool = all;
 
@@ -181,11 +182,18 @@
       );
     }
 
+    if (difficulty !== "all") pool = pool.filter(question => String(question.difficulty || "").toLowerCase() === difficulty);
     if (!pool.length) return [];
 
     const safeCount = Math.max(1, Math.min(count, pool.length));
 
     return shuffle(pool).slice(0, safeCount);
+  }
+
+  function getBossQuestions() {
+    const hard = getAllQuestions().filter(question => String(question.difficulty || "").toLowerCase() === "hard");
+    const pool = hard.length >= 5 ? hard : getAllQuestions();
+    return shuffle(pool).slice(0, Math.min(5, pool.length));
   }
 
   function getEndlessQuestions() {
@@ -299,6 +307,7 @@
       case "survival": return "SURVIVAL · " + state.lives + " LIVES";
       case "mystery": return "MYSTERY MODE";
       case "worldtour": return "WORLD TOUR";
+      case "boss": return "BOSS CHALLENGE";
       default:
         return "DENNÍ VÝZVA";
     }
@@ -734,7 +743,7 @@
       return false;
     }
 
-    if (!["daily", "practice", "endless", "archive", "speedrun", "survival", "mystery", "worldtour"].includes(mode)) {
+    if (!["daily", "practice", "endless", "archive", "speedrun", "survival", "mystery", "worldtour", "boss"].includes(mode)) {
       mode = "daily";
     }
 
@@ -756,6 +765,8 @@
       questions = getMysteryQuestions();
     } else if (mode === "worldtour") {
       questions = getWorldTourQuestions();
+    } else if (mode === "boss") {
+      questions = getBossQuestions();
     } else {
       questions = getEndlessQuestions();
     }
