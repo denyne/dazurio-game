@@ -536,14 +536,17 @@
       ? categorySelect.value
       : selectedPracticeCategory;
 
-    const count = countSelect ? Number(countSelect.value) : 7;
+    const sharedChallenge = window.dazurioSharedChallenge || null;
+    const count = sharedChallenge ? Number(sharedChallenge.count) : (countSelect ? Number(countSelect.value) : 7);
     const isPlus = Boolean(storage()?.isPlus?.());
-    const difficulty = byId("practiceDifficulty")?.value || "all";
-    if (!isPlus && (count > 20 || difficulty !== "all")) {
+    const difficulty = sharedChallenge ? String(sharedChallenge.difficulty || "all") : (byId("practiceDifficulty")?.value || "all");
+    const category = sharedChallenge ? (sharedChallenge.category || null) : (selectedPracticeCategory === "all" ? null : selectedPracticeCategory);
+    if (!isPlus && !sharedChallenge && (count > 20 || difficulty !== "all")) {
       notify("Advanced practice filters and 50/100-question sessions are DAZURIO Plus features.", "warning");
       navigateTo("plus"); return;
     }
-    game()?.startGame("practice", { category:selectedPracticeCategory === "all" ? null : selectedPracticeCategory, difficulty:isPlus ? difficulty : "all", count:Number.isFinite(count) ? count : 7 });
+    const started=game()?.startGame("practice", { category, difficulty:isPlus||sharedChallenge ? difficulty : "all", count:Number.isFinite(count) ? count : 7, sharedChallenge:Boolean(sharedChallenge) });
+    if(started&&sharedChallenge){window.dazurioSharedChallenge=null;notify("Friend challenge accepted. Good luck!","success");}
   }
 
   function startArchiveGame(date) {
@@ -945,6 +948,8 @@
 
       let archiveDone = false;
       try { archiveDone = localStorage.getItem("dazurio_archive_completed_" + dateString) === "1"; } catch (_) {}
+      const archiveFilter=byId("archiveFilterSelect")?.value||"all";
+      if((archiveFilter==="played"&&!archiveDone)||(archiveFilter==="available"&&archiveDone))button.classList.add("filter-hidden");
       if (archiveDone) {
         button.disabled = true;
         button.classList.add("is-completed");
@@ -1316,6 +1321,10 @@
     if (profileBadge) profileBadge.hidden = !active;
     const headerBadge = byId("headerPlusBadge");
     if (headerBadge) headerBadge.hidden = !active;
+    const archiveFilter=byId("archiveFilterSelect");
+    if(archiveFilter){archiveFilter.disabled=!active;if(!active)archiveFilter.value="all";}
+    const archiveHint=byId("archiveFilterHint");
+    if(archiveHint){archiveHint.textContent=active?"Plus archive filters are active.":"Unlock Plus for advanced archive filters.";archiveHint.classList.toggle("is-plus",active);}
     const count=byId("practiceCount");
     if(count){[...count.options].forEach(option=>{if(option.dataset.plusOnly!==undefined)option.disabled=!active;});if(!active&&Number(count.value)>20)count.value="20";}
     const difficulty=byId("practiceDifficulty");
@@ -1552,10 +1561,9 @@
       () => changeArchiveMonth(-1)
     );
 
-    byId("archiveNextMonth")?.addEventListener(
-      "click",
-      () => changeArchiveMonth(1)
-    );
+    byId("archiveNextMonth")?.addEventListener("click", () => changeArchiveMonth(1));
+    byId("archiveFilterSelect")?.addEventListener("change",renderArchive);
+    byId("createChallengeButton")?.addEventListener("click",async()=>{try{if(!storage()?.isPlus?.())throw new Error("Custom challenge links are a Plus feature.");const options={category:byId("practiceCategory")?.value||"all",count:Number(byId("practiceCount")?.value||10),difficulty:byId("practiceDifficulty")?.value||"all"};const url=new URL(window.location.href);url.searchParams.set("dazurioChallenge",JSON.stringify(options));const message="I made a DAZURIO challenge for you. Open this link, sign in and play the same settings: "+url.toString();if(navigator.share)await navigator.share({title:"DAZURIO Challenge",text:message,url:url.toString()});else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url.toString());notify("Challenge link copied!","success");}else notify(url.toString(),"info");}catch(error){if(error?.name!=="AbortError")notify(error.message||"Could not create challenge link.","warning");}});
 
     byId("profileButton")?.addEventListener("click", () => {
       if (hasAccount()) {
@@ -1686,16 +1694,15 @@
       try { renderArchive(); } catch (error) { console.warn("Archive could not render:", error); }
       try { renderQuestionLibrary(); } catch (error) { console.warn("Question library could not render:", error); }
       try { renderSeasonalEvent(); } catch (error) { console.warn("Seasonal event could not render:", error); }
+      let incomingChallenge=false;
+      try { const raw=new URLSearchParams(window.location.search).get("dazurioChallenge");if(raw){const opts=JSON.parse(raw);if(opts&&typeof opts==="object"){window.dazurioSharedChallenge={category:opts.category==="all"?null:opts.category,count:Math.max(1,Math.min(100,Number(opts.count)||10)),difficulty:["easy","medium","hard"].includes(opts.difficulty)?opts.difficulty:"all"};if(byId("practiceCategory"))byId("practiceCategory").value=opts.category||"all";if(byId("practiceCount"))byId("practiceCount").value=String(window.dazurioSharedChallenge.count);if(byId("practiceDifficulty"))byId("practiceDifficulty").value=window.dazurioSharedChallenge.difficulty;incomingChallenge=true;}}}catch(error){console.warn("Invalid shared challenge link:",error);}
 
       const initialHash = window.location.hash;
 
       try {
-        if (initialHash.startsWith("#page-")) {
-          const requestedPage = initialHash.replace("#page-", "");
-          navigateTo(requestedPage);
-        } else {
-          navigateTo("home");
-        }
+        if (incomingChallenge) { navigateTo("practice"); notify("A friend sent you a custom DAZURIO challenge. Sign in and start when ready.","success"); }
+        else if (initialHash.startsWith("#page-")) { const requestedPage = initialHash.replace("#page-", ""); navigateTo(requestedPage); }
+        else { navigateTo("home"); }
       } catch (error) {
         console.error("DAZURIO initial navigation failed:", error);
         document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
