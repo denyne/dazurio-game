@@ -85,6 +85,14 @@
       "practice", "questions", "leaderboard", "profile", "plus"
     ]);
 
+    // Archive and preferences are intentionally public for guest players.
+    // Keep this allow-list explicit so future account gates cannot lock them accidentally.
+    const publicPages = new Set(["home", "how", "about", "faq", "archive", "settings", "game", "results"]);
+    if (!publicPages.has(target) && !accountPages.has(target)) {
+      console.warn("DAZURIO: Unknown page target:", target);
+      return;
+    }
+
     if (accountPages.has(target) && !hasAccount()) {
       openAuthModal("register");
       notify("Create a free account to unlock this section.", "info");
@@ -865,10 +873,12 @@
     if (!element) return;
 
     const handler = () => {
-      const current = storage().getSettings() || {};
+      const current = hasAccount()
+        ? (storage().getSettings() || {})
+        : getGuestSettings();
       const value = element.type === "checkbox"
         ? element.checked
-        : !(current[key] !== false && current[key] !== undefined);
+        : !Boolean(current[key]);
 
       saveSetting(key, value);
     };
