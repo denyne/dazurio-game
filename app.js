@@ -974,16 +974,6 @@
       () => navigateTo("practice")
     );
 
-    byId("archiveModeButton")?.addEventListener(
-      "click",
-      () => { if (requireAccount("the daily archive")) navigateTo("archive"); }
-    );
-
-    byId("leaderboardModeButton")?.addEventListener(
-      "click",
-      () => { if (requireAccount("the leaderboard")) navigateTo("leaderboard"); }
-    );
-
     byId("startPracticeButton")?.addEventListener(
       "click",
       startPractice
