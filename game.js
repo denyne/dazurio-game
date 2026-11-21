@@ -553,7 +553,9 @@
         (document.documentElement.lang === "cs" ? "Podívej se na správnou hodnotu a zkus další otázku." : "Check the correct value and try the next question.");
     }
 
-    if (points) points.textContent = `+${record.points} XP`;
+    if (points) points.textContent = ["daily","endless"].includes(state.mode)
+      ? `+${record.points.toLocaleString()} PTS`
+      : "PRACTICE ONLY · NO POINTS OR XP";
 
     if (guess) {
       guess.textContent = record.guess === null
