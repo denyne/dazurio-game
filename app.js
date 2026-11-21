@@ -703,6 +703,14 @@
     renderDailyCalendar();
     renderWeeklyCompetition();
   }
+  function renderStudioPlayers() {
+    const select=byId("studioPlayerTarget");if(!select)return;
+    const players=storage().getLocalPlayers?.()||[];select.replaceChildren();
+    const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Select local player";select.appendChild(placeholder);
+    players.forEach(player=>{const option=document.createElement("option");option.value=player.id;option.textContent=(player.displayName||player.username)+" · L"+player.level+(player.plus?" · PLUS":"");select.appendChild(option);});
+    setText("studioPlayerManagerStatus",players.length+" local profile(s) found.");
+  }
+
   function renderFriends() {
     const container=byId("friendsList");if(!container)return;
     const friends=storage().getFriends?.()||[];container.replaceChildren();
@@ -1428,6 +1436,7 @@
       const validation = window.QuestionDatabase?.validate?.();
       setText("studioHealth", validation ? (validation.valid ? "Healthy" : "Needs review") : "Unknown");
       studio.hidden = false;
+      renderStudioPlayers();
       byId("studioCloseButton")?.focus();
     };
     const closeStudio = () => { if (studio) studio.hidden = true; };
@@ -1552,6 +1561,8 @@
     byId("studioGrantTitleButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("title",byId("studioCustomTitle")?.value||"");renderPlayerDashboard();notify("Title unlocked for the current player.","success");setText("studioRewardStatus","Title added to the current profile.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant title.");}});
     byId("studioGrantFrameButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("frame",byId("studioGrantFrame")?.value||"");renderProfile();updateAccountControls();notify("Frame unlocked for the current player.","success");setText("studioRewardStatus","Frame added to the current profile.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant frame.");}});
     byId("studioGrantOwnerButton")?.addEventListener("click",()=>{try{storage().grantCosmetic("title","OWNER");storage().grantCosmetic("frame","owner");renderProfile();updateAccountControls();setText("studioRewardStatus","Owner visual cosmetics added. This is not an admin permission.");}catch(error){setText("studioRewardStatus",error.message||"Could not grant Owner cosmetics.");}});
+    byId("studioRefreshPlayersButton")?.addEventListener("click",renderStudioPlayers);
+    byId("studioGrantPlayerRewardButton")?.addEventListener("click",()=>{try{const id=byId("studioPlayerTarget")?.value||"";if(!id)throw new Error("Choose a player first.");const title=byId("studioPlayerRewardTitle")?.value.trim()||"";const frame=byId("studioPlayerRewardFrame")?.value||"";if(!title&&!frame)throw new Error("Enter a title or choose a frame.");if(title)storage().grantCosmeticToPlayer(id,"title",title);if(frame)storage().grantCosmeticToPlayer(id,"frame",frame);setText("studioPlayerManagerStatus","Reward granted to that local profile.");renderStudioPlayers();}catch(error){setText("studioPlayerManagerStatus",error.message||"Could not grant reward.");}});
     byId("editProfileButton")?.addEventListener(
       "click",
       openEditProfile
