@@ -143,3 +143,9 @@ body.dark-mode{color-scheme:dark;--bg:#151914;--surface:#20271f;--soft:#293128;-
  .stats-strip .stat-item{min-height:88px}
  .stats-strip .stat-name{font-size:8px;letter-spacing:.7px}
 }
+
+
+.answer-format-hint{display:block;margin:9px 2px 2px;color:var(--muted);font-size:10px;font-variant-numeric:tabular-nums}
+#page-how .play-button{display:inline-flex;margin-top:34px;transform:translateY(10px)}
+#page-how .play-button:hover{transform:translateY(7px)}
+#keyboardHintsToggle,#numberFormatSelect{flex-shrink:0}
