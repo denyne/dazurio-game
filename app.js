@@ -789,7 +789,7 @@
   const GUEST_SETTINGS_KEY = "dazurio_guest_settings_v1";
 
   function getGuestSettings() {
-    const defaults = { darkMode: false, sound: true, animations: true, language: "en" };
+    const defaults = { darkMode: false, sound: true, animations: true, language: "en", keyboardHints: true, numberFormat: "grouped" };
     try {
       const saved = JSON.parse(localStorage.getItem(GUEST_SETTINGS_KEY) || "{}");
       return Object.assign(defaults, saved && typeof saved === "object" ? saved : {});
@@ -832,8 +832,11 @@
 
     const language = byId("languageSelect");
     if (language) language.value = settings.language || "en";
-
+    setToggle("keyboardHintsToggle", settings.keyboardHints !== false);
+    const numberFormat = byId("numberFormatSelect");
+    if (numberFormat) numberFormat.value = settings.numberFormat || "grouped";
     applySettings(settings);
+    applyLanguage(settings.language || "en");
   }
 
   function applySettings(settings = {}) {
@@ -848,6 +851,33 @@
     setToggle("themeToggle", settings.darkMode);
     setToggle("soundToggle", settings.sound !== false);
     setToggle("animationToggle", settings.animations !== false);
+    setToggle("keyboardHintsToggle", settings.keyboardHints !== false);
+    applyLanguage(settings.language || "en");
+  }
+
+  function applyLanguage(language) {
+    const cs = language === "cs";
+    const dictionary = {
+      "Home":"Domů","How to play":"Jak hrát","Archive":"Archiv","Settings":"Nastavení",
+      "DAY STREAK":"DENNÍ SÉRIE","TOTAL XP":"CELKEM XP","GAMES PLAYED":"ODEHRANÉ HRY","PLAYER LEVEL":"ÚROVEŇ HRÁČE",
+      "Ready when you are.":"Jsi připraven?","A NEW DAY, A NEW CHALLENGE":"NOVÝ DEN, NOVÁ VÝZVA",
+      "SIMPLE TO LEARN":"JEDNODUCHÉ NAUČENÍ","How to play.":"Jak hrát.",
+      "It's easy. Getting close is the tricky part.":"Je to snadné. Těžké je trefit se co nejblíž.",
+      "GOT IT — LET'S PLAY":"ROZUMÍM — POJĎME HRÁT","MAKE IT YOURS":"PŘIZPŮSOB SI HRU","Settings.":"Nastavení.",
+      "Dark mode":"Tmavý režim","Change the appearance of DAZURIO.":"Změň vzhled DAZURIO.",
+      "Sound effects":"Zvukové efekty","Enable or disable game sounds.":"Zapni nebo vypni zvuky hry.",
+      "Animations":"Animace","Enable or reduce visual effects.":"Zapni nebo omez vizuální efekty.",
+      "Language":"Jazyk","Interface language.":"Jazyk rozhraní.",
+      "Keyboard shortcuts":"Klávesové zkratky","Number format":"Formát čísel",
+      "Export data":"Export dat","Reset game data":"Resetovat herní data"
+    };
+    document.querySelectorAll("body *").forEach(element => {
+      if (element.children.length) return;
+      const original = element.dataset.originalText || element.textContent.trim();
+      if (!element.dataset.originalText) element.dataset.originalText = original;
+      if (dictionary[original]) element.textContent = cs ? dictionary[original] : original;
+    });
+    document.documentElement.lang = cs ? "cs" : "en";
   }
 
   function saveSetting(key, value) {
@@ -1155,9 +1185,12 @@
     bindSettingToggle("themeToggle", "darkMode");
     bindSettingToggle("soundToggle", "sound");
     bindSettingToggle("animationToggle", "animations");
+    bindSettingToggle("keyboardHintsToggle", "keyboardHints");
+    byId("numberFormatSelect")?.addEventListener("change", event => saveSetting("numberFormat", event.target.value));
 
     byId("languageSelect")?.addEventListener("change", event => {
       saveSetting("language", event.target.value);
+      applyLanguage(event.target.value);
 
       notify(
         event.target.value === "en"
