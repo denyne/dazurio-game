@@ -713,14 +713,15 @@
       home.addEventListener("click", () => {
         abandonGame();
 
-        document.querySelectorAll(".page").forEach(page => {
-          page.classList.remove("active");
-        });
-
-        const homePage = $("page-home");
-        if (homePage) homePage.classList.add("active");
-
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (typeof window.navigateTo === "function") {
+          window.navigateTo("home");
+        } else {
+          document.querySelectorAll(".page").forEach(page => {
+            page.classList.remove("active");
+          });
+          $("page-home")?.classList.add("active");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       });
     }
 
