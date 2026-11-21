@@ -373,6 +373,9 @@
 
     const logout = byId("profileLogoutButton");
     if (logout) logout.hidden = !user;
+    const owner = Boolean(user?.cosmetics?.titles?.includes("OWNER") && user?.cosmetics?.frames?.includes("owner"));
+    if (byId("profileOwnerBadge")) byId("profileOwnerBadge").hidden = !owner;
+    renderPlusStatus();
   }
 
   function handleLogout() {
@@ -565,6 +568,8 @@
       setText("profileBestScore", "0");
       setText("profileBestStreak", "0");
       setText("profileAccuracy", "0%");
+      if (byId("profileOwnerBadge")) byId("profileOwnerBadge").hidden = true;
+      renderPlusStatus();
 
       renderHistory([]);
       return;
