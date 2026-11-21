@@ -3281,12 +3281,19 @@
     };
   }
 
+  function getCustomQuestions() {
+    try {
+      const saved = JSON.parse(localStorage.getItem("dazurio_custom_questions_v1") || "[]");
+      return Array.isArray(saved) ? saved.filter(item => item && typeof item.id === "string" && typeof item.question === "string" && Number.isFinite(Number(item.answer)) && Number.isFinite(Number(item.min)) && Number.isFinite(Number(item.max)) && item.min <= item.answer && item.answer <= item.max).map(cloneQuestion) : [];
+    } catch (_) { return []; }
+  }
+
   function getAllQuestions() {
-    return QUESTIONS.map(cloneQuestion);
+    return [...QUESTIONS.map(cloneQuestion), ...getCustomQuestions()];
   }
 
   function getQuestionById(id) {
-    const question = QUESTIONS.find(
+    const question = getAllQuestions().find(
       question => question.id === id
     );
 
@@ -3298,7 +3305,7 @@
       return getAllQuestions();
     }
 
-    return QUESTIONS
+    return getAllQuestions()
       .filter(question => question.category === category)
       .map(cloneQuestion);
   }
@@ -3308,7 +3315,7 @@
       return getAllQuestions();
     }
 
-    return QUESTIONS
+    return getAllQuestions()
       .filter(question => question.difficulty === difficulty)
       .map(cloneQuestion);
   }
@@ -3346,7 +3353,7 @@
       return categoryMatches && difficultyMatches;
     };
 
-    let pool = QUESTIONS.filter(question => {
+    let pool = getAllQuestions().filter(question => {
       return (
         matchesFilters(question) &&
         !excludeIds.includes(question.id)
@@ -3356,7 +3363,7 @@
     // If exclusions leave too few questions, use the full
     // matching category rather than returning an empty game.
     if (pool.length < amount) {
-      pool = QUESTIONS.filter(matchesFilters);
+      pool = getAllQuestions().filter(matchesFilters);
     }
 
     // Fisher-Yates shuffle.
@@ -3371,26 +3378,26 @@
   }
 
   function getQuestionCount() {
-    return QUESTIONS.length;
+    return getAllQuestions().length;
   }
 
   function getCategoryCount(category) {
-    return QUESTIONS.filter(
+    return getAllQuestions().filter(
       question => question.category === category
     ).length;
   }
 
   function getDifficultyCounts() {
     return {
-      easy: QUESTIONS.filter(
+      easy: getAllQuestions().filter(
         question => question.difficulty === "easy"
       ).length,
 
-      medium: QUESTIONS.filter(
+      medium: getAllQuestions().filter(
         question => question.difficulty === "medium"
       ).length,
 
-      hard: QUESTIONS.filter(
+      hard: getAllQuestions().filter(
         question => question.difficulty === "hard"
       ).length
     };
@@ -3404,7 +3411,7 @@
     const ids = new Set();
     const errors = [];
 
-    QUESTIONS.forEach((question, index) => {
+    getAllQuestions().forEach((question, index) => {
       if (!question.id) {
         errors.push(`Question ${index + 1}: missing ID.`);
       } else if (ids.has(question.id)) {
