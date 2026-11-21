@@ -694,7 +694,57 @@
     const preview=byId("cosmeticPreviewAvatar"),user=storage().getCurrentUser();if(preview&&user){preview.textContent=(user.displayName||user.username||"P").charAt(0).toUpperCase();preview.style.backgroundImage=user.avatarUrl?"url('"+user.avatarUrl+"')":"";preview.classList.toggle("has-photo",Boolean(user.avatarUrl));}
     if(fs)fs.onchange=()=>{if(frame)frame.className="cosmetic-preview-avatar-frame frame-"+fs.value;};
     if(ts)ts.onchange=()=>setText("cosmeticPreviewTitle",ts.value);
+    renderWeeklyQuests();
   }
+  function getCurrentWeekStart() {
+    const date = new Date();
+    date.setHours(12,0,0,0);
+    date.setDate(date.getDate() - ((date.getDay() + 6) % 7));
+    return localDateKey(date);
+  }
+  function renderWeeklyQuests() {
+    const button = byId("claimWeeklyRewardButton");
+    if (!button) return;
+    const user = storage().getCurrentUser();
+    const start = getCurrentWeekStart();
+    const endDate = new Date(start + "T12:00:00");
+    endDate.setDate(endDate.getDate() + 7);
+    const end = localDateKey(endDate);
+    setText("weeklyQuestWeek", start);
+    if (!user) {
+      setText("weeklyQuestRewardNote", "Sign in to track weekly quests and earn rewards.");
+      button.disabled = true;
+      return;
+    }
+    const records = (storage().getHistory() || []).filter(r => r.date >= start && r.date < end && ["daily","endless"].includes(r.mode));
+    const daily = records.filter(r => r.mode === "daily").length;
+    const answers = records.flatMap(r => r.answers || []);
+    const categories = new Set(answers.map(a => a.category).filter(Boolean)).size;
+    const progress = [
+      ["weeklyDailyProgress","weeklyDailyFill",daily,3],
+      ["weeklyAnswerProgress","weeklyAnswerFill",answers.length,35],
+      ["weeklyCategoryProgress","weeklyCategoryFill",categories,3]
+    ];
+    progress.forEach(([label,fill,value,target]) => {
+      setText(label, Math.min(value,target) + " / " + target);
+      const bar=byId(fill); if(bar) bar.style.width=(Math.min(100,value/target*100))+"%";
+    });
+    const claimed = (user.claimedWeeklyRewards || []).includes(start);
+    const complete = daily >= 3 && answers.length >= 35 && categories >= 3;
+    setText("weeklyQuestRewardNote", claimed ? "This week's 150 XP reward has been claimed." : complete ? "All quests complete — your 150 XP reward is ready!" : "Complete all three quests to claim 150 XP.");
+    button.disabled = !complete || claimed;
+    button.textContent = claimed ? "REWARD CLAIMED" : "CLAIM 150 XP";
+    if (!button.dataset.weeklyBound) {
+      button.dataset.weeklyBound = "true";
+      button.addEventListener("click", () => {
+        try {
+          const ok = storage().claimWeeklyReward(getCurrentWeekStart());
+          if (ok) { notify("150 XP added to your account!", "success"); refreshHome(); renderProfile(); }
+        } catch(error) { notify(error.message || "Could not claim weekly reward.", "warning"); }
+      });
+    }
+  }
+
   function renderSeasonalEvent(){const card=byId("seasonalEventCard");if(!card)return;let e=null;try{e=JSON.parse(localStorage.getItem("dazurio_seasonal_event")||"null");}catch(_){}const today=localDateKey();if(!e||(e.start&&today<e.start)||(e.end&&today>e.end)){card.hidden=true;return;}card.hidden=false;setText("seasonalEventTitle",e.title||"Seasonal event");setText("seasonalEventDescription",e.description||"");const img=byId("seasonalEventImage");if(img&&e.image){img.src=e.image;img.hidden=false;}else if(img)img.hidden=true;}
 
   // ŽEBŘÍČEK
