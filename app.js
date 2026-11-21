@@ -1149,6 +1149,7 @@
 
     document.addEventListener("keydown", event => {
       if (event.key === "Escape") {
+        byId("studioOverlay") && (byId("studioOverlay").hidden = true);
         closeAuthModal();
         closeModal(byId("editProfileModal"));
         closeMobileMenu();
@@ -1171,6 +1172,40 @@
 
   function bindMainActions() {
     byId("playTodayButton")?.addEventListener("click", startDaily);
+
+    const studio = byId("studioOverlay");
+    const openStudio = () => {
+      if (!studio) return;
+      setText("studioQuestionCount", window.QuestionDatabase?.getCount?.() ?? window.DAZURIO_QUESTIONS?.length ?? "—");
+      setText("studioDate", localDateKey());
+      setText("studioDailyStatus", hasCompletedDaily() ? "Completed" : "Available");
+      const validation = window.QuestionDatabase?.validate?.();
+      setText("studioHealth", validation ? (validation.valid ? "Healthy" : "Needs review") : "Unknown");
+      studio.hidden = false;
+      byId("studioCloseButton")?.focus();
+    };
+    const closeStudio = () => { if (studio) studio.hidden = true; };
+    byId("studioOpenButton")?.addEventListener("click", openStudio);
+    byId("studioCloseButton")?.addEventListener("click", closeStudio);
+    studio?.addEventListener("click", event => { if (event.target === studio) closeStudio(); });
+    byId("studioValidateButton")?.addEventListener("click", () => {
+      const validation = window.QuestionDatabase?.validate?.();
+      if (!validation) { notify("Question validation is unavailable.", "warning"); return; }
+      setText("studioHealth", validation.valid ? "Healthy" : validation.errors.length + " issues");
+      notify(validation.valid ? "All questions passed validation." : validation.errors.join(" "), validation.valid ? "success" : "warning");
+    });
+    byId("studioResetDailyButton")?.addEventListener("click", () => {
+      if (hasAccount() && (storage().getHistory() || []).some(record => record.mode === "daily" && record.date === localDateKey())) {
+        notify("Account daily results are permanent in this local preview; use a guest profile to test a fresh daily run.", "info");
+        return;
+      }
+      try {
+        localStorage.removeItem(dailyCompletionKey());
+        updateDailyCountdown();
+        setText("studioDailyStatus", "Available");
+        notify("Today's local daily lock has been reset.", "success");
+      } catch (_) { notify("Could not reset today's local lock.", "error"); }
+    });
     byId("clearAnswerButton")?.addEventListener("click", () => { const input = byId("answerInput"); if (input) { input.value = ""; input.focus(); } });
     byId("guestContinueButton")?.addEventListener("click", () => closeAuthModal());
     document.addEventListener("dazurio:login-required", () => openAuthModal("register"));
