@@ -170,7 +170,8 @@
 
     closeMobileMenu();
 
-    if (target === "profile") renderProfile();
+    if (target === "profile") { renderProfile(); renderPlusStatus(); }
+    if (target === "plus") renderPlusStatus();
     if (target === "leaderboard") renderLeaderboard();
     if (target === "archive") renderArchive();
     if (target === "questions") renderQuestionLibrary();
@@ -1256,26 +1257,39 @@
 
   // DAZURIO PLUS
 
-  function activatePlus() {
+  function activatePlus(event) {
+    event?.preventDefault?.();
     if (!requireLogin()) return;
-
-    const confirmed = window.confirm(
-      "Activate the local DAZURIO Plus preview? This is a demo feature, not a real subscription."
-    );
-
-    if (!confirmed) return;
-
+    const code = byId("plusCodeInput")?.value || "";
+    const status = byId("plusRedeemStatus");
     try {
-      storage().activatePlus();
-
-      notify("DAZURIO Plus preview activated!", "success");
-
-      const button = byId("activatePlusButton");
-      if (button) button.textContent = "PLUS ACTIVATED";
+      storage().redeemPlusCode(code);
+      if (status) status.textContent = "Success! DAZURIO Plus is now unlocked for lifetime.";
+      if (byId("plusCodeInput")) byId("plusCodeInput").value = "";
+      renderPlusStatus();
+      renderProfile();
+      updateAccountControls();
+      notify("DAZURIO Plus lifetime unlocked!", "success");
     } catch (error) {
-      notify(error.message || "Plus activation failed.", "error");
+      if (status) status.textContent = error.message || "Could not unlock Plus.";
+      notify(error.message || "Plus unlock failed.", "warning");
     }
   }
+
+  function renderPlusStatus() {
+    const active = Boolean(storage()?.isPlus?.());
+    const panel = byId("plusUnlockedPanel");
+    const form = byId("plusRedeemForm");
+    if (panel) panel.hidden = !active;
+    if (form) form.hidden = active;
+    const button = byId("activatePlusButton");
+    if (button) button.textContent = active ? "PLUS UNLOCKED" : "UNLOCK PLUS";
+    const profileBadge = byId("profilePlusBadge");
+    if (profileBadge) profileBadge.hidden = !active;
+    const headerBadge = byId("headerPlusBadge");
+    if (headerBadge) headerBadge.hidden = !active;
+  }
+
 
 
   function renderResults(summary) {
@@ -1547,10 +1561,8 @@
       }
     });
 
-    byId("activatePlusButton")?.addEventListener(
-      "click",
-      activatePlus
-    );
+    byId("plusRedeemForm")?.addEventListener("submit", activatePlus);
+    renderPlusStatus();
 
     byId("exportDataButton")?.addEventListener(
       "click",
