@@ -82,7 +82,7 @@
       .replace(/^page-/, "");
 
     const accountPages = new Set([
-      "practice", "archive", "questions", "leaderboard", "profile", "settings", "plus"
+      "practice", "questions", "leaderboard", "profile", "plus"
     ]);
 
     if (accountPages.has(target) && !hasAccount()) {
@@ -778,6 +778,27 @@
     }
   }
 
+  // Guest preferences are stored on this device, independently of accounts.
+  const GUEST_SETTINGS_KEY = "dazurio_guest_settings_v1";
+
+  function getGuestSettings() {
+    const defaults = { darkMode: false, sound: true, animations: true, language: "en" };
+    try {
+      const saved = JSON.parse(localStorage.getItem(GUEST_SETTINGS_KEY) || "{}");
+      return Object.assign(defaults, saved && typeof saved === "object" ? saved : {});
+    } catch (_) {
+      return defaults;
+    }
+  }
+
+  function saveGuestSettings(settings) {
+    try {
+      localStorage.setItem(GUEST_SETTINGS_KEY, JSON.stringify(settings));
+    } catch (_) {
+      notify("Could not save preferences on this device.", "warning");
+    }
+  }
+
   // NASTAVENÍ
 
   function setToggle(id, value) {
@@ -794,9 +815,9 @@
   }
 
   function loadSettings() {
-    if (!safeStorage()) return;
-
-    const settings = storage().getSettings() || {};
+    const settings = hasAccount()
+      ? (storage().getSettings() || {})
+      : getGuestSettings();
 
     setToggle("themeToggle", settings.darkMode);
     setToggle("soundToggle", settings.sound !== false);
@@ -824,11 +845,16 @@
 
   function saveSetting(key, value) {
     try {
-      if (!hasAccount()) { requireAccount("personal settings"); return; }
-      const settings = storage().getSettings() || {};
+      const settings = hasAccount()
+        ? (storage().getSettings() || {})
+        : getGuestSettings();
       settings[key] = value;
 
-      storage().updateSettings(settings);
+      if (hasAccount()) {
+        storage().updateSettings(settings);
+      } else {
+        saveGuestSettings(settings);
+      }
       applySettings(settings);
     } catch (error) {
       notify(error.message || "Settings could not be saved.", "error");
