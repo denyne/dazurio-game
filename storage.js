@@ -898,6 +898,22 @@
       return { id:user.id, username:user.username, displayName:user.displayName || user.username, level:user.stats.level || 1, score:user.stats.totalScore || 0, plus:Boolean(user.plus), equippedTitle:user.cosmetics.equippedTitle || "Curious Mind" };
     }).sort((a,b)=>b.score-a.score));
   }
+  function getAchievementCatalog() {
+    return clone(ACHIEVEMENTS.map(({id,title,description,icon}) => ({id,title,description,icon})));
+  }
+  function grantAchievementToPlayer(userId, achievementId) {
+    const db = readDatabase();
+    const user = db.users.find(item => item.id === String(userId));
+    if (!user) throw new Error("Player not found in this browser.");
+    normalizeUser(user);
+    const achievement = ACHIEVEMENTS.find(item => item.id === String(achievementId));
+    if (!achievement) throw new Error("Choose a valid achievement.");
+    const alreadyUnlocked = user.achievements.includes(achievement.id);
+    if (!alreadyUnlocked) user.achievements.push(achievement.id);
+    writeDatabase(db);
+    return {title:achievement.title, alreadyUnlocked};
+  }
+
   function grantCosmeticToPlayer(userId, kind, value) {
     const db = readDatabase();
     const user = db.users.find(item => item.id === String(userId));
@@ -1040,7 +1056,9 @@
     addFriend,
     removeFriend,
     getFriends,
-    grantCosmeticToPlayer
+    grantCosmeticToPlayer,
+    getAchievementCatalog,
+    grantAchievementToPlayer
   };
 
   init();
