@@ -343,6 +343,7 @@
               <button type="button" class="clear-answer" id="clearAnswerButton" aria-label="Clear answer">×</button>
             </div>
 
+            <small class="answer-format-hint" id="answerFormatHint">Example: 1 000 000 = 1M</small>
             <div class="suggestions" id="answerSuggestions"></div>
 
             <div class="answer-form-bottom">
@@ -846,10 +847,18 @@
             <div><strong>Language</strong><small>Interface language.</small></div>
             <select id="languageSelect">
               <option value="en">English</option>
-              <option value="cs">Čeština (preview)</option>
+              <option value="cs">Čeština</option>
             </select>
           </div>
 
+          <div class="setting-row">
+            <div><strong>Keyboard shortcuts</strong><small>Press Enter to continue after answering.</small></div>
+            <button class="toggle-button" id="keyboardHintsToggle" aria-label="Toggle keyboard shortcuts"></button>
+          </div>
+          <div class="setting-row">
+            <div><strong>Number format</strong><small>Choose how large numbers are displayed.</small></div>
+            <select id="numberFormatSelect"><option value="grouped">1 000 000</option><option value="compact">1M</option></select>
+          </div>
           <div class="setting-row">
             <div><strong>Export data</strong><small>Download your local profile and history.</small></div>
             <button class="secondary-button" id="exportDataButton">EXPORT</button>
