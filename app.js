@@ -667,7 +667,8 @@
       const username = byId("editUsername")?.value.trim();
 
       storage().updateProfile({
-        username: username || undefined
+        username: username || undefined,
+        displayName: username || undefined
       });
 
       closeModal(byId("editProfileModal"));
