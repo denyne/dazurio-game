@@ -191,17 +191,9 @@
     return shuffle(pool).slice(0, safeCount);
   }
 
-  function getBossQuestions() {
-    const hard = getAllQuestions().filter(question => String(question.difficulty || "").toLowerCase() === "hard");
-    const pool = hard.length >= 5 ? hard : getAllQuestions();
-    return shuffle(pool).slice(0, Math.min(5, pool.length));
-  }
+  function getBossQuestions(options = {}) { const all=getAllQuestions();const hard=all.filter(q=>String(q.difficulty||"").toLowerCase()==="hard");const pool=hard.length>=5?hard:all;const month=String(options.monthKey||new Date().toISOString().slice(0,7));const hash=value=>{let h=2166136261;for(const ch of String(value))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};const chosen=[...pool].sort((a,b)=>hash(month+":"+a.id)-hash(month+":"+b.id)).slice(0,Math.min(5,pool.length));const rank={easy:0,medium:1,hard:2};return chosen.sort((a,b)=>(rank[String(a.difficulty||"medium").toLowerCase()]??1)-(rank[String(b.difficulty||"medium").toLowerCase()]??1));}
 
-  function getBossQuestions() {
-    const hard = getAllQuestions().filter(question => String(question.difficulty || "").toLowerCase() === "hard");
-    const pool = hard.length >= 5 ? hard : getAllQuestions();
-    return shuffle(pool).slice(0, Math.min(5, pool.length));
-  }
+  function getBossQuestions(options = {}) { const all=getAllQuestions();const hard=all.filter(q=>String(q.difficulty||"").toLowerCase()==="hard");const pool=hard.length>=5?hard:all;const month=String(options.monthKey||new Date().toISOString().slice(0,7));const hash=value=>{let h=2166136261;for(const ch of String(value))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};const chosen=[...pool].sort((a,b)=>hash(month+":"+a.id)-hash(month+":"+b.id)).slice(0,Math.min(5,pool.length));const rank={easy:0,medium:1,hard:2};return chosen.sort((a,b)=>(rank[String(a.difficulty||"medium").toLowerCase()]??1)-(rank[String(b.difficulty||"medium").toLowerCase()]??1));}
 
   function getEndlessQuestions() {
     return shuffle(getAllQuestions());
@@ -641,7 +633,7 @@
       date: state.options.date || null,
       category: state.options.category || null,
       score,
-      xp: (state.mode === "daily" || state.mode === "endless") ? Math.floor(score / 10) : 0,
+      xp: (state.mode === "daily" || state.mode === "endless" || state.mode === "boss") ? Math.floor(score / 10) : 0,\n      bossMonth: state.mode === "boss" ? String(state.options.monthKey || new Date().toISOString().slice(0,7)) : null,
       totalQuestions: total,
       correctAnswers: state.answers.filter(
         answer => answer.points >= 700
@@ -681,7 +673,7 @@
       } catch (_) {}
     }
 
-    if ((state.mode === "daily" || state.mode === "endless") && isLoggedIn() && storage && typeof storage.saveGameResult === "function") {
+    if ((state.mode === "daily" || state.mode === "endless" || state.mode === "boss") && isLoggedIn() && storage && typeof storage.saveGameResult === "function") {
       try {
         storage.saveGameResult(summary);
       } catch (error) {
@@ -735,7 +727,7 @@
         }
       } catch (_) {}
     }
-    if (mode === "practice" && !options?.sharedChallenge && !getStorage()?.isPlus?.() && (Number(options?.count || 10) > 20 || (options?.difficulty && options.difficulty !== "all"))) {
+    if (mode === "boss" && getStorage()?.getMonthlyBossStatus?.().played) { showToast("This month’s Boss Challenge is already complete. A new boss arrives next month.", "info"); return false; }\n    if (mode === "practice" && !options?.sharedChallenge && !getStorage()?.isPlus?.() && (Number(options?.count || 10) > 20 || (options?.difficulty && options.difficulty !== "all"))) {
       showToast("Advanced practice is a DAZURIO Plus feature.", "warning");
       return false;
     }
@@ -778,7 +770,7 @@
     } else if (mode === "worldtour") {
       questions = getWorldTourQuestions();
     } else if (mode === "boss") {
-      questions = getBossQuestions();
+      questions = getBossQuestions(safeOptions);
     } else {
       questions = getEndlessQuestions();
     }
