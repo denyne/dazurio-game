@@ -602,6 +602,10 @@
   // VÝSLEDKY HER
 
   function saveGameResult(result) {
+    const input = result || {};
+    if (!["daily", "endless"].includes(input.mode || "daily")) {
+      throw new Error("Only Daily and Endless mode results earn points and XP.");
+    }
     const database = readDatabase();
     const user = getCurrentUserFrom(database);
 
@@ -612,8 +616,6 @@
     }
 
     normalizeUser(user);
-
-    const input = result || {};
 
     const score = Math.round(
       nonNegative(input.score)
