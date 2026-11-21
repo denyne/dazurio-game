@@ -754,6 +754,23 @@
       });
     }
 
+    const library = byId("questionLibraryList");
+    if (library && database?.getAll) {
+      library.replaceChildren();
+      database.getAll().forEach(question => {
+        const item = document.createElement("details");
+        item.className = "library-question";
+        const summary = document.createElement("summary");
+        summary.textContent = question.question;
+        const detail = document.createElement("p");
+        detail.textContent = (question.description || "") + " Answer: " + question.answer + (question.unit ? " " + question.unit : "") + ".";
+        const meta = document.createElement("small");
+        meta.textContent = (question.category || "General") + " · " + (question.difficulty || "mixed");
+        item.append(summary, detail, meta);
+        library.appendChild(item);
+      });
+    }
+
     const totalElement = byId("questionCountLabel");
 
     if (totalElement && database?.getCount) {
