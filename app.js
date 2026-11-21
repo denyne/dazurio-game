@@ -1352,6 +1352,10 @@
     });
 
     byId("endlessModeButton")?.addEventListener("click", startEndless);
+    byId("speedRunModeButton")?.addEventListener("click", () => { if (requireAccount("Speed Run")) game()?.startGame("speedrun"); });
+    byId("survivalModeButton")?.addEventListener("click", () => { if (requireAccount("Survival")) game()?.startGame("survival"); });
+    byId("mysteryModeButton")?.addEventListener("click", () => { if (requireAccount("Mystery Mode")) game()?.startGame("mystery"); });
+    byId("worldTourModeButton")?.addEventListener("click", () => { if (requireAccount("World Tour")) game()?.startGame("worldtour"); });
 
     byId("practiceModeButton")?.addEventListener(
       "click",
