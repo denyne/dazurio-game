@@ -282,11 +282,13 @@
     if (scoreLabel) scoreLabel.innerHTML = cappedScore.toLocaleString() + " <small>/ 7,000 PTS</small>";
     if (percentLabel) percentLabel.textContent = Math.round(progress) + "%";
     if (feedback && feedbackPoints !== null) {
-      feedback.textContent = feedbackPoints >= 800
-        ? (document.documentElement.lang === "cs" ? "Skvělý posun" : "Great progress")
-        : feedbackPoints >= 500
-          ? (document.documentElement.lang === "cs" ? "Pěkný posun" : "Nice progress")
-          : (document.documentElement.lang === "cs" ? "Každý bod se počítá" : "Every point counts");
+      const cs = document.documentElement.lang === "cs";
+      const label = feedbackPoints >= 900 ? (cs ? "FANTASTICKÝ ODHAD" : "EXCELLENT ESTIMATE")
+        : feedbackPoints >= 700 ? (cs ? "SKVĚLÝ ODHAD" : "GREAT ESTIMATE")
+        : feedbackPoints >= 400 ? (cs ? "DOBRÝ ODHAD" : "GOOD ESTIMATE")
+        : (cs ? "KAŽDÝ BOD SE POČÍTÁ" : "EVERY POINT COUNTS");
+      feedback.textContent = (feedbackPoints > 0 ? "+" + feedbackPoints.toLocaleString() + " PTS  ·  " : "+0 PTS  ·  ") + label;
+      feedback.dataset.grade = feedbackPoints >= 900 ? "excellent" : feedbackPoints >= 700 ? "great" : feedbackPoints >= 400 ? "good" : "low";
       feedback.classList.remove("journey-feedback-show");
       void feedback.offsetWidth;
       feedback.classList.add("journey-feedback-show");
@@ -548,8 +550,7 @@
 
     const next = $("nextQuestionButton");
     if (next) { next.hidden = false; if (state.mode === "survival" && state.lives <= 0) next.textContent = "SEE RESULTS"; }
-    const resultPanel = $("answerResult");
-    resultPanel?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    // Keep the viewport anchored on the question; never force-scroll the player down to feedback.
   }
 
   function displayAnswerResult(record, question) {
@@ -586,9 +587,12 @@
         (document.documentElement.lang === "cs" ? "Podívej se na správnou hodnotu a zkus další otázku." : "Check the correct value and try the next question.");
     }
 
-    if (points) points.textContent = ["daily","endless"].includes(state.mode)
-      ? `+${record.points.toLocaleString()} PTS`
-      : "PRACTICE ONLY · NO POINTS OR XP";
+    if (points) {
+      points.textContent = ["daily","endless"].includes(state.mode)
+        ? `+${record.points.toLocaleString()} PTS`
+        : `+${record.points.toLocaleString()} · PRACTICE`;
+      points.dataset.grade = record.points >= 900 ? "excellent" : record.points >= 700 ? "great" : record.points >= 400 ? "good" : "low";
+    }
 
     if (guess) {
       guess.textContent = record.guess === null
