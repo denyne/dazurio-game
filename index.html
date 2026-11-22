@@ -39,7 +39,7 @@
 
     <div class="header-right">
       <button class="plus-link" data-page="plus">
-        <span class="plus-spark" aria-hidden="true">+</span> DAZURIO PLUS
+        <span class="plus-spark" aria-hidden="true">✦</span> DAZURIO PLUS
       </button>
       <button class="profile-button" id="profileButton" aria-label="Open profile">
         <span class="profile-avatar-frame frame-classic" id="headerAvatarFrame"><span class="profile-avatar" id="headerAvatar">?</span></span>
@@ -363,7 +363,12 @@
             <h2 id="answerResultTitle">You got it exactly.</h2>
             <div class="journey-victory" id="journeyVictory" hidden aria-live="assertive"><span class="victory-spark">✦</span><strong>7,000 POINTS</strong><span id="journeyVictoryText">PERFECT RUN · JOURNEY COMPLETE</span><span class="victory-spark">✦</span></div>
             <div class="answer-verdict" id="answerVerdict" data-verdict="far"><span class="answer-verdict-symbol" id="answerVerdictSymbol" aria-hidden="true">✓</span><span id="answerVerdictLabel">NICE TRY</span><span class="answer-verdict-detail" id="answerVerdictDetail">KEEP GOING</span><span class="answer-combo" id="answerCombo" hidden aria-live="polite"></span></div>
-            <div class="answer-result-top"><span class="result-eyebrow" id="answerResultEyebrow">YOUR RESULT</span><span class="result-points" id="answerResultPoints">+0 XP</span></div>
+            <div class="answer-result-top"><span class="result-eyebrow" id="answerResultEyebrow">YOUR RESULT</span><span class="result-points" id="answerResultPoints">+0 PTS</span></div>
+            <div class="answer-live-stats" aria-label="Answer statistics">
+              <div><span>THIS ANSWER</span><strong id="answerPointsStat">+0</strong><small>POINTS</small></div>
+              <div><span>RUNNING SCORE</span><strong id="answerTotalScoreStat">0</strong><small>POINTS</small></div>
+              <div><span>ESTIMATE ACCURACY</span><strong id="answerAccuracyStat">—</strong><small>RELATIVE ACCURACY</small></div>
+            </div>
             <p id="answerResultText"></p>
             <div class="answer-correct-reveal"><span id="actualAnswerLabel">CORRECT ANSWER</span><strong id="actualAnswerHero">—</strong><small id="answerAccuracyNote">YOUR ESTIMATE, REVEALED</small></div>
             <div class="answer-comparison">
