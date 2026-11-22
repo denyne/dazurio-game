@@ -281,38 +281,22 @@
 
         <!-- VISUAL SCENE -->
 
-        <div class="game-scene" id="gameScene">
-
-          <div class="scene-sky"></div>
-          <div class="scene-sun"></div>
-
-          <div class="scene-cloud cloud-a"></div>
-          <div class="scene-cloud cloud-b"></div>
-          <div class="scene-cloud cloud-c"></div>
-
-          <div class="scene-horizon"></div>
-          <div class="scene-land land-back"></div>
-          <div class="scene-land land-front"></div>
-
-          <div class="scene-route">
-            <div class="route-line"></div>
-            <div class="route-marker route-marker-start"></div>
-            <div class="route-marker route-marker-end"></div>
+        <section class="game-scene journey-scene" id="gameScene" aria-label="Your Journey progress">
+          <div class="journey-scene-heading">
+            <div><span class="scene-height-label">YOUR JOURNEY</span><strong id="journeyScore">0 <small>/ 7,000 PTS</small></strong></div>
+            <span class="journey-percent" id="journeyPercent">0%</span>
           </div>
-
-          <div class="game-character" id="gameCharacter" aria-label="Your progress">
-            <div class="character-glow"></div>
-            <div class="character-icon" id="characterIcon">✦</div>
-            <div class="character-shadow"></div>
+          <div class="journey-track-wrap">
+            <div class="journey-track" id="journeyTrack">
+              <div class="journey-track-fill" id="journeyTrackFill"></div>
+              <span class="journey-marker" id="journeyMarker" aria-hidden="true"></span>
+              <span class="journey-checkpoint journey-checkpoint-mid" aria-hidden="true"></span>
+              <span class="journey-checkpoint journey-checkpoint-end" aria-hidden="true"></span>
+            </div>
           </div>
-
-          <div class="scene-height-label" id="sceneHeightLabel">
-            YOUR JOURNEY
-          </div>
-
-          <div class="scene-feedback" id="sceneFeedback"></div>
-
-        </div>
+          <div class="journey-scale"><span>START</span><span>3,500</span><span>7,000 · FINISH</span></div>
+          <div class="journey-feedback" id="sceneFeedback" aria-live="polite"></div>
+        </section>
 
 
         <!-- QUESTION -->
