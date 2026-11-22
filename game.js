@@ -342,6 +342,12 @@
     const fill = $("journeyTrackFill");
     const marker = $("journeyMarker");
     const scoreLabel = $("journeyScore");
+    const scale = $("gameScene")?.querySelector(".journey-scale");
+    if (scale) {
+      const marks = scale.querySelectorAll("span");
+      if (marks[1]) marks[1].textContent = (targetScore / 2).toLocaleString();
+      if (marks[2]) marks[2].textContent = targetScore.toLocaleString() + " · FINISH";
+    }
     const headingLabel = $("journeyHeadingLabel");
     if (headingLabel) headingLabel.textContent = document.documentElement.lang === "cs" ? "CESTA ZA BODY" : "POINTS TRAIL";
     const percentLabel = $("journeyPercent");
