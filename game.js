@@ -378,7 +378,7 @@
     }
   }
 
-  function showQuestion() {
+  function showQuestion() {\n    document.body.classList.remove('answer-feedback-active');
     if (!state.active) return;
 
     if (state.currentIndex >= state.questions.length) {
@@ -602,7 +602,61 @@
     // Keep the viewport anchored on the question; never force-scroll the player down to feedback.
   }
 
-  function displayAnswerResult(record, question) {
+
+  function getDidYouKnowFact(question, cs) {
+    const q = String(question?.question || "");
+    const facts = [
+      [/countries border the Czech Republic|countries border the Czech|countries are there in the world/i, "Czechia shares borders with Germany, Poland, Austria and Slovakia — four neighbours in total.", "Česko sousedí s Německem, Polskem, Rakouskem a Slovenskem — celkem se čtyřmi státy."],
+      [/Sahara Desert/i, "Antarctica is technically the world's largest desert; the Sahara is the largest hot desert.", "Antarktida je technicky největší poušť světa; Sahara je největší horká poušť."],
+      [/Mariana Trench/i, "Pressure at the deepest parts of the ocean exceeds 1,000 times the air pressure at sea level.", "V nejhlubších částech oceánu je tlak více než tisícinásobkem tlaku vzduchu na hladině moře."],
+      [/Greenland/i, "Greenland is the world's largest island that is not considered a continent.", "Grónsko je největší ostrov světa, který se nepovažuje za kontinent."],
+      [/speed of light/i, "The speed of light in a vacuum is an exact defined constant: 299,792,458 metres per second.", "Rychlost světla ve vakuu je přesně definovaná konstanta: 299 792 458 metrů za sekundu."],
+      [/water boil|water freeze|boiling point|freezing point/i, "Water's boiling point changes with air pressure: at high altitude it boils at a lower temperature.", "Teplota varu vody závisí na tlaku vzduchu: ve vysoké nadmořské výšce voda vaří při nižší teplotě."],
+      [/bones in an adult|bones in a typical adult/i, "Babies are born with more separate bones than adults; many fuse together as the skeleton develops.", "Miminka mají více samostatných kostí než dospělí; během růstu některé kosti srůstají."],
+      [/circumference of Earth|equatorial circumference/i, "Earth is slightly wider around the equator than from pole to pole because its rotation creates an equatorial bulge.", "Země je kvůli rotaci o něco širší na rovníku než přes póly — vzniká takzvané rovníkové zploštění."],
+      [/octopus/i, "An octopus has blue blood because it uses copper-rich haemocyanin to transport oxygen.", "Chobotnice má modrou krev, protože k přenosu kyslíku používá hemocyanin obsahující měď."],
+      [/blue whale/i, "The blue whale is the largest animal known to have ever lived on Earth.", "Plejtvák obrovský je největším známým živočichem, který kdy na Zemi žil."],
+      [/koala/i, "Koala fingerprints are remarkably similar to human fingerprints.", "Otisky prstů koal jsou překvapivě podobné lidským."],
+      [/spider/i, "Spider silk can be exceptionally strong for its weight and is also very elastic.", "Pavoučí hedvábí může být vzhledem ke své hmotnosti mimořádně pevné a zároveň pružné."],
+      [/Mars/i, "Mars has the largest volcano in the Solar System: Olympus Mons, roughly 22 kilometres high.", "Mars má největší sopku Sluneční soustavy — Olympus Mons, vysokou přibližně 22 kilometrů."],
+      [/Moon.*Earth|Earth.*Moon/i, "The Moon is moving slowly away from Earth by about 3.8 centimetres per year.", "Měsíc se od Země pomalu vzdaluje přibližně o 3,8 centimetru za rok."],
+      [/piano/i, "A standard piano has 52 white keys and 36 black keys.", "Standardní klavír má 52 bílých a 36 černých kláves."],
+      [/World Wide Web|Tim Berners-Lee/i, "The World Wide Web was developed at CERN; it is different from the internet itself.", "World Wide Web vznikl v CERNu; samotný web není totéž co internet."],
+      [/Czech Republic.*independent|Czechoslovakia split/i, "Czechoslovakia split peacefully on 1 January 1993 in an event often called the Velvet Divorce.", "Československo se pokojně rozdělilo 1. ledna 1993 při události známé jako sametový rozvod."],
+      [/Eiffel Tower/i, "The Eiffel Tower was originally intended to be a temporary structure for the 1889 World's Fair.", "Eiffelova věž měla být původně jen dočasnou stavbou pro světovou výstavu v roce 1889."],
+      [/Titanic/i, "The Titanic sent distress calls using wireless telegraphy; several ships responded to the signals.", "Titanic vysílal nouzová volání pomocí bezdrátové telegrafie a na volání reagovalo několik lodí."],
+      [/Hundred Years' War/i, "The Hundred Years' War was not one continuous battle; it consisted of several campaigns and truces.", "Stoletá válka nebyla jedinou nepřetržitou bitvou; tvořila ji řada tažení a příměří."],
+      [/marathon/i, "The modern marathon distance was standardized after the 1908 London Olympics.", "Délka moderního maratonu byla ustálena po olympijských hrách v Londýně v roce 1908."],
+      [/basketball/i, "Basketball was invented by James Naismith in 1891 as an indoor winter game.", "Basketbal vymyslel James Naismith v roce 1891 jako halovou zimní hru."],
+      [/cheetah/i, "A cheetah's claws are only partly retractable, giving it extra grip when accelerating and turning.", "Gepard má drápy zatažitelné jen částečně, což mu pomáhá získat lepší záběr při zrychlení a zatáčení."],
+      [/Nile River|Rhine River|Vltava River|Danube River|Amazon River/i, "River lengths are measured along winding channels, so published totals can differ slightly by source and method.", "Délky řek se měří podél meandrujícího koryta, proto se uváděné hodnoty mohou podle metodiky mírně lišit."],
+      [/Mount Everest|Sněžka|Mont Blanc|Burj Khalifa/i, "Mountain heights can change slightly over time as tectonic movement and erosion reshape peaks.", "Výška hor se může nepatrně měnit, protože tektonické pohyby a eroze jejich vrcholy přetvářejí."],
+      [/chemical elements|atomic number/i, "The periodic table is arranged by atomic number, which equals the number of protons in an atom's nucleus.", "Periodická tabulka je uspořádána podle protonového čísla, které udává počet protonů v jádře atomu."],
+      [/small intestine/i, "Most nutrient absorption happens in the small intestine, whose folded lining creates a very large surface area.", "Většina živin se vstřebává v tenkém střevě, jehož zřasená stěna vytváří velký povrch."],
+      [/neurons/i, "Neurons communicate through electrical impulses and chemical signals at connections called synapses.", "Neurony komunikují elektrickými impulzy a chemickými signály v místech zvaných synapse."],
+      [/Berlin Wall/i, "The Berlin Wall opened on 9 November 1989 after weeks of peaceful protests and political change in East Germany.", "Berlínská zeď se otevřela 9. listopadu 1989 po týdnech pokojných protestů a politických změn ve východním Německu."],
+      [/Chernobyl/i, "The Chernobyl disaster released radioactive material across parts of Europe; the damaged reactor was later enclosed by a massive shelter.", "Černobylská havárie rozšířila radioaktivní látky do částí Evropy; poškozený reaktor později zakryl obrovský ochranný kryt."]
+    ];
+    const found = facts.find(([pattern]) => pattern.test(q));
+    if (found) return cs ? found[2] : found[1];
+    const categoryFacts = {
+      Geography: ["Many major European rivers historically served as trade routes linking inland cities with ports.", "Řada významných evropských řek historicky sloužila jako obchodní cesty spojující vnitrozemská města s přístavy."],
+      Science: ["Scientific measurements always have some uncertainty; precision depends on the measuring method.", "Vědecká měření mají vždy určitou míru nejistoty; přesnost závisí na použité metodě."],
+      "Human Body": ["Different tissues in the human body renew at very different rates.", "Různé tkáně lidského těla se obnovují velmi rozdílnou rychlostí."],
+      Animals: ["Animal adaptations evolve over many generations and help species survive in their environments.", "Zvířecí přizpůsobení se vyvíjejí po mnoho generací a pomáhají druhům přežít ve svém prostředí."],
+      Space: ["Space contains thin gas, dust, radiation and magnetic fields even in regions that look empty.", "Vesmír obsahuje řídký plyn, prach, záření a magnetická pole i v místech, která vypadají prázdná."],
+      History: ["Historical dates can depend on whether a source marks an event's beginning, declaration or end.", "Historická data se mohou lišit podle toho, zda označují začátek události, její vyhlášení, nebo konec."],
+      Technology: ["Digital computers represent information using binary digits: zero and one.", "Digitální počítače zapisují informace pomocí binárních číslic: nuly a jedničky."],
+      Food: ["Smell contributes strongly to flavour, which is why food tastes different when your nose is blocked.", "Čich výrazně ovlivňuje vnímání chuti, proto jídlo chutná jinak, když máš ucpaný nos."],
+      Sports: ["Standardized rules and measurements make it possible to compare performances across competitions.", "Standardizovaná pravidla a rozměry umožňují porovnávat výkony napříč soutěžemi."],
+      Culture: ["Cultural conventions differ between countries, so some familiar counts depend on the definition being used.", "Kulturní zvyklosti se mezi zeměmi liší, takže některé známé počty závisejí na použité definici."],
+      Numbers: ["Large numbers are easier to understand when grouped in threes or compared with familiar scales.", "Velká čísla se lépe chápou, když je rozdělíme do skupin po třech nebo porovnáme se známým měřítkem."]
+    };
+    const fallback = categoryFacts[category] || categoryFacts.Numbers;
+    return cs ? fallback[1] : fallback[0];
+  }
+
+  function displayAnswerResult(record, question) {\n    document.body.classList.add('answer-feedback-active');
     const result = $("answerResult");
     if (result) {
       result.hidden = false;
@@ -662,8 +716,9 @@
     const factBox = $("didYouKnow");
     const factText = $("didYouKnowText");
     const factLabel = $("didYouKnowLabel");
-    const authoredInsight = [question?.funFact, question?.didYouKnow, question?.fact, question?.explanation]
-      .find(value => typeof value === "string" && value.trim());
+    const localizedFact = question?.funFact && typeof question.funFact === "object" ? question.funFact[cs ? "cs" : "en"] : question?.funFact;
+    const authoredInsight = [localizedFact, question?.didYouKnow, question?.fact, question?.explanation]
+      .find(value => typeof value === "string" && value.trim()) || getDidYouKnowFact(question, cs);
     const answerValue = Number(question?.answer);
     const answerText = Number.isFinite(answerValue)
       ? answerValue.toLocaleString(document.documentElement.lang === "cs" ? "cs-CZ" : "en-US") +
