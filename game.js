@@ -48,6 +48,13 @@
       questions = db.questions;
     }
 
+    // New easy/medium expansion is shared by Practice and regular modes.
+    // The separate Boss bank is never merged into this pool.
+    const expansion = Array.isArray(window.DAZURIO_DAILY_EXPANSION)
+      ? window.DAZURIO_DAILY_EXPANSION
+      : [];
+    questions = questions.concat(expansion);
+
     // The regular game pool intentionally excludes HARD questions.
     // Specialist-level questions live only in the separate Monthly Boss bank.
     return questions.filter(question =>
@@ -100,10 +107,20 @@
 
   function getDailyQuestions(dateValue) {
     const db = getDatabase();
-    // Daily/Archive use only the immutable built-in bank, never local custom
-    // questions or the Plus/Boss pool. This makes the set identical on every device.
-    const all = (db && typeof db.getBuiltIn === "function" ? db.getBuiltIn() : getAllQuestions())
-      .filter(question =>
+    // Freeze the original bank for every historical date through 2026-11-22.
+    // From 2026-11-23 onward, Daily/Archive use the expanded shared bank.
+    // This preserves today's Daily and every previous Archive entry exactly.
+    const dayKey = getDateKey(dateValue);
+    const legacyBank = db && typeof db.getBuiltIn === "function"
+      ? db.getBuiltIn()
+      : getAllQuestions();
+    const expandedBank = Array.isArray(window.DAZURIO_DAILY_EXPANSION)
+      ? window.DAZURIO_DAILY_EXPANSION
+      : [];
+    const dailySource = dayKey > "2026-11-22"
+      ? legacyBank.concat(expandedBank)
+      : legacyBank;
+    const all = dailySource.filter(question =>
         question &&
         typeof question.question === "string" &&
         Number.isFinite(Number(question.answer)) &&
@@ -112,7 +129,8 @@
       );
     if (all.length < QUESTIONS_PER_DAILY) return [];
 
-    const seed = "DAZURIO-DAILY-v6:" + getDateKey(dateValue);
+    const seedVersion = dayKey > "2026-11-22" ? "v7" : "v6";
+    const seed = "DAZURIO-DAILY-" + seedVersion + ":" + dayKey;
     // Small deterministic PRNG: same date + same shipped bank = same seven IDs,
     // order and answers on every browser/device, regardless of localStorage.
     let hash = 2166136261;
