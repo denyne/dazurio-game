@@ -667,3 +667,45 @@ body.dark-mode #page-game .answer-result:has(.journey-victory:not([hidden])) .an
 @media(max-height:700px){#page-game .answer-result:not([hidden]){justify-content:flex-start;padding-top:12px!important;padding-bottom:12px!important;gap:7px!important}#page-game .answer-result:not([hidden]) .answer-correct-reveal{padding:10px;margin:4px auto}#page-game .answer-result:not([hidden]) .answer-correct-reveal strong{font-size:30px}#page-game .answer-result:not([hidden]) h2{font-size:21px}}
 @media(max-width:520px){#page-game .answer-result:not([hidden]){padding:14px 13px!important;gap:9px!important}#page-game .answer-result:not([hidden]) .answer-comparison{gap:6px}#page-game .answer-result:not([hidden]) .answer-comparison>div{min-width:0;padding:9px 6px}#page-game .answer-result:not([hidden]) .answer-comparison strong{font-size:clamp(12px,3.5vw,16px);overflow-wrap:anywhere}#page-game .answer-result:not([hidden]) .answer-comparison span{font-size:7px}.journey-victory>span:nth-of-type(2){font-size:7px}}
 @media(prefers-reduced-motion:reduce){.journey-victory,.journey-victory .victory-spark{animation:none!important}}
+
+
+/* Final layout refinement: centered answer, visible frozen timer and victory pop */
+#page-game .answer-result:not([hidden]){align-items:center!important;justify-content:center!important;padding-top:clamp(16px,3vh,30px)!important;padding-bottom:clamp(16px,3vh,30px)!important}
+#page-game .answer-result:not([hidden]) .answer-result-top,
+#page-game .answer-result:not([hidden]) .answer-verdict,
+#page-game .answer-result:not([hidden]) .answer-correct-reveal,
+#page-game .answer-result:not([hidden]) .answer-comparison,
+#page-game .answer-result:not([hidden]) .next-question-button{width:min(100%,680px)!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}
+#page-game .answer-result:not([hidden]) .answer-result-top{justify-content:space-between!important;align-items:center!important}
+#page-game .answer-result:not([hidden]) .answer-correct-reveal{text-align:center!important;align-items:center!important}
+#page-game .answer-result:not([hidden]) .answer-comparison{justify-content:center!important}
+#page-game .answer-result:not([hidden]) h2,
+#page-game .answer-result:not([hidden])>p{text-align:center!important;margin-left:auto!important;margin-right:auto!important}
+.result-timer-strip{display:flex;align-items:center;justify-content:center;gap:12px;width:max-content;max-width:100%;margin:0 auto 2px;padding:7px 14px;border:1px solid #d8e5d0;border-radius:99px;background:#ffffffb8;color:#718268;font-size:9px;font-weight:900;letter-spacing:1px}
+.result-timer-strip strong{color:#4f7540;font:900 15px Manrope,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:.3px}
+#page-game .answer-result:not([hidden]) .journey-victory:not([hidden]){position:fixed;z-index:10070;top:clamp(22px,7vh,76px);left:50%;width:min(92vw,760px);min-height:clamp(70px,11vh,108px);padding:15px 25px;box-sizing:border-box;flex-direction:column;gap:5px;border:1px solid #f0d17c;border-radius:18px;background:linear-gradient(110deg,#fff4c9,#ffe29a 48%,#fff2c4);color:#805712;box-shadow:0 18px 60px #9b741b45,0 0 0 100vmax #1c241b45;transform:translate(-50%,-30px) scale(.78);animation:fortniteVictoryPop .9s cubic-bezier(.16,1.3,.35,1) forwards}
+#page-game .answer-result:not([hidden]) .journey-victory strong{font-size:clamp(22px,4vw,34px);letter-spacing:2px;text-shadow:0 2px 0 #fff7d9}
+#page-game .answer-result:not([hidden]) .journey-victory>span:nth-of-type(2){font-size:10px;letter-spacing:2px}
+#page-game .answer-result:not([hidden]) .journey-victory .victory-spark{position:absolute;font-size:30px;color:#d69c25;animation:victorySpark 1.2s ease-in-out infinite}
+#page-game .answer-result:not([hidden]) .journey-victory .victory-spark:first-child{left:18px}
+#page-game .answer-result:not([hidden]) .journey-victory .victory-spark:last-child{right:18px}
+@keyframes fortniteVictoryPop{0%{opacity:0;transform:translate(-50%,-55px) scale(.55);filter:blur(5px)}55%{opacity:1;transform:translate(-50%,8px) scale(1.04);filter:blur(0)}75%{transform:translate(-50%,-3px) scale(.99)}100%{opacity:1;transform:translate(-50%,0) scale(1)}}
+#page-results.results-perfect-run .results-score-card{position:relative;overflow:hidden;border:1px solid #e6c66e;background:radial-gradient(ellipse at 50% 0%,#fff0c2,#fffaf0 68%);box-shadow:0 18px 55px #b58b2b25}
+#page-results.results-perfect-run .results-score-card:before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#c18a24,#ffe39a,#c18a24)}
+#page-results.results-perfect-run .final-score-number{color:#a87519;text-shadow:0 5px 24px #e9c56b65;animation:resultGoldReveal .8s cubic-bezier(.2,.8,.2,1) both}
+#page-results.results-perfect-run .final-score-label,#page-results.results-perfect-run .results-xp{color:#98701f}
+#page-results.results-perfect-run .results-score-card:after{content:"✦  PERFECT RUN  ·  MAX SCORE  ✦";display:block;margin-top:15px;padding:10px 17px;border:1px solid #ead08a;border-radius:99px;background:#fff3ce;color:#966b18;font-size:10px;font-weight:1000;letter-spacing:1.5px;animation:verdictEnter .7s .2s both}
+#page-results.results-perfect-run .results-stat{border-color:#e7d7a9;background:linear-gradient(145deg,#fffdf6,#fff7e4)}
+#page-results.results-perfect-run .results-stat strong{color:#9c741e}
+@keyframes resultGoldReveal{0%{opacity:0;transform:scale(.72);filter:blur(7px)}65%{opacity:1;transform:scale(1.06);filter:blur(0)}100%{transform:scale(1)}}
+body.dark-mode #page-game .result-timer-strip{background:#293626;border-color:#536b45;color:#a9bd9b}
+body.dark-mode #page-game .result-timer-strip strong{color:#d1e9bd}
+body.dark-mode #page-game .answer-result:not([hidden]) .journey-victory:not([hidden]){background:linear-gradient(110deg,#4b3918,#70521e 48%,#4b3918);border-color:#d4a83d;color:#ffe6a3;box-shadow:0 18px 60px #0009,0 0 0 100vmax #0009}
+body.dark-mode #page-results.results-perfect-run .results-score-card{background:radial-gradient(ellipse at 50% 0%,#4b3a1c,#29291f 68%);border-color:#82652c}
+body.dark-mode #page-results.results-perfect-run .final-score-number{color:#ffdc88}
+body.dark-mode #page-results.results-perfect-run .final-score-label,body.dark-mode #page-results.results-perfect-run .results-xp{color:#e6c77d}
+body.dark-mode #page-results.results-perfect-run .results-score-card:after{background:#473718;border-color:#8b6b2b;color:#ffe4a0}
+body.dark-mode #page-results.results-perfect-run .results-stat{background:#302c20;border-color:#66542e}
+body.dark-mode #page-results.results-perfect-run .results-stat strong{color:#ffdc88}
+@media(max-height:680px){#page-game .answer-result:not([hidden]){justify-content:flex-start!important;gap:6px!important;padding-top:8px!important;padding-bottom:8px!important}.result-timer-strip{padding:5px 11px}.answer-correct-reveal{margin:4px auto!important;padding:8px!important}}
+@media(prefers-reduced-motion:reduce){#page-game .answer-result:not([hidden]) .journey-victory:not([hidden]),#page-results.results-perfect-run .final-score-number,#page-results.results-perfect-run .results-score-card:after{animation:none!important;opacity:1;transform:none}}
