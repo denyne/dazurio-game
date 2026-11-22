@@ -841,21 +841,9 @@ body.dark-mode #page-game .answer-result.answer-impact-exact:not([hidden]) .answ
 body{background:var(--bg);color:var(--text)}
 .site-header{background:#ffffffed;border-color:var(--line)}
 .home-hero{background:linear-gradient(125deg,#fff 0%,#f4f8ef 58%,#eef5e8 100%);border-color:#e2eadb}
-#page-plus .plus-hero{background:linear-gradient(125deg,#fbfdf8,#eff6e8 65%,#f4f7ef);border-color:#dfe9d6}
-#page-plus .plus-label{background:#f4f8ef;border-color:#dce8d2;color:#638c42}
-#page-plus .plus-price{background:#fff;border-color:#dfe9d6;color:#526d42}
-#page-plus .plus-price span{background:#edf6e5;color:#638c42}
-#page-plus .plus-features article{background:#fff;border-color:#e2e9dc}
-.plus-spark{background:#edf6e5}
 .plus-spark:before{color:#638c42}
 body.dark-mode{color-scheme:dark;--bg:#151a14;--surface:#20271f;--surface-2:#293128;--soft:#293128;--text:#edf2e9;--muted:#a3ad9d;--line:#343e32;--accent:#a9d67b;--accent-dark:#a9d67b;--accent-soft:#2c3926;--shadow:0 18px 55px #0005;background:var(--bg);color:var(--text)}
 body.dark-mode .site-header{background:#151a14ed;border-color:var(--line)}
-body.dark-mode .home-hero,body.dark-mode .daily-status,body.dark-mode .plus-hero{background:linear-gradient(115deg,#273323,#22271f);border-color:#3d4d37}
-body.dark-mode #page-plus .plus-label,body.dark-mode #page-plus .plus-price{background:#293626;border-color:#465b3b;color:#c8edb1}
-body.dark-mode #page-plus .plus-price span{background:#34452d;color:#c8edb1}
-body.dark-mode #page-plus .plus-features article{background:#20271f;border-color:#3d4d37}
-body.dark-mode .plus-spark{background:#34452d}
-body.dark-mode .plus-spark:before{color:#c8edb1}
 body.dark-mode .nav-link.active,body.dark-mode .nav-link:hover,body.dark-mode .plus-link{color:#c8edb1}
 
 /* Cleaner question header: retain the timer, remove extra progress bars */
@@ -943,3 +931,16 @@ body.dark-mode #page-game .answer-result:not([hidden]) .journey-victory:not([hid
 @media(prefers-reduced-motion:reduce){
  #page-game .answer-result:not([hidden]) .journey-victory:not([hidden]){animation:none!important}
 }
+
+
+/* Keep the DAZURIO Plus page on its original page-specific styling */
+.header-right .plus-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:0 15px;line-height:1;vertical-align:middle;white-space:nowrap}
+.header-right .plus-link .plus-spark{display:inline-grid;place-items:center;flex:0 0 17px;width:17px;height:17px;margin:0;padding:0;background:transparent!important;color:var(--accent)!important;font:700 18px/1 Manrope,sans-serif;transform:none}
+.header-right .plus-link .plus-spark:before{content:none!important;display:none!important}
+/* Answer feedback should feel like one uninterrupted screen, not a gold-framed card */
+#page-game .answer-result:not([hidden]){border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important;background:radial-gradient(ellipse at 50% 0%,#eaf4e3 0%,#f7faf4 48%,#edf4e8 100%)!important}
+#page-game .answer-result.answer-impact-exact:not([hidden]) .answer-correct-reveal{border-color:#dce8d2!important;box-shadow:none!important;background:rgba(255,255,255,.34)!important}
+#page-game .answer-result.answer-impact-great:not([hidden]) .answer-correct-reveal{border-color:#dce8d2!important;box-shadow:none!important}
+#page-game .answer-result:not([hidden]) .answer-verdict{box-shadow:none!important}
+body.dark-mode #page-game .answer-result:not([hidden]){background:radial-gradient(ellipse at 50% 0%,#293b25,#1b211b 65%,#171d18)!important}
+body.dark-mode #page-game .answer-result.answer-impact-exact:not([hidden]) .answer-correct-reveal,body.dark-mode #page-game .answer-result.answer-impact-great:not([hidden]) .answer-correct-reveal{border-color:#465b3b!important;box-shadow:none!important;background:rgba(41,54,38,.62)!important}
