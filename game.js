@@ -378,7 +378,8 @@
     }
   }
 
-  function showQuestion() {\n    document.body.classList.remove('answer-feedback-active');
+  function showQuestion() {
+    document.body.classList.remove('answer-feedback-active');
     if (!state.active) return;
 
     if (state.currentIndex >= state.questions.length) {
@@ -657,7 +658,8 @@
     return cs ? fallback[1] : fallback[0];
   }
 
-  function displayAnswerResult(record, question) {\n    document.body.classList.add('answer-feedback-active');
+  function displayAnswerResult(record, question) {
+    document.body.classList.add('answer-feedback-active');
     const result = $("answerResult");
     if (result) {
       result.hidden = false;
