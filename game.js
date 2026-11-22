@@ -392,6 +392,7 @@
       case "survival": return "SURVIVAL · " + state.lives + " LIVES";
       case "mystery": return "MYSTERY MODE";
       case "worldtour": return "WORLD TOUR";
+      case "zen": return "ZEN MODE";
       case "boss": return "BOSS CHALLENGE";
       default:
         return "DENNÍ VÝZVA";
@@ -489,7 +490,15 @@
     if (modeTag) modeTag.textContent = getModeLabel();
 
     updateProgress();
-    startTimer();
+    const timerHud = document.querySelector(".game-timer-hud");
+    if (timerHud) timerHud.hidden = state.mode === "zen";
+    if (state.mode === "zen") {
+      stopTimer();
+      state.timeLeft = 0;
+      updateTimerDisplay();
+    } else {
+      startTimer();
+    }
 
     if (input) input.focus();
   }
@@ -588,7 +597,8 @@
       ? null
       : Math.abs(guess - answer);
 
-    const points = calculatePoints(guess, answer, question);
+    const earnsProgress = ["daily", "survival", "boss"].includes(state.mode);
+    const points = earnsProgress ? calculatePoints(guess, answer, question) : 0;
 
     const record = {
       questionId: question.id,
@@ -708,9 +718,9 @@
     }
 
     if (points) {
-      points.textContent = ["daily","endless","boss"].includes(state.mode)
+      points.textContent = ["daily","survival","boss"].includes(state.mode)
         ? `+${record.points.toLocaleString()} PTS`
-        : `+${record.points.toLocaleString()} PTS`;
+        : "PRACTICE MODE · NO POINTS";
       points.dataset.grade = record.points >= 900 ? "excellent" : record.points >= 700 ? "great" : record.points >= 400 ? "good" : "low";
     }
     const answerPointsStat = $("answerPointsStat");
@@ -803,7 +813,7 @@
       date: state.options.date || null,
       category: state.options.category || null,
       score,
-      xp: (state.mode === "daily" || state.mode === "endless" || state.mode === "boss") ? Math.floor(score / 10) : 0,
+      xp: (state.mode === "daily" || state.mode === "survival" || state.mode === "boss") ? Math.floor(score / 10) : 0,
       bossMonth: state.mode === "boss" ? String(state.options.monthKey || new Date().toISOString().slice(0,7)) : null,
       totalQuestions: total,
       correctAnswers: state.answers.filter(
@@ -845,7 +855,7 @@
       } catch (_) {}
     }
 
-    if ((state.mode === "daily" || state.mode === "endless" || state.mode === "boss") && isLoggedIn() && storage && typeof storage.saveGameResult === "function") {
+    if ((state.mode === "daily" || state.mode === "survival" || state.mode === "boss") && isLoggedIn() && storage && typeof storage.saveGameResult === "function") {
       try {
         storage.saveGameResult(summary);
       } catch (error) {
@@ -932,7 +942,7 @@
       return false;
     }
 
-    if (!["daily", "practice", "endless", "archive", "speedrun", "survival", "mystery", "worldtour", "boss"].includes(mode)) {
+    if (!["daily", "practice", "endless", "archive", "speedrun", "survival", "mystery", "worldtour", "boss", "zen"].includes(mode)) {
       mode = "daily";
     }
 
@@ -946,6 +956,8 @@
       questions = getDailyQuestions(safeOptions.date);
     } else if (mode === "practice") {
       questions = getPracticeQuestions(safeOptions);
+    } else if (mode === "zen") {
+      questions = shuffle(getAllQuestions()).slice(0, 10);
     } else if (mode === "speedrun") {
       questions = getSpeedRunQuestions();
     } else if (mode === "survival") {
