@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=soft-premium-20261122">
+  <link rel="stylesheet" href="style.css?v=answer-layout-20261122">
 </head>
 
 <body>
@@ -360,37 +360,22 @@
 
           <div class="answer-result" id="answerResult" aria-live="polite" hidden>
             <div class="result-timer-strip"><span id="resultTimerCaption">TIME LEFT</span><strong id="resultTimerValue">00:00</strong></div>
+            <h2 id="answerResultTitle">You got it exactly.</h2>
             <div class="journey-victory" id="journeyVictory" hidden aria-live="assertive"><span class="victory-spark">✦</span><strong>7,000 POINTS</strong><span id="journeyVictoryText">PERFECT RUN · JOURNEY COMPLETE</span><span class="victory-spark">✦</span></div>
-            <div class="answer-verdict" id="answerVerdict" data-verdict="far"><span class="answer-verdict-symbol" id="answerVerdictSymbol" aria-hidden="true">✓</span><span id="answerVerdictLabel">NICE TRY</span><span class="answer-verdict-detail" id="answerVerdictDetail">KEEP GOING</span>
-              <span class="answer-combo" id="answerCombo" hidden aria-live="polite"></span></div>
-            <div class="answer-result-top">
-              <span class="result-eyebrow" id="answerResultEyebrow">YOUR RESULT</span>
-              <span class="result-points" id="answerResultPoints">+0 XP</span>
-            </div>
-            <h2 id="answerResultTitle">Nice try.</h2>
+            <div class="answer-verdict" id="answerVerdict" data-verdict="far"><span class="answer-verdict-symbol" id="answerVerdictSymbol" aria-hidden="true">✓</span><span id="answerVerdictLabel">NICE TRY</span><span class="answer-verdict-detail" id="answerVerdictDetail">KEEP GOING</span><span class="answer-combo" id="answerCombo" hidden aria-live="polite"></span></div>
+            <div class="answer-result-top"><span class="result-eyebrow" id="answerResultEyebrow">YOUR RESULT</span><span class="result-points" id="answerResultPoints">+0 XP</span></div>
             <p id="answerResultText"></p>
-            <aside class="did-you-know" id="didYouKnow" hidden aria-live="polite">
-              <span class="did-you-know-kicker"><span class="did-you-know-mark" aria-hidden="true">i</span><span id="didYouKnowLabel">VĚDĚL/A JSI?</span></span>
-              <p id="didYouKnowText"></p>
-            </aside>
             <div class="answer-correct-reveal"><span id="actualAnswerLabel">CORRECT ANSWER</span><strong id="actualAnswerHero">—</strong><small id="answerAccuracyNote">YOUR ESTIMATE, REVEALED</small></div>
             <div class="answer-comparison">
-              <div>
-                <span>YOUR GUESS</span>
-                <strong id="yourGuess">—</strong>
-              </div>
-              <div>
-                <span>ACTUAL ANSWER</span>
-                <strong id="actualAnswer">—</strong>
-              </div>
-              <div>
-                <span>DIFFERENCE</span>
-                <strong id="answerDifference">—</strong>
-              </div>
+              <div><span>YOUR GUESS</span><strong id="yourGuess">—</strong></div>
+              <div><span>ACTUAL ANSWER</span><strong id="actualAnswer">—</strong></div>
+              <div><span>DIFFERENCE</span><strong id="answerDifference">—</strong></div>
             </div>
-            <button class="next-question-button" id="nextQuestionButton">
-              NEXT QUESTION →
-            </button>
+            <aside class="did-you-know" id="didYouKnow" hidden aria-live="polite">
+              <span class="did-you-know-kicker"><span class="did-you-know-mark" aria-hidden="true">i</span><span id="didYouKnowLabel">DID YOU KNOW?</span></span>
+              <p id="didYouKnowText"></p>
+            </aside>
+            <button class="next-question-button" id="nextQuestionButton">NEXT QUESTION →</button>
           </div>
 
         </div>
