@@ -491,7 +491,7 @@
 
     updateProgress();
     const timerHud = document.querySelector(".game-timer-hud");
-    if (timerHud) timerHud.hidden = state.mode === "zen";
+    if (timerHud) { timerHud.hidden = state.mode === "zen"; timerHud.style.display = state.mode === "zen" ? "none" : ""; }
     if (state.mode === "zen") {
       stopTimer();
       state.timeLeft = 0;
