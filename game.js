@@ -331,9 +331,14 @@
   }
 
   function updateJourneyProgress(feedbackPoints = null) {
+    const scene = $("gameScene");
+    const earnsProgress = ["daily", "survival", "boss"].includes(state.mode);
+    if (scene) scene.hidden = !earnsProgress;
+    if (!earnsProgress) return;
+    const targetScore = state.mode === "survival" ? SURVIVAL_SCORE_LIMIT : 7000;
     const score = state.answers.reduce((sum, answer) => sum + Number(answer.points || 0), 0);
-    const cappedScore = Math.min(7000, Math.max(0, score));
-    const progress = cappedScore / 7000 * 100;
+    const cappedScore = Math.min(targetScore, Math.max(0, score));
+    const progress = cappedScore / targetScore * 100;
     const fill = $("journeyTrackFill");
     const marker = $("journeyMarker");
     const scoreLabel = $("journeyScore");
@@ -343,7 +348,7 @@
     const feedback = $("sceneFeedback");
     if (fill) fill.style.width = progress + "%";
     if (marker) marker.style.left = progress + "%";
-    if (scoreLabel) scoreLabel.innerHTML = cappedScore.toLocaleString() + " <small>/ 7,000 PTS</small>";
+    if (scoreLabel) scoreLabel.innerHTML = cappedScore.toLocaleString() + " <small>/ " + targetScore.toLocaleString() + " PTS</small>";
     if (percentLabel) percentLabel.textContent = Math.round(progress) + "%";
     if (feedback && feedbackPoints !== null) {
       const cs = document.documentElement.lang === "cs";
@@ -357,9 +362,8 @@
       void feedback.offsetWidth;
       feedback.classList.add("journey-feedback-show");
     }
-    const scene = $("gameScene");
     if (scene) {
-      scene.classList.toggle("journey-complete", cappedScore >= 7000);
+      scene.classList.toggle("journey-complete", cappedScore >= targetScore);
     }
   }
 
@@ -682,9 +686,12 @@
     const totalGameScore = state.answers.reduce((sum, answer) => sum + Number(answer.points || 0), 0);
     const victory = $("journeyVictory");
     if (victory) {
-      victory.hidden = totalGameScore < 7000;
+      const victoryTarget = state.mode === "survival" ? SURVIVAL_SCORE_LIMIT : 7000;
+      victory.hidden = !["daily", "survival", "boss"].includes(state.mode) || totalGameScore < victoryTarget;
       const victoryText = $("journeyVictoryText");
       if (victoryText) victoryText.textContent = cs ? "DOKONALÁ JÍZDA · CESTA DOKONČENA" : "PERFECT RUN · JOURNEY COMPLETE";
+      const victoryTitle = victory?.querySelector("strong");
+      if (victoryTitle) victoryTitle.textContent = victoryTarget.toLocaleString() + " POINTS";
     }
 
     const verdict = exact ? "exact" : record.points >= 700 ? "close" : record.points >= 400 ? "near" : "far";
@@ -880,10 +887,11 @@
     if (window.DazurioEffects) {
       window.DazurioEffects.sound("finish");
       const scoreCard = $("page-results")?.querySelector(".results-score-card");
-      if (scoreCard && summary.score >= 5000) window.DazurioEffects.createParticles(scoreCard, summary.score >= 7000 ? 48 : 24, summary.score >= 7000 ? 1.35 : 1);
+      if (scoreCard && summary.score >= 5000) window.DazurioEffects.createParticles(scoreCard, summary.score >= (state.mode === "survival" ? SURVIVAL_SCORE_LIMIT : 7000) ? 48 : 24, summary.score >= (state.mode === "survival" ? SURVIVAL_SCORE_LIMIT : 7000) ? 1.35 : 1);
     }
     setResultField("finalScore", summary.score);
-    $("page-results")?.classList.toggle("results-perfect-run", summary.score >= 7000);
+    const perfectRunTarget = state.mode === "survival" ? SURVIVAL_SCORE_LIMIT : 7000;
+    $("page-results")?.classList.toggle("results-perfect-run", ["daily", "survival", "boss"].includes(state.mode) && summary.score >= perfectRunTarget);
     const resultsIntro = $("resultsSubtitle");
     if (resultsIntro && state.mode === "survival") {
       const cs = document.documentElement.lang === "cs";
@@ -892,7 +900,7 @@
         : summary.endReason === "score-limit"
           ? (cs ? "Skvělé! Dosáhl/a jsi limitu 10 000 bodů." : "Amazing! You reached the 10,000-point limit.")
           : (cs ? "Doběhl celý balíček otázek. Tady je tvůj výsledek!" : "You completed the question pool. Here is your result!");
-    } else if (resultsIntro && summary.score >= 7000) {
+    } else if (resultsIntro && ["daily", "survival", "boss"].includes(state.mode) && summary.score >= perfectRunTarget) {
       resultsIntro.textContent = document.documentElement.lang === "cs"
         ? "Dokonalá jízda. Dosáhl/a jsi maximálního skóre!"
         : "A perfect run. You reached the maximum score!";
