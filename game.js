@@ -573,6 +573,11 @@
 
     const cs = document.documentElement.lang === "cs";
     const exact = record.difference === 0;
+    const resultTimer = $("resultTimerValue");
+    const resultTimerCaption = $("resultTimerCaption");
+    if (resultTimer) resultTimer.textContent = "00:" + String(Math.max(0, Number(state.timeLeft) || 0)).padStart(2, "0");
+    if (resultTimerCaption) resultTimerCaption.textContent = cs ? "ZBÝVAJÍCÍ ČAS" : "TIME LEFT";
+
     const totalGameScore = state.answers.reduce((sum, answer) => sum + Number(answer.points || 0), 0);
     const victory = $("journeyVictory");
     if (victory) {
@@ -739,6 +744,14 @@
     }
 
     setResultField("finalScore", summary.score);
+    $("page-results")?.classList.toggle("results-perfect-run", summary.score >= 7000);
+    const resultsIntro = $("resultsSubtitle");
+    if (resultsIntro && summary.score >= 7000) {
+      resultsIntro.textContent = document.documentElement.lang === "cs"
+        ? "Dokonalá jízda. Dosáhl/a jsi maximálního skóre!"
+        : "A perfect run. You reached the maximum score!";
+    }
+
     setResultField("finalXP", summary.xp);
     setResultField("finalAccuracy", `${summary.accuracy}%`);
     setResultField("finalAverage", summary.averagePoints);
