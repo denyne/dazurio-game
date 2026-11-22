@@ -7,6 +7,8 @@
   const ARCHIVE_DONE_PREFIX = "dazurio_archive_completed_";
   const SECONDS_PER_QUESTION = 25;
   const MAX_POINTS_PER_QUESTION = 1000;
+  const SURVIVAL_SCORE_LIMIT = 10000;
+  const SURVIVAL_XP_LIMIT = 1000;
 
   let state = {
     mode: "daily",
@@ -389,7 +391,7 @@
       case "archive":
         return "ARCHIVNÍ VÝZVA";
       case "speedrun": return "SPEED RUN";
-      case "survival": return "SURVIVAL · " + state.lives + " LIVES";
+      case "survival": return (document.documentElement.lang === "cs" ? "SURVIVAL · " + state.lives + " ŽIVOTY" : "SURVIVAL · " + state.lives + " LIVES");
       case "mystery": return "MYSTERY MODE";
       case "worldtour": return "WORLD TOUR";
       case "zen": return "ZEN MODE";
@@ -598,7 +600,11 @@
       : Math.abs(guess - answer);
 
     const earnsProgress = ["daily", "survival", "boss"].includes(state.mode);
-    const points = earnsProgress ? calculatePoints(guess, answer, question) : 0;
+    const rawPoints = earnsProgress ? calculatePoints(guess, answer, question) : 0;
+    const currentScore = state.answers.reduce((sum, item) => sum + Number(item.points || 0), 0);
+    const points = state.mode === "survival"
+      ? Math.min(rawPoints, Math.max(0, SURVIVAL_SCORE_LIMIT - currentScore))
+      : rawPoints;
 
     const record = {
       questionId: question.id,
@@ -611,9 +617,9 @@
     };
 
     state.answers.push(record);
-    saveInProgress();
+    if (state.mode !== "survival") saveInProgress();
     updateJourneyProgress(points);
-    if (state.mode === "survival" && points < 300) state.lives = Math.max(0, state.lives - 1);
+    if (state.mode === "survival" && rawPoints < 300) state.lives = Math.max(0, state.lives - 1);
     if (state.mode === "survival") { const tag = $("gameModeTag"); if (tag) tag.textContent = getModeLabel(); }
 
     if (input) input.disabled = true;
@@ -633,7 +639,12 @@
     }
 
     const next = $("nextQuestionButton");
-    if (next) { next.hidden = false; if (state.mode === "survival" && state.lives <= 0) next.textContent = "SEE RESULTS"; }
+    if (next) {
+      next.hidden = false;
+      if (state.mode === "survival" && (state.lives <= 0 || state.answers.reduce((sum, item) => sum + Number(item.points || 0), 0) >= SURVIVAL_SCORE_LIMIT)) {
+        next.textContent = document.documentElement.lang === "cs" ? "ZOBRAZIT VÝSLEDKY" : "SEE RESULTS";
+      }
+    }
     // Bring the complete feedback into view; otherwise it can sit below the fold unnoticed.
     window.setTimeout(() => {
       const resultPanel = $("answerResult");
@@ -779,10 +790,11 @@
   function getSummary() {
     const total = state.answers.length;
 
-    const score = state.answers.reduce(
-      (sum, answer) => sum + answer.points,
+    const rawScore = state.answers.reduce(
+      (sum, answer) => sum + Number(answer.points || 0),
       0
     );
+    const score = state.mode === "survival" ? Math.min(SURVIVAL_SCORE_LIMIT, rawScore) : rawScore;
 
     const average = total
       ? Math.round(score / total)
@@ -813,7 +825,8 @@
       date: state.options.date || null,
       category: state.options.category || null,
       score,
-      xp: (state.mode === "daily" || state.mode === "survival" || state.mode === "boss") ? Math.floor(score / 10) : 0,
+      xp: (state.mode === "daily" || state.mode === "boss") ? Math.floor(score / 10) : state.mode === "survival" ? Math.min(SURVIVAL_XP_LIMIT, Math.floor(score / 10)) : 0,
+      endReason: state.mode === "survival" ? (state.lives <= 0 ? "lives" : score >= SURVIVAL_SCORE_LIMIT ? "score-limit" : "questions-complete") : null,
       bossMonth: state.mode === "boss" ? String(state.options.monthKey || new Date().toISOString().slice(0,7)) : null,
       totalQuestions: total,
       correctAnswers: state.answers.filter(
@@ -871,7 +884,14 @@
     setResultField("finalScore", summary.score);
     $("page-results")?.classList.toggle("results-perfect-run", summary.score >= 7000);
     const resultsIntro = $("resultsSubtitle");
-    if (resultsIntro && summary.score >= 7000) {
+    if (resultsIntro && state.mode === "survival") {
+      const cs = document.documentElement.lang === "cs";
+      resultsIntro.textContent = summary.endReason === "lives"
+        ? (cs ? "Došly ti všechny životy. Zkus to znovu a překonej svůj rekord!" : "You used all your lives. Try again and beat your record!")
+        : summary.endReason === "score-limit"
+          ? (cs ? "Skvělé! Dosáhl/a jsi limitu 10 000 bodů." : "Amazing! You reached the 10,000-point limit.")
+          : (cs ? "Doběhl celý balíček otázek. Tady je tvůj výsledek!" : "You completed the question pool. Here is your result!");
+    } else if (resultsIntro && summary.score >= 7000) {
       resultsIntro.textContent = document.documentElement.lang === "cs"
         ? "Dokonalá jízda. Dosáhl/a jsi maximálního skóre!"
         : "A perfect run. You reached the maximum score!";
@@ -1022,7 +1042,7 @@
   function nextQuestion() {
     if (!state.active || !state.answered) return;
 
-    if (state.mode === "survival" && state.lives <= 0) { finishGame(); return; }
+    if (state.mode === "survival" && (state.lives <= 0 || state.answers.reduce((sum, item) => sum + Number(item.points || 0), 0) >= SURVIVAL_SCORE_LIMIT)) { finishGame(); return; }
     state.currentIndex++;
     showQuestion();
   }
