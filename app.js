@@ -478,6 +478,16 @@
           return { level, current: remaining, required, remaining: required - remaining };
         })();
     const { level, current: currentLevelXP, required: requiredLevelXP, remaining: xpToNextLevel } = progression;
+    const levelKey = "dazurio_seen_level_" + (user?.id || user?.username || "guest");
+    try {
+      const previousLevel = Number(localStorage.getItem(levelKey));
+      if (previousLevel > 0 && level > previousLevel) {
+        const levelTarget = byId("progressLevel") || byId("homeLevel");
+        if (levelTarget && window.DazurioEffects) window.DazurioEffects.celebrate(levelTarget.closest(".level-pill") || levelTarget, "great");
+        notify("LEVEL UP! You reached level " + level + ".", "success");
+      }
+      localStorage.setItem(levelKey, String(level));
+    } catch (_) {}
 
     // XP is the single source of truth. Never trust a stale saved level field.
     if (user?.stats && user.stats.level !== level) user.stats.level = level;
