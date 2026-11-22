@@ -606,7 +606,8 @@
   function getDidYouKnowFact(question, cs) {
     const q = String(question?.question || "");
     const facts = [
-      [/countries border the Czech Republic|countries border the Czech|countries are there in the world/i, "Czechia shares borders with Germany, Poland, Austria and Slovakia — four neighbours in total.", "Česko sousedí s Německem, Polskem, Rakouskem a Slovenskem — celkem se čtyřmi státy."],
+      [/countries border the Czech Republic|countries border the Czech/i, "Czechia shares borders with Germany, Poland, Austria and Slovakia — four neighbours in total.", "Česko sousedí s Německem, Polskem, Rakouskem a Slovenskem — celkem se čtyřmi státy."],
+      [/countries are there in the world|countries are officially recognized/i, "The United Nations has 193 member states; the commonly cited total of 195 also includes two non-member observer states.", "Organizace OSN má 193 členských států; běžně uváděný počet 195 zahrnuje také dva nečlenské pozorovatelské státy."],
       [/Sahara Desert/i, "Antarctica is technically the world's largest desert; the Sahara is the largest hot desert.", "Antarktida je technicky největší poušť světa; Sahara je největší horká poušť."],
       [/Mariana Trench/i, "Pressure at the deepest parts of the ocean exceeds 1,000 times the air pressure at sea level.", "V nejhlubších částech oceánu je tlak více než tisícinásobkem tlaku vzduchu na hladině moře."],
       [/Greenland/i, "Greenland is the world's largest island that is not considered a continent.", "Grónsko je největší ostrov světa, který se nepovažuje za kontinent."],
