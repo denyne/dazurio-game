@@ -139,6 +139,48 @@
     return result;
   }
 
+  function getResumeKey(mode = state.mode, date = null) {
+    if (mode !== "daily" && mode !== "archive") return null;
+    const day = mode === "archive" ? getDateKey(date || state.options?.date) : getDateKey();
+    return "dazurio_in_progress_" + mode + "_" + day;
+  }
+
+  function saveInProgress() {
+    const key = getResumeKey();
+    if (!key || !state.questions.length || !state.active) return;
+    const nextIndex = state.answered ? state.currentIndex + 1 : state.currentIndex;
+    const payload = {
+      version: 1,
+      mode: state.mode,
+      date: state.mode === "archive" ? getDateKey(state.options?.date) : getDateKey(),
+      options: state.options,
+      questionIds: state.questions.map(question => question.id),
+      currentIndex: nextIndex,
+      answers: state.answers,
+      lives: state.lives,
+      savedAt: Date.now()
+    };
+    try { localStorage.setItem(key, JSON.stringify(payload)); } catch (error) {
+      console.warn("[DAZURIO] Could not save game progress.", error);
+    }
+  }
+
+  function loadInProgress(mode, options, questions) {
+    const key = getResumeKey(mode, mode === "archive" ? safeArchiveDate(options) : null);
+    if (!key) return null;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const saved = JSON.parse(raw);
+      if (!saved || saved.version !== 1 || saved.mode !== mode) return null;
+      const byId = new Map(questions.map(question => [String(question.id), question]));
+      const restoredQuestions = (saved.questionIds || []).map(id => byId.get(String(id))).filter(Boolean);
+      if (restoredQuestions.length !== questions.length || restoredQuestions.some((question, index) => String(question.id) !== String(saved.questionIds[index]))) return null;
+      if (!Array.isArray(saved.answers) || !Number.isInteger(saved.currentIndex) || saved.currentIndex < 0 || saved.currentIndex > restoredQuestions.length) return null;
+      return { key, saved, questions: restoredQuestions };
+    } catch (_) { return null; }
+  }
+
   function archiveCompletionKey(date) { return ARCHIVE_DONE_PREFIX + getDateKey(date); }
   function hasCompletedArchive(date) {
     const key = getDateKey(date);
@@ -536,6 +578,7 @@
     };
 
     state.answers.push(record);
+    saveInProgress();
     updateJourneyProgress(points);
     if (state.mode === "survival" && points < 300) state.lives = Math.max(0, state.lives - 1);
     if (state.mode === "survival") { const tag = $("gameModeTag"); if (tag) tag.textContent = getModeLabel(); }
@@ -606,9 +649,19 @@
       : verdict === "near" ? (cs ? "Jsi na dobré cestě." : "You're getting there.")
       : (cs ? "Každý odhad tě něco naučí." : "Every guess teaches you something.");
         if (description) {
-      description.textContent = question.explanation ||
-        (document.documentElement.lang === "cs" ? "Podívej se na správnou hodnotu a zkus další otázku." : "Check the correct value and try the next question.");
+      description.textContent = cs
+        ? "Správná hodnota je odhalená. Mrkni na zajímavost a pokračuj dál."
+        : "The correct value is revealed. Check the fact and continue.";
     }
+    const factBox = $("didYouKnow");
+    const factText = $("didYouKnowText");
+    const factLabel = $("didYouKnowLabel");
+    const fact = String(question.funFact || question.didYouKnow || question.fact || question.explanation || question.description || "").trim();
+    if (factBox && factText) {
+      factBox.hidden = !fact;
+      factText.textContent = fact;
+    }
+    if (factLabel) factLabel.textContent = cs ? "VĚDĚL/A JSI?" : "DID YOU KNOW?";
 
     if (points) {
       points.textContent = ["daily","endless"].includes(state.mode)
@@ -726,6 +779,8 @@
     stopTimer();
 
     const summary = getSummary();
+    const resumeKey = getResumeKey();
+    if (resumeKey) { try { localStorage.removeItem(resumeKey); } catch (_) {} }
     const storage = getStorage();
     if (state.mode === "daily" || state.mode === "archive") {
       const key = getDateKey();
@@ -858,16 +913,17 @@
 
     stopTimer();
 
+    const resumed = loadInProgress(mode, safeOptions, questions);
     state.mode = mode;
-    state.options = safeOptions;
-    state.questions = questions;
-    state.currentIndex = 0;
-    state.answers = [];
-    updateJourneyProgress();
-    state.startedAt = Date.now();
+    state.options = resumed ? { ...safeOptions, ...(resumed.saved.options || {}) } : safeOptions;
+    state.questions = resumed ? resumed.questions : questions;
+    state.currentIndex = resumed ? resumed.saved.currentIndex : 0;
+    state.answers = resumed ? resumed.saved.answers : [];
+    state.startedAt = resumed?.saved?.savedAt || Date.now();
     state.active = true;
     state.answered = false;
-    state.lives = 3;
+    state.lives = resumed ? Math.max(0, Number(resumed.saved.lives) || 0) : 3;
+    updateJourneyProgress();
 
     document.querySelectorAll(".page").forEach(page => {
       page.classList.remove("active");
@@ -881,7 +937,12 @@
       window.scrollTo({ top: 0, behavior: "instant" });
     }
 
+    if (resumed && state.currentIndex >= state.questions.length) {
+      finishGame();
+      return true;
+    }
     showQuestion();
+    if (resumed) showToast(document.documentElement.lang === "cs" ? "Pokračuješ tam, kde jsi skončil/a." : "Resuming where you left off.", "info");
 
     return true;
   }
@@ -895,6 +956,7 @@
   }
 
   function abandonGame() {
+    if (state.active) saveInProgress();
     stopTimer();
 
     state.active = false;
@@ -902,6 +964,11 @@
   }
 
   function init() {
+    if (!window.__dazurioResumeBound) {
+      window.__dazurioResumeBound = true;
+      window.addEventListener("pagehide", () => { if (state.active) saveInProgress(); });
+      document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && state.active) saveInProgress(); });
+    }
     const form = $("answerForm");
 
     const answerInput = $("answerInput");
