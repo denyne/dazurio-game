@@ -287,7 +287,7 @@
 
         <section class="game-scene journey-scene" id="gameScene" aria-label="Your Journey progress">
           <div class="journey-scene-heading">
-            <div><span class="scene-height-label">YOUR JOURNEY</span><strong id="journeyScore">0 <small>/ 7,000 PTS</small></strong></div>
+            <div><span class="scene-height-label" id="journeyHeadingLabel">POINTS TRAIL</span><strong id="journeyScore">0 <small>/ 7,000 PTS</small></strong></div>
             <span class="journey-percent" id="journeyPercent">0% <small>COMPLETE</small></span>
           </div>
           <div class="journey-track-wrap">
@@ -343,7 +343,7 @@
               <button type="button" class="clear-answer" id="clearAnswerButton" aria-label="Clear answer">×</button>
             </div>
 
-            <small class="answer-format-hint" id="answerFormatHint">Example: 1 000 000 = 1M</small><small class="answer-unit-hint" id="answerUnitHint"></small>
+            <small class="answer-format-hint" id="answerFormatHint">Example: 1 000 000 = 1M</small><div class="answer-unit-callout"><span class="answer-unit-icon" aria-hidden="true">↳</span><small class="answer-unit-hint" id="answerUnitHint"></small></div>
             <div class="suggestions" id="answerSuggestions" hidden></div>
 
             <div class="answer-form-bottom">
@@ -376,10 +376,6 @@
               <div><span>ACTUAL ANSWER</span><strong id="actualAnswer">—</strong></div>
               <div><span>DIFFERENCE</span><strong id="answerDifference">—</strong></div>
             </div>
-            <aside class="did-you-know" id="didYouKnow" hidden aria-live="polite">
-              <span class="did-you-know-kicker"><span class="did-you-know-mark" aria-hidden="true">i</span><span id="didYouKnowLabel">DID YOU KNOW?</span></span>
-              <p id="didYouKnowText"></p>
-            </aside>
             <button class="next-question-button" id="nextQuestionButton">NEXT QUESTION →</button>
           </div>
 
