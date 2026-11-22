@@ -662,12 +662,28 @@
     const factBox = $("didYouKnow");
     const factText = $("didYouKnowText");
     const factLabel = $("didYouKnowLabel");
-    const fact = String(question.funFact || question.didYouKnow || question.fact || question.explanation || question.description || "").trim();
+    const insightCandidates = [
+      question?.funFact, question?.didYouKnow, question?.fact,
+      question?.explanation, question?.description
+    ];
+    const insight = insightCandidates.find(value => typeof value === "string" && value.trim());
+    const answerValue = Number(question?.answer);
+    const answerText = Number.isFinite(answerValue)
+      ? answerValue.toLocaleString(document.documentElement.lang === "cs" ? "cs-CZ" : "en-US") +
+        (question?.unit ? " " + question.unit : "")
+      : "";
+    const fallbackInsight = cs
+      ? (answerText ? "Vysvětlení k této otázce: referenční hodnota je " + answerText + ". " : "Vysvětlení k této otázce: ") +
+        "Porovnej ji se svým odhadem a všimni si, jak se tato hodnota vztahuje k tématu otázky."
+      : (answerText ? "The reference value for this question is " + answerText + ". " : "Here is a quick explanation for this question: ") +
+        "Compare it with your estimate and use the context above to understand what the number represents.";
+    const fact = String(insight || fallbackInsight).trim();
     if (factBox && factText) {
-      factBox.hidden = !fact;
       factText.textContent = fact;
+      factBox.hidden = false;
+      factBox.dataset.factSource = insight ? "question-bank" : "fallback";
     }
-    if (factLabel) factLabel.textContent = cs ? "VĚDĚL/A JSI?" : "DID YOU KNOW?";
+    if (factLabel) factLabel.textContent = cs ? "VYSVĚTLENÍ A ZAJÍMAVOST" : "DID YOU KNOW?";
 
     const comboNode = $("answerCombo");
     let combo = 0;
