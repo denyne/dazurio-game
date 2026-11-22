@@ -450,6 +450,7 @@
     const submit = $("submitAnswerButton");
     if (submit) submit.disabled = false;
     const answerForm = $("answerForm");
+    if (answerForm) answerForm.hidden = false;
     answerForm?.classList.remove("answer-form-locked");
     const questionPanel = $("questionTitle")?.closest(".question-panel, .game-question-card");
     questionPanel?.classList.remove("question-enter");
@@ -585,6 +586,8 @@
 
     if (input) input.disabled = true;
     $("answerForm")?.classList.add("answer-form-locked");
+    // Replace the input panel with the feedback panel so the result is immediately visible.
+    if ($("answerForm")) $("answerForm").hidden = true;
 
     const submit = $("submitAnswerButton");
     if (submit) submit.disabled = true;
@@ -599,7 +602,13 @@
 
     const next = $("nextQuestionButton");
     if (next) { next.hidden = false; if (state.mode === "survival" && state.lives <= 0) next.textContent = "SEE RESULTS"; }
-    // Keep the viewport anchored on the question; never force-scroll the player down to feedback.
+    // Bring the complete feedback into view; otherwise it can sit below the fold unnoticed.
+    window.setTimeout(() => {
+      const resultPanel = $("answerResult");
+      if (resultPanel && !resultPanel.hidden) {
+        resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
   }
 
   function displayAnswerResult(record, question) {
@@ -716,10 +725,21 @@
     }
 
     if (points) {
-      points.textContent = ["daily","endless"].includes(state.mode)
+      points.textContent = ["daily","endless","boss"].includes(state.mode)
         ? `+${record.points.toLocaleString()} PTS`
-        : `+${record.points.toLocaleString()} · PRACTICE`;
+        : `+${record.points.toLocaleString()} PTS`;
       points.dataset.grade = record.points >= 900 ? "excellent" : record.points >= 700 ? "great" : record.points >= 400 ? "good" : "low";
+    }
+    const answerPointsStat = $("answerPointsStat");
+    const totalScoreStat = $("answerTotalScoreStat");
+    const accuracyStat = $("answerAccuracyStat");
+    if (answerPointsStat) answerPointsStat.textContent = "+" + record.points.toLocaleString();
+    if (totalScoreStat) totalScoreStat.textContent = state.answers.reduce((sum, item) => sum + Number(item.points || 0), 0).toLocaleString();
+    if (accuracyStat) {
+      const accuracy = record.guess === null ? 0 : record.answer === 0
+        ? (record.difference === 0 ? 100 : 0)
+        : Math.max(0, 100 - Math.abs(record.difference / record.answer) * 100);
+      accuracyStat.textContent = record.guess === null ? "—" : Math.round(accuracy) + "%";
     }
 
     if (guess) {
