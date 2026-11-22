@@ -905,3 +905,22 @@ body.dark-mode .plus-spark:before{color:#d0c5fa}
 .celebrate-pop{animation:dazCelebratePop .58s cubic-bezier(.16,1.25,.3,1)}
 @keyframes dazCelebratePop{0%{transform:scale(1)}45%{transform:scale(1.025)}100%{transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){.particle-layer,.celebrate-pop{display:none!important;animation:none!important}}
+
+
+/* Answer reveal hierarchy: headline first, compact and lifted layout */
+#page-game .answer-result:not([hidden]){justify-content:flex-start!important;align-items:center!important;padding:clamp(24px,5.5vh,54px) 20px 22px!important;gap:clamp(8px,1.45vh,14px)!important}
+#page-game .answer-result:not([hidden]) .result-timer-strip{position:absolute!important;top:12px!important;right:18px!important;width:auto!important;margin:0!important;padding:5px 9px!important;border-radius:9px!important;opacity:.72;font-size:9px!important}
+#page-game .answer-result:not([hidden])>h2{order:0!important;width:min(100%,760px)!important;margin:0 auto 2px!important;text-align:center!important;font-size:clamp(27px,5.2vh,44px)!important;line-height:1.12!important;letter-spacing:-1.1px!important;font-weight:850!important;color:var(--text)!important}
+#page-game .answer-result:not([hidden]) .journey-victory{order:1!important}
+#page-game .answer-result:not([hidden]) .answer-verdict{order:2!important;justify-content:center!important;align-self:center!important;width:auto!important;max-width:100%!important;margin:0 auto!important}
+#page-game .answer-result:not([hidden]) .answer-result-top{order:3!important;width:min(100%,680px)!important;margin:0 auto!important}
+#page-game .answer-result:not([hidden])>p{order:4!important;width:min(100%,680px)!important;margin:0 auto!important;text-align:center!important;color:var(--muted)!important}
+#page-game .answer-result:not([hidden]) .answer-correct-reveal{order:5!important;width:min(100%,680px)!important;margin:2px auto!important;padding:clamp(13px,2.2vh,22px) 16px!important}
+#page-game .answer-result:not([hidden]) .answer-comparison{order:6!important;width:min(100%,680px)!important}
+#page-game .answer-result:not([hidden]) .did-you-know{order:7!important;width:min(100%,680px)!important;margin:0 auto!important}
+#page-game .answer-result:not([hidden]) .next-question-button{order:8!important;width:min(100%,340px)!important;margin:2px auto 0!important}
+#page-game .answer-result:not([hidden]) .answer-correct-reveal strong{font-size:clamp(32px,5.8vh,52px)!important}
+#page-game .answer-result:not([hidden]) .did-you-know p{margin:5px 0 0;line-height:1.45}
+@media(max-height:760px){#page-game .answer-result:not([hidden]){padding-top:38px!important;gap:7px!important}#page-game .answer-result:not([hidden])>h2{font-size:clamp(24px,4.5vh,34px)!important}#page-game .answer-result:not([hidden]) .answer-correct-reveal{padding:10px 14px!important}#page-game .answer-result:not([hidden]) .answer-correct-reveal strong{font-size:clamp(28px,4.8vh,40px)!important}}
+@media(max-width:520px){#page-game .answer-result:not([hidden]){padding:42px 13px 14px!important;gap:9px!important}#page-game .answer-result:not([hidden]) .result-timer-strip{top:8px!important;right:10px!important}#page-game .answer-result:not([hidden])>h2{font-size:clamp(25px,7vw,34px)!important}#page-game .answer-result:not([hidden]) .answer-verdict{flex-wrap:wrap}}
+body.dark-mode #page-game .answer-result:not([hidden])>h2{color:var(--text)!important}
