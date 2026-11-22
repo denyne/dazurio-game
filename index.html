@@ -39,7 +39,7 @@
 
     <div class="header-right">
       <button class="plus-link" data-page="plus">
-        <span class="plus-spark">✳</span> DAZURIO PLUS
+        <span class="plus-spark" aria-hidden="true">◇</span> DAZURIO PLUS
       </button>
       <button class="profile-button" id="profileButton" aria-label="Open profile">
         <span class="profile-avatar-frame frame-classic" id="headerAvatarFrame"><span class="profile-avatar" id="headerAvatar">?</span></span>
@@ -368,6 +368,10 @@
             </div>
             <h2 id="answerResultTitle">Nice try.</h2>
             <p id="answerResultText"></p>
+            <aside class="did-you-know" id="didYouKnow" hidden aria-live="polite">
+              <span class="did-you-know-kicker"><span class="did-you-know-mark" aria-hidden="true">i</span><span id="didYouKnowLabel">VĚDĚL/A JSI?</span></span>
+              <p id="didYouKnowText"></p>
+            </aside>
             <div class="answer-correct-reveal"><span id="actualAnswerLabel">CORRECT ANSWER</span><strong id="actualAnswerHero">—</strong><small id="answerAccuracyNote">YOUR ESTIMATE, REVEALED</small></div>
             <div class="answer-comparison">
               <div>
@@ -413,7 +417,7 @@
           <span class="eyebrow">YOUR FINAL SCORE</span>
           <div class="final-score-number" id="finalScore">0</div>
           <span class="final-score-label">POINTS</span>
-          <div class="results-xp">✳ <strong id="finalXP">+0 XP</strong> EARNED</div>
+          <div class="results-xp">◇ <strong id="finalXP">+0 XP</strong> EARNED</div>
         </div>
 
         <div class="results-stats-grid">
