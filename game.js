@@ -663,6 +663,23 @@
     }
     if (factLabel) factLabel.textContent = cs ? "VĚDĚL/A JSI?" : "DID YOU KNOW?";
 
+    const comboNode = $("answerCombo");
+    let combo = 0;
+    for (let i = state.answers.length - 1; i >= 0; i--) {
+      if (Number(state.answers[i]?.points || 0) < 700) break;
+      combo++;
+    }
+    if (comboNode) {
+      comboNode.hidden = combo < 2;
+      comboNode.textContent = combo < 2 ? "" : (cs ? "SÉRIE ×" : "STREAK ×") + combo;
+      comboNode.dataset.combo = combo >= 4 ? "high" : combo >= 3 ? "medium" : "low";
+    }
+    if (result) {
+      result.classList.remove("answer-impact-exact", "answer-impact-great", "answer-impact-soft");
+      const impact = record.difference === 0 ? "answer-impact-exact" : record.points >= 700 ? "answer-impact-great" : "answer-impact-soft";
+      result.classList.add(impact);
+    }
+
     if (points) {
       points.textContent = ["daily","endless"].includes(state.mode)
         ? `+${record.points.toLocaleString()} PTS`
