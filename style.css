@@ -897,3 +897,11 @@ body.dark-mode .plus-spark{background:#39344e}
 body.dark-mode .plus-spark:before{color:#d0c5fa}
 @media(max-width:620px){#page-plus .plus-hero{padding:26px 18px;border-radius:19px}#page-plus .plus-hero h1{font-size:clamp(34px,10vw,48px);letter-spacing:-1.3px}#page-plus .plus-code-row{flex-direction:column}#page-plus .plus-features{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.page.active,#page-game .question-panel,#page-game .answer-result:not([hidden]) .answer-verdict,#page-game .answer-result.answer-impact-exact:not([hidden]):before,#page-game .answer-result.answer-impact-exact:not([hidden]) .answer-correct-reveal,#page-game .answer-result.answer-impact-great:not([hidden]) .answer-correct-reveal,.results-score-card,.toast,.modal-card,.profile-menu,.mobile-menu{animation:none!important;filter:none!important;transform:none!important}.xp-track-fill,.weekly-quest-track i,.journey-track-fill,.timer-fill{transition:none!important}}
+
+/* Reward particles and celebration polish */
+.particle-layer{position:absolute;inset:0;z-index:8;overflow:visible;pointer-events:none}
+.particle{position:absolute;left:50%;top:50%;width:var(--particle-size);height:var(--particle-size);border-radius:50%;background:linear-gradient(135deg,#b9a9e8,#a9d8c0);box-shadow:0 0 9px #a99bd966;animation:dazParticleBurst 1.15s cubic-bezier(.15,.65,.25,1) forwards}
+@keyframes dazParticleBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}12%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--particle-x)),calc(-50% + var(--particle-y))) scale(.1)}}
+.celebrate-pop{animation:dazCelebratePop .58s cubic-bezier(.16,1.25,.3,1)}
+@keyframes dazCelebratePop{0%{transform:scale(1)}45%{transform:scale(1.025)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.particle-layer,.celebrate-pop{display:none!important;animation:none!important}}
