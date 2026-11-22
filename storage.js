@@ -718,14 +718,14 @@
       throw new Error("This month’s Boss Challenge has already been completed.");
     }
 
-    const score = Math.round(
-      nonNegative(input.score)
+    const score = Math.min(
+      input.mode === "survival" ? 10000 : Number.MAX_SAFE_INTEGER,
+      Math.round(nonNegative(input.score))
     );
 
-    const xp = Math.round(
-      nonNegative(
-        input.xp !== undefined ? input.xp : score
-      )
+    const xp = Math.min(
+      input.mode === "survival" ? 1000 : Number.MAX_SAFE_INTEGER,
+      Math.round(nonNegative(input.xp !== undefined ? input.xp : score))
     );
 
     const answers = Array.isArray(input.answers)
