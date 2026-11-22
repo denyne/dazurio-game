@@ -573,6 +573,14 @@
 
     const cs = document.documentElement.lang === "cs";
     const exact = record.difference === 0;
+    const totalGameScore = state.answers.reduce((sum, answer) => sum + Number(answer.points || 0), 0);
+    const victory = $("journeyVictory");
+    if (victory) {
+      victory.hidden = totalGameScore < 7000;
+      const victoryText = $("journeyVictoryText");
+      if (victoryText) victoryText.textContent = cs ? "DOKONALÁ JÍZDA · CESTA DOKONČENA" : "PERFECT RUN · JOURNEY COMPLETE";
+    }
+
     const verdict = exact ? "exact" : record.points >= 700 ? "close" : record.points >= 400 ? "near" : "far";
     const verdictLabel = exact ? (cs ? "NAPROSTO PŘESNĚ!" : "BULLSEYE!")
       : verdict === "close" ? (cs ? "SKVĚLÝ ODHAD!" : "GREAT ESTIMATE!")
