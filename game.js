@@ -590,6 +590,12 @@
     if (submit) submit.disabled = true;
 
     displayAnswerResult(record, question);
+    if (window.DazurioEffects) {
+      const resultCard = $("answerResult");
+      if (record.difference === 0) window.DazurioEffects.celebrate(resultCard, "great");
+      else if (record.points >= 700) window.DazurioEffects.celebrate(resultCard, "success");
+      else window.DazurioEffects.sound("miss");
+    }
 
     const next = $("nextQuestionButton");
     if (next) { next.hidden = false; if (state.mode === "survival" && state.lives <= 0) next.textContent = "SEE RESULTS"; }
@@ -815,6 +821,11 @@
       }
     }
 
+    if (window.DazurioEffects) {
+      window.DazurioEffects.sound("finish");
+      const scoreCard = $("page-results")?.querySelector(".results-score-card");
+      if (scoreCard && summary.score >= 5000) window.DazurioEffects.createParticles(scoreCard, summary.score >= 7000 ? 48 : 24, summary.score >= 7000 ? 1.35 : 1);
+    }
     setResultField("finalScore", summary.score);
     $("page-results")?.classList.toggle("results-perfect-run", summary.score >= 7000);
     const resultsIntro = $("resultsSubtitle");
