@@ -860,11 +860,12 @@
     const resumeKey = getResumeKey();
     if (resumeKey) { try { localStorage.removeItem(resumeKey); } catch (_) {} }
     const storage = getStorage();
-    if (state.mode === "daily" || state.mode === "archive") {
+    if (state.mode === "daily" || state.mode === "archive" || ["survival", "zen", "speedrun"].includes(state.mode)) {
       const key = getDateKey();
       try {
         if (state.mode === "daily") localStorage.setItem("dazurio_daily_completed_" + key, "1");
-        else localStorage.setItem(archiveCompletionKey(state.options.date || key), "1");
+        else if (state.mode === "archive") localStorage.setItem(archiveCompletionKey(state.options.date || key), "1");
+        else localStorage.setItem("dazurio_once_" + state.mode + "_" + key, "1");
       } catch (_) {}
     }
 
@@ -928,11 +929,16 @@
   function safeArchiveDate(options) { return options && options.date ? options.date : new Date(); }
 
   function startGame(mode = "daily", options = {}) {
-    if (mode === "daily" || mode === "archive") {
+    if (mode === "daily" || mode === "archive" || ["survival", "zen", "speedrun"].includes(mode)) {
       const key = getDateKey();
       try {
         if (mode === "daily" && localStorage.getItem("dazurio_daily_completed_" + key) === "1") {
           showToast("Dnešní výzvu už máš dokončenou. Vrať se zítra!", "info");
+          return false;
+        }
+        if (["survival", "zen", "speedrun"].includes(mode) && localStorage.getItem("dazurio_once_" + mode + "_" + key) === "1") {
+          const labels = { survival: "Survival", zen: "Zen Mode", speedrun: "Speed Run" };
+          showToast((labels[mode] || mode) + " už máš dnes odehraný. Zkus to znovu zítra!", "info");
           return false;
         }
         if (mode === "archive" && hasCompletedArchive(safeArchiveDate(options))) {
