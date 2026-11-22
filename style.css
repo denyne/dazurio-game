@@ -944,3 +944,26 @@ body.dark-mode #page-game .answer-result:not([hidden]) .journey-victory:not([hid
 #page-game .answer-result:not([hidden]) .answer-verdict{box-shadow:none!important}
 body.dark-mode #page-game .answer-result:not([hidden]){background:radial-gradient(ellipse at 50% 0%,#293b25,#1b211b 65%,#171d18)!important}
 body.dark-mode #page-game .answer-result.answer-impact-exact:not([hidden]) .answer-correct-reveal,body.dark-mode #page-game .answer-result.answer-impact-great:not([hidden]) .answer-correct-reveal{border-color:#465b3b!important;box-shadow:none!important;background:rgba(41,54,38,.62)!important}
+
+
+/* Minimal Plus mark, optically centered */
+.header-right .plus-link{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;line-height:1!important}
+.header-right .plus-link .plus-spark-icon{display:block!important;flex:0 0 16px!important;width:16px!important;height:16px!important;margin:0!important;transform:translateY(-1px)}
+.header-right .plus-link .plus-spark-icon path{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
+/* Answer reveal: continuous green full-screen surface */
+body.answer-feedback-active{background:#f1f6ec!important}
+body.answer-feedback-active #page-game,body.answer-feedback-active #page-game .game-shell,body.answer-feedback-active #page-game .game-content,body.answer-feedback-active #page-game .game-main,body.answer-feedback-active #page-game .game-panel{transform:none!important;filter:none!important;perspective:none!important}
+#page-game .answer-result:not([hidden]){z-index:10000!important;background:linear-gradient(145deg,#edf5e7 0%,#f3f8ef 52%,#eaf2e3 100%)!important;padding-top:clamp(9px,1.5vh,16px)!important;padding-bottom:clamp(9px,1.5vh,16px)!important;align-content:start!important;gap:clamp(5px,.8vh,9px)!important}
+#page-game .answer-result:not([hidden])>h2{margin:0!important;font-size:clamp(22px,3vw,30px)!important}
+#page-game .answer-result:not([hidden]) .answer-verdict,#page-game .answer-result:not([hidden]) .answer-result-top,#page-game .answer-result:not([hidden]) .answer-comparison,#page-game .answer-result:not([hidden]) .did-you-know{margin-top:0!important;margin-bottom:0!important}
+#page-game .answer-result:not([hidden]) .answer-correct-reveal{padding:clamp(11px,1.6vh,18px)!important}
+body.dark-mode.answer-feedback-active{background:#1b2619!important}
+body.dark-mode #page-game .answer-result:not([hidden]){background:linear-gradient(145deg,#263923 0%,#1d2b1d 52%,#243421 100%)!important}
+/* Make the answer field easier to notice and focus */
+#page-game .answer-form .answer-input-wrap{border:2px solid #91bd6d!important;box-shadow:0 0 0 4px #a9d67b24,0 8px 20px #25391a12!important;background:#fff!important}
+#page-game .answer-form .answer-input-wrap:focus-within{border-color:#638c42!important;box-shadow:0 0 0 5px #a9d67b3b,0 10px 24px #25391a18!important}
+#page-game .answer-form .answer-input-wrap input{font-size:clamp(18px,2vw,21px)!important;font-weight:700!important;color:#263923!important}
+#page-game .answer-form .answer-input-wrap input::placeholder{color:#87947e!important;font-weight:500!important}
+body.dark-mode #page-game .answer-form .answer-input-wrap{background:#202a1e!important;border-color:#91bd6d!important}
+body.dark-mode #page-game .answer-form .answer-input-wrap input{color:#edf5e8!important}
+body.dark-mode #page-game .answer-form .answer-input-wrap input::placeholder{color:#a6b49c!important}
