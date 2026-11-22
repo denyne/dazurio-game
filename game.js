@@ -268,6 +268,35 @@
     }
   }
 
+  function updateJourneyProgress(feedbackPoints = null) {
+    const score = state.answers.reduce((sum, answer) => sum + Number(answer.points || 0), 0);
+    const cappedScore = Math.min(7000, Math.max(0, score));
+    const progress = cappedScore / 7000 * 100;
+    const fill = $("journeyTrackFill");
+    const marker = $("journeyMarker");
+    const scoreLabel = $("journeyScore");
+    const percentLabel = $("journeyPercent");
+    const feedback = $("sceneFeedback");
+    if (fill) fill.style.width = progress + "%";
+    if (marker) marker.style.left = progress + "%";
+    if (scoreLabel) scoreLabel.innerHTML = cappedScore.toLocaleString() + " <small>/ 7,000 PTS</small>";
+    if (percentLabel) percentLabel.textContent = Math.round(progress) + "%";
+    if (feedback && feedbackPoints !== null) {
+      feedback.textContent = feedbackPoints >= 800
+        ? (document.documentElement.lang === "cs" ? "Skvělý posun" : "Great progress")
+        : feedbackPoints >= 500
+          ? (document.documentElement.lang === "cs" ? "Pěkný posun" : "Nice progress")
+          : (document.documentElement.lang === "cs" ? "Každý bod se počítá" : "Every point counts");
+      feedback.classList.remove("journey-feedback-show");
+      void feedback.offsetWidth;
+      feedback.classList.add("journey-feedback-show");
+    }
+    const scene = $("gameScene");
+    if (scene) {
+      scene.classList.toggle("journey-complete", cappedScore >= 7000);
+    }
+  }
+
   function updateProgress() {
     const current = state.currentIndex + 1;
 
@@ -505,6 +534,7 @@
     };
 
     state.answers.push(record);
+    updateJourneyProgress(points);
     if (state.mode === "survival" && points < 300) state.lives = Math.max(0, state.lives - 1);
     if (state.mode === "survival") { const tag = $("gameModeTag"); if (tag) tag.textContent = getModeLabel(); }
 
@@ -786,6 +816,7 @@
     state.questions = questions;
     state.currentIndex = 0;
     state.answers = [];
+    updateJourneyProgress();
     state.startedAt = Date.now();
     state.active = true;
     state.answered = false;
