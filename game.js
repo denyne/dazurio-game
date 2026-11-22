@@ -571,18 +571,28 @@
     const actual = $("actualAnswer");
     const difference = $("answerDifference");
 
-    if (title) {
-      const cs = document.documentElement.lang === "cs";
-      title.textContent = record.timedOut
-        ? (cs ? "Čas vypršel!" : "Time is up!")
-        : record.points >= 800
-          ? (cs ? "Skvělý odhad!" : "Great estimate!")
-          : record.points >= 500
-            ? (cs ? "Dobrý pokus!" : "Good try!")
-            : (cs ? "Tentokrát to nevyšlo" : "Not quite this time");
-    }
-
-    if (description) {
+    const cs = document.documentElement.lang === "cs";
+    const exact = record.difference === 0;
+    const verdict = exact ? "exact" : record.points >= 700 ? "close" : record.points >= 400 ? "near" : "far";
+    const verdictLabel = exact ? (cs ? "NAPROSTO PŘESNĚ!" : "BULLSEYE!")
+      : verdict === "close" ? (cs ? "SKVĚLÝ ODHAD!" : "GREAT ESTIMATE!")
+      : verdict === "near" ? (cs ? "DOBRÝ POKUS!" : "NICE TRY!")
+      : (cs ? "TENTOKRÁT TO NEVYŠLO" : "NOT QUITE THIS TIME");
+    const verdictNode = $("answerVerdict");
+    if (verdictNode) verdictNode.dataset.verdict = record.timedOut ? "far" : verdict;
+    const verdictLabelNode = $("answerVerdictLabel");
+    if (verdictLabelNode) verdictLabelNode.textContent = record.timedOut ? (cs ? "ČAS VYPRŠEL" : "TIME IS UP") : verdictLabel;
+    const verdictSymbol = $("answerVerdictSymbol");
+    if (verdictSymbol) verdictSymbol.textContent = exact ? "✓" : verdict === "close" ? "✦" : verdict === "near" ? "≈" : "·";
+    const verdictDetail = $("answerVerdictDetail");
+    if (verdictDetail) verdictDetail.textContent = exact ? (cs ? "PERFEKTNÍ SHODA" : "PERFECT MATCH") : record.timedOut ? (cs ? "ZKUS TO ZNOVU" : "TRY AGAIN") : (cs ? "ODHAD VYHODNOCEN" : "ESTIMATE CHECKED");
+    if (title) title.textContent = record.timedOut
+      ? (cs ? "Čas vypršel!" : "Time is up!")
+      : exact ? (cs ? "Trefil/a jsi to přesně." : "You got it exactly.")
+      : verdict === "close" ? (cs ? "Tohle byl parádní odhad." : "That was a brilliant estimate.")
+      : verdict === "near" ? (cs ? "Jsi na dobré cestě." : "You're getting there.")
+      : (cs ? "Každý odhad tě něco naučí." : "Every guess teaches you something.");
+        if (description) {
       description.textContent = question.explanation ||
         (document.documentElement.lang === "cs" ? "Podívej se na správnou hodnotu a zkus další otázku." : "Check the correct value and try the next question.");
     }
@@ -601,6 +611,18 @@
     }
 
     if (actual) actual.textContent = Number(record.answer).toLocaleString();
+    const actualHero = $("actualAnswerHero");
+    if (actualHero) actualHero.textContent = Number(record.answer).toLocaleString();
+    const actualLabel = $("actualAnswerLabel");
+    if (actualLabel) actualLabel.textContent = cs ? "SPRÁVNÁ ODPOVĚĎ" : "CORRECT ANSWER";
+    const accuracyNote = $("answerAccuracyNote");
+    if (accuracyNote) {
+      const relative = record.answer === 0 ? null : Math.abs(record.difference / record.answer) * 100;
+      accuracyNote.textContent = record.timedOut ? (cs ? "TVŮJ ČAS VYPRŠEL" : "TIME RAN OUT")
+        : exact ? (cs ? "ODHAD BEZ ODCHYLKY" : "ZERO DIFFERENCE")
+        : relative === null ? (cs ? "ODCHYLKA OD SPRÁVNÉ HODNOTY" : "DISTANCE FROM THE ANSWER")
+        : (cs ? "ODCHYLKA " : "OFF BY ") + relative.toLocaleString(undefined,{maximumFractionDigits:1}) + "%";
+    }
     const targetLabel = document.querySelector("#targetDisplay .target-label");
     if (targetLabel) targetLabel.textContent = document.documentElement.lang === "cs" ? "SPRÁVNÁ ODPOVĚĎ" : "CORRECT ANSWER";
     const targetValue = $("targetValue");
