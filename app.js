@@ -410,7 +410,16 @@
   // DOMÁCÍ STRÁNKA
 
 
-  function localDateKey(date = new Date()) {
+  function localDateKey(date) {
+    // The Daily Challenge rolls over at midnight in Prague for every player.
+    // Explicit calendar dates (e.g. an Archive day selected in the UI) remain unchanged.
+    if (!date) {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Europe/Prague", year: "numeric", month: "2-digit", day: "2-digit"
+      }).formatToParts(new Date());
+      const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+      return values.year + "-" + values.month + "-" + values.day;
+    }
     return [date.getFullYear(), String(date.getMonth()+1).padStart(2,"0"), String(date.getDate()).padStart(2,"0")].join("-");
   }
   function dailyCompletionKey(key = localDateKey()) { return "dazurio_daily_completed_" + key; }
@@ -936,13 +945,7 @@
   // ARCHIV
 
   function getTodayKey() {
-    const date = new Date();
-
-    return [
-      date.getFullYear(),
-      String(date.getMonth() + 1).padStart(2, "0"),
-      String(date.getDate()).padStart(2, "0")
-    ].join("-");
+    return localDateKey();
   }
 
   function renderArchive() {
