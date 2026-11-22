@@ -979,3 +979,26 @@ body.dark-mode #page-game .answer-live-stats>div,body.dark-mode #page-game .answ
 body.dark-mode #page-game .answer-live-stats span,body.dark-mode #page-game .answer-live-stats small{color:#a3bd96}
 body.dark-mode #page-game .answer-live-stats strong,body.dark-mode #page-game .answer-correct-reveal strong{color:#c8edb1}
 @media(prefers-reduced-motion:reduce){#page-game .answer-result:not([hidden]){scroll-behavior:auto}}
+
+
+/* Clear answer-unit callout: make the required measurement impossible to miss. */
+#page-game .answer-unit-callout{display:flex;align-items:center;justify-content:center;gap:9px;width:fit-content;max-width:100%;margin:10px auto 2px;padding:9px 15px;border:1px solid #b8d5a7;border-radius:12px;background:linear-gradient(110deg,#edf6e7,#e2f0d9);color:#385b2d;box-shadow:0 4px 14px #668e4a16}
+#page-game .answer-unit-icon{display:grid;place-items:center;width:20px;height:20px;border-radius:7px;background:#d2e7c5;color:#416d32;font-size:15px;font-weight:900}
+#page-game .answer-unit-hint{display:block;margin:0;color:#385b2d;font-size:11px;font-weight:900;letter-spacing:.065em;text-align:center}
+#page-game .answer-unit-callout:not(.has-unit){background:transparent;border-color:transparent;box-shadow:none;padding:2px 8px}
+#page-game .answer-unit-callout:not(.has-unit) .answer-unit-icon{display:none}
+#page-game .journey-scene .journey-track-wrap{display:block!important;padding:14px 9px 7px!important}
+#page-game .journey-scene .journey-scale{display:flex!important}
+#page-game .journey-scene .journey-track{height:9px!important;overflow:visible}
+#page-game .journey-scene .journey-track-fill{overflow:hidden;position:absolute}
+#page-game .journey-scene .journey-track-fill:after{content:"";position:absolute;inset:0;width:42%;background:linear-gradient(90deg,transparent,#ffffff9c,transparent);transform:translateX(-120%);animation:journeyShimmer 2.8s ease-in-out infinite}
+#page-game .journey-scene .journey-marker{width:19px;height:19px}
+#page-game .journey-scene .journey-checkpoint{z-index:1}
+#page-game .journey-scene .scene-height-label{font-size:9px!important;letter-spacing:1.2px}
+#page-game .journey-scene .journey-scene-heading strong{font-size:18px!important}
+@keyframes journeyShimmer{0%,35%{transform:translateX(-120%)}75%,100%{transform:translateX(260%)}}
+#page-game .journey-scene.journey-complete .journey-track-fill:after{animation-duration:1.2s}
+body.dark-mode #page-game .answer-unit-callout{background:linear-gradient(110deg,#283b29,#31472d);border-color:#536f48;color:#d8edcb}
+body.dark-mode #page-game .answer-unit-hint{color:#d8edcb}
+body.dark-mode #page-game .answer-unit-icon{background:#405d38;color:#e2f4d7}
+@media(prefers-reduced-motion:reduce){#page-game .journey-track-fill:after{animation:none!important}}
