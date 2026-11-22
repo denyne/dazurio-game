@@ -662,28 +662,41 @@
     const factBox = $("didYouKnow");
     const factText = $("didYouKnowText");
     const factLabel = $("didYouKnowLabel");
-    const insightCandidates = [
-      question?.funFact, question?.didYouKnow, question?.fact,
-      question?.explanation, question?.description
-    ];
-    const insight = insightCandidates.find(value => typeof value === "string" && value.trim());
+    const authoredInsight = [question?.funFact, question?.didYouKnow, question?.fact, question?.explanation]
+      .find(value => typeof value === "string" && value.trim());
     const answerValue = Number(question?.answer);
     const answerText = Number.isFinite(answerValue)
       ? answerValue.toLocaleString(document.documentElement.lang === "cs" ? "cs-CZ" : "en-US") +
         (question?.unit ? " " + question.unit : "")
       : "";
+    const rawContext = typeof question?.description === "string" ? question.description.trim() : "";
+    const contextText = rawContext
+      .replace(/^Use the commonly cited/i, "This uses the commonly cited")
+      .replace(/^Use the common/i, "This uses the common")
+      .replace(/^Use the standard/i, "This uses the standard")
+      .replace(/^Use an approximate/i, "This uses an approximate")
+      .replace(/^Use a typical/i, "This uses a typical")
+      .replace(/^Assume /i, "The reference assumes ")
+      .replace(/^Estimate /i, "The task is to estimate ")
+      .replace(/^Count /i, "This is a count of ")
+      .replace(/^Give /i, "The requested value is ")
+      .replace(/^Measure /i, "This measures ")
+      .replace(/^Calculate /i, "This is calculated from ")
+      .replace(/^Include /i, "The figure includes ");
     const fallbackInsight = cs
-      ? (answerText ? "Vysvětlení k této otázce: referenční hodnota je " + answerText + ". " : "Vysvětlení k této otázce: ") +
-        "Porovnej ji se svým odhadem a všimni si, jak se tato hodnota vztahuje k tématu otázky."
-      : (answerText ? "The reference value for this question is " + answerText + ". " : "Here is a quick explanation for this question: ") +
-        "Compare it with your estimate and use the context above to understand what the number represents.";
-    const fact = String(insight || fallbackInsight).trim();
+      ? (contextText ? "Kontext: " + contextText + " " : "") +
+        (answerText ? "Referenční odpověď je " + answerText + ". " : "") +
+        "Údaj se vztahuje přímo k tomu, na co se otázka ptá."
+      : (contextText ? "Context: " + contextText + " " : "") +
+        (answerText ? "The reference answer is " + answerText + ". " : "") +
+        "This figure refers directly to what the question asks you to count or measure.";
+    const fact = String(authoredInsight || fallbackInsight).trim();
     if (factBox && factText) {
       factText.textContent = fact;
       factBox.hidden = false;
-      factBox.dataset.factSource = insight ? "question-bank" : "fallback";
+      factBox.dataset.factSource = authoredInsight ? "authored-question-fact" : "question-context";
     }
-    if (factLabel) factLabel.textContent = cs ? "VYSVĚTLENÍ A ZAJÍMAVOST" : "DID YOU KNOW?";
+    if (factLabel) factLabel.textContent = cs ? "VYSVĚTLENÍ A KONTEXT" : "DID YOU KNOW?";
 
     const comboNode = $("answerCombo");
     let combo = 0;
