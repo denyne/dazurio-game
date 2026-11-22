@@ -505,3 +505,37 @@ body.dark-mode .achievement-card.rarity-mythic.is-unlocked{border-color:#df83c1}
 body.dark-mode .danger-button{background:#542b3a;color:#ffdce1;border-color:#8d4658}
 body.dark-mode button:disabled{opacity:.48;filter:saturate(.55)}
 body.dark-mode :focus-visible{outline:2px solid #b7aaff;outline-offset:3px}
+
+
+/* Minimal score-driven Your Journey — preserves DAZURIO's current green/white palette */
+.journey-scene{height:auto;min-height:132px;margin:20px 0 28px;padding:20px 22px 15px;border:1px solid #dce8d2;border-radius:20px;background:linear-gradient(135deg,#fbfdf8,#f0f6e9);overflow:hidden;isolation:isolate}
+.journey-scene .journey-scene-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.journey-scene .journey-scene-heading>div{display:grid;gap:7px}
+.journey-scene .scene-height-label{position:static;color:#59774c;font-size:9px;font-weight:800;letter-spacing:1.2px}
+.journey-scene .journey-scene-heading strong{font:800 18px Manrope,sans-serif;color:#31432c;font-variant-numeric:tabular-nums}
+.journey-scene .journey-scene-heading strong small{font:700 9px "DM Sans",sans-serif;color:#82927a;letter-spacing:.6px}
+.journey-percent{font-size:12px;font-weight:800;color:#668b51;font-variant-numeric:tabular-nums}
+.journey-track-wrap{padding:19px 7px 9px}
+.journey-track{position:relative;height:5px;border-radius:99px;background:#dce7d4;box-shadow:inset 0 1px 2px #526b3a12}
+.journey-track-fill{position:absolute;inset:0 auto 0 0;width:0;border-radius:99px;background:linear-gradient(90deg,#9fbe85,#668f50);transition:width 1.05s cubic-bezier(.2,.75,.25,1);will-change:width}
+.journey-marker{position:absolute;top:50%;left:0;width:17px;height:17px;border:3px solid #fff;border-radius:50%;background:#6d9855;box-shadow:0 0 0 1px #6d985566,0 2px 8px #536d3b33;transform:translate(-50%,-50%);transition:left 1.05s cubic-bezier(.2,.75,.25,1),box-shadow .35s ease;z-index:2}
+.journey-marker:after{content:"";position:absolute;inset:-6px;border:1px solid #82a96c66;border-radius:50%;animation:journeyPulse 2.4s ease-out infinite}
+.journey-checkpoint{position:absolute;top:50%;width:9px;height:9px;border:2px solid #f8fbf5;border-radius:50%;background:#a9bd9b;box-shadow:0 0 0 1px #9aaf8b;transform:translate(-50%,-50%);z-index:1}
+.journey-checkpoint-mid{left:50%}.journey-checkpoint-end{left:100%}
+.journey-scale{display:flex;justify-content:space-between;gap:8px;color:#82927a;font-size:8px;font-weight:800;letter-spacing:.7px}
+.journey-feedback{min-height:13px;margin-top:9px;color:#668b51;font-size:9px;font-weight:800;letter-spacing:.7px;text-align:right;opacity:0;transform:translateY(4px)}
+.journey-feedback-show{animation:journeyFeedbackIn .45s ease forwards}
+.journey-scene.journey-complete .journey-marker{box-shadow:0 0 0 1px #6d9855,0 0 0 7px #8fb87830,0 0 18px #6d985588}
+.journey-scene.journey-complete .journey-track-fill{background:linear-gradient(90deg,#9fbe85,#5f9147,#8fb878)}
+@keyframes journeyPulse{0%{transform:scale(.75);opacity:.7}100%{transform:scale(1.7);opacity:0}}
+@keyframes journeyFeedbackIn{to{opacity:1;transform:translateY(0)}}
+body.dark-mode .journey-scene{background:linear-gradient(135deg,#20291f,#263323);border-color:#3b4a35}
+body.dark-mode .journey-scene .journey-scene-heading strong{color:#edf2e9}
+body.dark-mode .journey-scene .journey-scene-heading strong small,body.dark-mode .journey-scale{color:#a3ad9d}
+body.dark-mode .journey-track{background:#3b4936}
+body.dark-mode .journey-track-fill{background:linear-gradient(90deg,#a9d67b,#729f55)}
+body.dark-mode .journey-marker{background:#a9d67b;border-color:#20291f;box-shadow:0 0 0 1px #a9d67b66,0 2px 8px #0005}
+body.dark-mode .journey-checkpoint{background:#809b6c;border-color:#20291f}
+body.dark-mode .journey-feedback{color:#b6dc91}
+@media(max-width:640px){.journey-scene{padding:17px 16px 13px;min-height:126px}.journey-track-wrap{padding-top:17px}.journey-scene .journey-scene-heading strong{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.journey-track-fill,.journey-marker{transition:none}.journey-marker:after{animation:none}.journey-feedback-show{animation:none;opacity:1;transform:none}}
