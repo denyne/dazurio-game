@@ -317,6 +317,8 @@
     const fill = $("journeyTrackFill");
     const marker = $("journeyMarker");
     const scoreLabel = $("journeyScore");
+    const headingLabel = $("journeyHeadingLabel");
+    if (headingLabel) headingLabel.textContent = document.documentElement.lang === "cs" ? "CESTA ZA BODY" : "POINTS TRAIL";
     const percentLabel = $("journeyPercent");
     const feedback = $("sceneFeedback");
     if (fill) fill.style.width = progress + "%";
@@ -426,9 +428,11 @@
     const unitHint = $("answerUnitHint");
     if (unitHint) {
       const czechUnits = { meters: "metry (m)", kilometers: "kilometry (km)", "km²": "kilometry čtvereční (km²)", "meters per second": "metry za sekundu (m/s)", "km/h": "kilometry za hodinu (km/h)", centimeters: "centimetry (cm)", grams: "gramy (g)", liters: "litry (l)", milliliters: "mililitry (ml)", "°C": "stupně Celsia (°C)", minutes: "minuty", seconds: "sekundy", hours: "hodiny", days: "dny", years: "roky", "billion years": "miliardy let", "beats per minute": "údery za minutu", kilocalories: "kilokalorie (kcal)", players: "hráči", countries: "státy", continents: "světadíly", bones: "kosti", teeth: "zuby", neurons: "neurony", elements: "prvky", planets: "planety", combinations: "kombinace", sides: "strany", pixels: "pixely", bits: "bity", transistors: "tranzistory", keys: "klávesy", hearts: "srdce", legs: "nohy", Earths: "Země", BCE: "př. n. l.", year: "rok", "%": "procenta" };
+      const cs = document.documentElement.lang === "cs";
       unitHint.textContent = question.unit
-        ? (document.documentElement.lang === "cs" ? `Odpovídej v jednotkách: ${czechUnits[question.unit] || question.unit}.` : `Answer using ${question.unit}.`)
-        : (document.documentElement.lang === "cs" ? "Zadej číselný odhad." : "Enter a numeric estimate.");
+        ? (cs ? `JEDNOTKA ODPOVĚDI: ${czechUnits[question.unit] || question.unit}` : `ANSWER UNIT: ${question.unit}`)
+        : (cs ? "Zadej číselný odhad." : "Enter a numeric estimate.");
+      unitHint.parentElement?.classList.toggle("has-unit", Boolean(question.unit));
     }
 
     const input = $("answerInput");
@@ -665,48 +669,9 @@
       : (cs ? "Každý odhad tě něco naučí." : "Every guess teaches you something.");
         if (description) {
       description.textContent = cs
-        ? "Správná hodnota je odhalená. Mrkni na zajímavost a pokračuj dál."
-        : "The correct value is revealed. Check the fact and continue.";
+        ? "Správná hodnota je odhalená. Pokračuj na další otázku."
+        : "The correct value is revealed. Continue to the next question.";
     }
-    const factBox = $("didYouKnow");
-    const factText = $("didYouKnowText");
-    const factLabel = $("didYouKnowLabel");
-    const authoredInsight = [question?.funFact, question?.didYouKnow, question?.fact, question?.explanation]
-      .find(value => typeof value === "string" && value.trim());
-    const answerValue = Number(question?.answer);
-    const answerText = Number.isFinite(answerValue)
-      ? answerValue.toLocaleString(document.documentElement.lang === "cs" ? "cs-CZ" : "en-US") +
-        (question?.unit ? " " + question.unit : "")
-      : "";
-    const rawContext = typeof question?.description === "string" ? question.description.trim() : "";
-    const contextText = rawContext
-      .replace(/^Use the commonly cited/i, "This uses the commonly cited")
-      .replace(/^Use the common/i, "This uses the common")
-      .replace(/^Use the standard/i, "This uses the standard")
-      .replace(/^Use an approximate/i, "This uses an approximate")
-      .replace(/^Use a typical/i, "This uses a typical")
-      .replace(/^Assume /i, "The reference assumes ")
-      .replace(/^Estimate /i, "The task is to estimate ")
-      .replace(/^Count /i, "This is a count of ")
-      .replace(/^Give /i, "The requested value is ")
-      .replace(/^Measure /i, "This measures ")
-      .replace(/^Calculate /i, "This is calculated from ")
-      .replace(/^Include /i, "The figure includes ");
-    const fallbackInsight = cs
-      ? (contextText ? "Kontext: " + contextText + " " : "") +
-        (answerText ? "Referenční odpověď je " + answerText + ". " : "") +
-        "Údaj se vztahuje přímo k tomu, na co se otázka ptá."
-      : (contextText ? "Context: " + contextText + " " : "") +
-        (answerText ? "The reference answer is " + answerText + ". " : "") +
-        "This figure refers directly to what the question asks you to count or measure.";
-    const fact = String(authoredInsight || fallbackInsight).trim();
-    if (factBox && factText) {
-      factText.textContent = fact;
-      factBox.hidden = false;
-      factBox.dataset.factSource = authoredInsight ? "authored-question-fact" : "question-context";
-    }
-    if (factLabel) factLabel.textContent = cs ? "VYSVĚTLENÍ A KONTEXT" : "DID YOU KNOW?";
-
     const comboNode = $("answerCombo");
     let combo = 0;
     for (let i = state.answers.length - 1; i >= 0; i--) {
