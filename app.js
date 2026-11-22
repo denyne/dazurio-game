@@ -1668,6 +1668,7 @@
     });
 
     byId("endlessModeButton")?.addEventListener("click", startEndless);
+    byId("zenModeButton")?.addEventListener("click", () => { if (requireAccount("Zen Mode")) game()?.startGame("zen"); });
     byId("speedRunModeButton")?.addEventListener("click", () => { if (requireAccount("Speed Run")) game()?.startGame("speedrun"); });
     byId("survivalModeButton")?.addEventListener("click", () => { if (requireAccount("Survival")) game()?.startGame("survival"); });
     byId("mysteryModeButton")?.addEventListener("click", () => { if (requireAccount("Mystery Mode")) game()?.startGame("mystery"); });
